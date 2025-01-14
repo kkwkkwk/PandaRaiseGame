@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,7 +18,7 @@ public class popupPanel_Raycaster : MonoBehaviour, IPointerClickHandler
     }
         public void OnPointerClick(PointerEventData eventData)
         {
-            // Å¬¸¯ ÀÌº¥Æ®¸¦ ºÎ¸ğ ÆĞ³Î¿¡ Àü´ŞµÇÁö ¾Êµµ·Ï ÇÔ
+            // í´ë¦­ ì´ë²¤íŠ¸ë¥¼ ë¶€ëª¨ íŒ¨ë„ì— ì „ë‹¬ë˜ì§€ ì•Šë„ë¡ í•¨
             eventData.Use();
         }
     

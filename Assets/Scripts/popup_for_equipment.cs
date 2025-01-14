@@ -1,24 +1,24 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class popup_for_equipment : MonoBehaviour
 {
 
-    public GameObject equipment_Panel; // È°¼ºÈ­/ºñÈ°¼ºÈ­ ½ÃÅ³ ÆĞ³Î
+    public GameObject equipment_Panel; // í™œì„±í™”/ë¹„í™œì„±í™” ì‹œí‚¬ íŒ¨ë„
 
-    void Start() { // Ã³À½¿¡ ÆË¾÷ ÆĞ³Î ºñÈ°¼ºÈ­ 
+    void Start() { // ì²˜ìŒì— íŒì—… íŒ¨ë„ ë¹„í™œì„±í™” 
         if (equipment_Panel != null) {
             equipment_Panel.SetActive(false);
         }
     }
-    public void OpenPanel() {   // ÆË¾÷ È°¼ºÈ­ 
+    public void OpenPanel() {   // íŒì—… í™œì„±í™” 
         if (equipment_Panel != null)
         {
             equipment_Panel.SetActive(true);
         }
     }
-    public void ClosePanel() {  // ÆË¾÷ ºñÈ°¼ºÈ­
+    public void ClosePanel() {  // íŒì—… ë¹„í™œì„±í™”
         if (equipment_Panel != null)
         {
             equipment_Panel.SetActive(false);

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,16 +6,16 @@ using UnityEngine.EventSystems;
 public class popup_close : MonoBehaviour, IPointerClickHandler
 {
 
-    public popup_for_equipment popupController; // ÆË¾÷ ÄÁÆ®·Ñ·¯ ÂüÁ¶
-    public void OnPointerClick(PointerEventData eventData)  // ÆË¾÷ ¿Ü °ø°£ Å¬¸¯ ÇÑ °æ¿ì --> ÆË¾÷ ºñÈ°¼ºÈ­
+    public popup_for_equipment popupController; // íŒì—… ì»¨íŠ¸ë¡¤ëŸ¬ ì°¸ì¡°
+    public void OnPointerClick(PointerEventData eventData)  // íŒì—… ì™¸ ê³µê°„ í´ë¦­ í•œ ê²½ìš° --> íŒì—… ë¹„í™œì„±í™”
     { 
         if (popupController != null)
         {
-            popupController.ClosePanel(); // ÆË¾÷ ºñÈ°¼ºÈ­
+            popupController.ClosePanel(); // íŒì—… ë¹„í™œì„±í™”
         }
         else
         {
-            Debug.LogWarning("popupController°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("popupControllerê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
         }
     }
 }
