@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class openPopupbtn : MonoBehaviour
 {
-    public void OnClickOpenPanel()
+    public void OnClickOpenPanel() // 장비 버튼 클릭
     {
-        // 싱글톤을 통해 equipment_Panel 열기
+        if (popup_for_chat.Instance.isFullScreenActive)
+        {
+            popup_for_chat.Instance.CloseChat();
+        }
         popup_for_equipment.Instance.OpenPanel();
     }
 }

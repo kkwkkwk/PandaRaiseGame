@@ -10,9 +10,27 @@ public class popup_for_equipment : MonoBehaviour
 
 
     public GameObject popupCanvas;     // 팝업 canvas
-    public GameObject equipment_Panel; // 활성화/비활성화 시킬 패널
-    
 
+    public void OpenPanel()
+    {   // 팝업 활성화 
+        if (popupCanvas != null)
+        {
+            popupCanvas.SetActive(true);
+        }
+        popup_for_chat.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
+        popup_for_chat.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
+        popup_for_chat.Instance.middlePreview = true;
+    }
+    public void ClosePanel()
+    {  // 팝업 비활성화
+        if (popupCanvas != null)
+        {
+            popupCanvas.SetActive(false);
+        }
+        popup_for_chat.Instance.CloseMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 제거
+        popup_for_chat.Instance.OpenBottomChatPreview();   // 하단에 채팅 미리보기 ui 생성
+        popup_for_chat.Instance.middlePreview = false;
+    }
 
     private void Awake() // Unity의 Awake() 메서드에서 싱글톤 설정
     {
@@ -29,23 +47,10 @@ public class popup_for_equipment : MonoBehaviour
     }
 
     void Start() { // 처음에 팝업 패널 비활성화 
-        if (popupCanvas != null) {
-            popupCanvas.SetActive(false);
-            equipment_Panel.SetActive(false);
-        }
-    }
-    public void OpenPanel() {   // 팝업 활성화 
-        if (equipment_Panel != null)
-        {
-            popupCanvas.SetActive(true);
-            equipment_Panel.SetActive(true);
-        }
-    }
-    public void ClosePanel() {  // 팝업 비활성화
-        if (equipment_Panel != null)
+        if (popupCanvas != null)
         {
             popupCanvas.SetActive(false);
-            equipment_Panel.SetActive(false);
         }
     }
+    
 }
