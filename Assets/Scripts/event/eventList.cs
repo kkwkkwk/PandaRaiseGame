@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class eventList : MonoBehaviour
+public class EventList : MonoBehaviour
 {
-    public GameObject imagePrefab; // Image 프리팹
-    public Transform eventImagePanel;   // 부모 패널
+    public GameObject ImagePrefab; // Image 프리팹
+    public Transform EventImagePanel;   // 부모 패널
     private List<Sprite> sprites = new List<Sprite>(); // 스프라이트 리스트로 변경
 
-    public static eventList Instance { get; private set; }
+    public static EventList Instance { get; private set; }
 
     public void AddSprite(Sprite sprite) // 스프라이트 추가
     {
@@ -21,7 +21,7 @@ public class eventList : MonoBehaviour
 
     public void ClearSprite()
     {
-        foreach (Transform child in eventImagePanel)
+        foreach (Transform child in EventImagePanel)
         {
             Destroy(child.gameObject); // 모든 자식 오브젝트 삭제
         }
@@ -35,7 +35,7 @@ public class eventList : MonoBehaviour
         {
             if (sprite == null) continue; // null 값 무시
             // 이미지 생성
-            GameObject newImage = Instantiate(imagePrefab, eventImagePanel);
+            GameObject newImage = Instantiate(ImagePrefab, EventImagePanel);
 
             // 스프라이트 적용
             Image imageComponent = newImage.GetComponent<Image>();

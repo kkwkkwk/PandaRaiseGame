@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class popupPanel_Raycaster : MonoBehaviour, IPointerClickHandler
+public class EquipmentPopupRaycaster : MonoBehaviour, IPointerClickHandler
 {
         public void OnPointerClick(PointerEventData eventData)
         {

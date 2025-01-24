@@ -2,25 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class popup_for_event : MonoBehaviour
+public class PopupForEvent : MonoBehaviour
 {
-    public static popup_for_event Instance { get; private set; }
+    public static PopupForEvent Instance { get; private set; }
 
-    public GameObject eventCanvas;     // 이벤트 canvas
+    public GameObject EventCanvas;     // 이벤트 canvas
 
     public void OpenEventPopup()
     {   // 팝업 활성화 
-        if (eventCanvas != null)
+        if (EventCanvas != null)
         {
-            eventCanvas.SetActive(true);
+            EventCanvas.SetActive(true);
         }
 
     }
     public void CloseEventPopup()
     {   // 팝업 비활성화 
-        if (eventCanvas != null)
+        if (EventCanvas != null)
         {
-            eventCanvas.SetActive(false);
+            EventCanvas.SetActive(false);
         }
     }
 
@@ -40,9 +40,10 @@ public class popup_for_event : MonoBehaviour
 
     void Start()
     { // 처음에 팝업 패널 비활성화 
-        if (eventCanvas != null)
+        if (EventCanvas != null)
         {
-            eventCanvas.SetActive(false);
+            EventCanvas.SetActive(false);
+            UnityEngine.Debug.Log("이벤트창 설정 완료");
         }
     }
 

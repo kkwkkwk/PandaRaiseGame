@@ -2,26 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class popup_for_login : MonoBehaviour
+public class PopupForLogin : MonoBehaviour
 {
 
-    public static popup_for_login Instance { get; private set; }
+    public static PopupForLogin Instance { get; private set; }
 
-    public GameObject dailyLoginCanvas;     // 출석체크 canvas
+    public GameObject DailyLoginCanvas;     // 출석체크 canvas
 
     public void OpenDailyLoginPopup()
     {   // 팝업 활성화 
-        if (dailyLoginCanvas != null)
+        if (DailyLoginCanvas != null)
         {
-            dailyLoginCanvas.SetActive(true);
+            DailyLoginCanvas.SetActive(true);
+            UnityEngine.Debug.Log("데일리 로그인 열기");
         }
 
     }
     public void CloseDailyLoginPopup()
     {   // 팝업 비활성화 
-        if (dailyLoginCanvas != null)
+        if (DailyLoginCanvas != null)
         {
-            dailyLoginCanvas.SetActive(false);
+            DailyLoginCanvas.SetActive(false);
+            UnityEngine.Debug.Log("데일리 로그인 닫기");
         }
     }
 
@@ -42,7 +44,7 @@ public class popup_for_login : MonoBehaviour
     // Start is called before the first frame update
     void Start() 
     {
+        UnityEngine.Debug.Log("메인 화면 시작");
         OpenDailyLoginPopup(); // 게임 접속시 출첵화면 띄우기
     }
-
 }
