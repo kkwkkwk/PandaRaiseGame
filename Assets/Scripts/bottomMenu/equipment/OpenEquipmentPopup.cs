@@ -7,10 +7,10 @@ public class OpenEquipmentPopup : MonoBehaviour
     public void OnClickOpenPanel() // 장비 버튼 클릭
     {
         UnityEngine.Debug.Log("Equipment Button Clicked");
-        if (PopupForChat.Instance.isFullScreenActive)
+        if (ChatPopupManager.Instance.isFullScreenActive)
         {
-            PopupForChat.Instance.CloseChat();
+            ChatPopupManager.Instance.CloseChat();
         }
-        PopupForEquipment.Instance.OpenPanel();
+        EquipmentPopupManager.Instance.OpenPanel();
     }
 }

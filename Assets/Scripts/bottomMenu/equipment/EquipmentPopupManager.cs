@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
-public class PopupForEquipment : MonoBehaviour
+public class EquipmentPopupManager : MonoBehaviour
 {
-    // SingleTon instance. 어디서든 PopupForEquipment.Instance로 접근 가능하게 설정(Canvas를 여러개로 나눔으로서 필요)
-    // 딴 스크립트에서 PopupForEquipment.Instance.OpenEquipmentPanel(); 로 함수 호출 가능
-    public static PopupForEquipment Instance { get; private set; }
+    // SingleTon instance. 어디서든 EquipmentPopupManager.Instance로 접근 가능하게 설정(Canvas를 여러개로 나눔으로서 필요)
+    // 딴 스크립트에서 EquipmentPopupManager.Instance.OpenEquipmentPanel(); 로 함수 호출 가능
+    public static EquipmentPopupManager Instance { get; private set; }
 
 
     public GameObject PopupCanvas;     // 팝업 canvas
@@ -18,9 +18,9 @@ public class PopupForEquipment : MonoBehaviour
         {
             PopupCanvas.SetActive(true);
         }
-        PopupForChat.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
-        PopupForChat.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
-        PopupForChat.Instance.middlePreview = true;
+        ChatPopupManager.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
+        ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
+        ChatPopupManager.Instance.middlePreview = true;
     }
     public void ClosePanel()
     {  // 팝업 비활성화
@@ -28,9 +28,9 @@ public class PopupForEquipment : MonoBehaviour
         {
             PopupCanvas.SetActive(false);
         }
-        PopupForChat.Instance.CloseMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 제거
-        PopupForChat.Instance.OpenBottomChatPreview();   // 하단에 채팅 미리보기 ui 생성
-        PopupForChat.Instance.middlePreview = false;
+        ChatPopupManager.Instance.CloseMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 제거
+        ChatPopupManager.Instance.OpenBottomChatPreview();   // 하단에 채팅 미리보기 ui 생성
+        ChatPopupManager.Instance.middlePreview = false;
     }
 
     private void Awake() // Unity의 Awake() 메서드에서 싱글톤 설정

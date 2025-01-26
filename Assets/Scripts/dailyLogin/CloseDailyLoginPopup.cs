@@ -7,9 +7,9 @@ public class CloseDailyLoginPopup : MonoBehaviour, IPointerClickHandler
 {
     public void OnPointerClick(PointerEventData eventData)  // 팝업 외 공간 클릭 한 경우 --> 팝업 비활성화
     {
-        if (PopupForLogin.Instance != null)
+        if (DailyLoginPopupManager.Instance != null)
         {
-            PopupForLogin.Instance.CloseDailyLoginPopup(); // 팝업 비활성화
+            DailyLoginPopupManager.Instance.CloseDailyLoginPopup(); // 팝업 비활성화
         }
         else
         {

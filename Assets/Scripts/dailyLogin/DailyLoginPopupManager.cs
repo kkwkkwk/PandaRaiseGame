@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PopupForLogin : MonoBehaviour
+public class DailyLoginPopupManager : MonoBehaviour
 {
 
-    public static PopupForLogin Instance { get; private set; }
+    public static DailyLoginPopupManager Instance { get; private set; }
 
     public GameObject DailyLoginCanvas;     // 출석체크 canvas
 

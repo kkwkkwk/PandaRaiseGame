@@ -1114,7 +1114,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 107094151}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 560991833}
+        m_TargetAssemblyTypeName: OpenFarmScene, Assembly-CSharp
+        m_MethodName: OnClickOpenFarm
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &107094151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3277,8 +3289,10 @@ GameObject:
   - component: {fileID: 560991830}
   - component: {fileID: 560991831}
   - component: {fileID: 560991832}
+  - component: {fileID: 560991833}
+  - component: {fileID: 560991834}
   m_Layer: 5
-  m_Name: LowerButton_panel
+  m_Name: LowerButton_Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3404,6 +3418,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a398dcf59832ef42a1b35a630d4c260, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &560991833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 560991825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b9f4fc8965a324690c84c571eff875, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &560991834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 560991825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 211e1fef1aeaf984dbc14519abd85249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &562007283
@@ -7094,6 +7132,8 @@ GameObject:
   - component: {fileID: 1257660592}
   - component: {fileID: 1257660591}
   - component: {fileID: 1257660593}
+  - component: {fileID: 1257660595}
+  - component: {fileID: 1257660594}
   m_Layer: 5
   m_Name: Main_Panel
   m_TagString: Untagged
@@ -7170,6 +7210,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f13b06c15feb1f643a11edb1662f04f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1257660594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1257660588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119682dca6ae8f4478dfd964802c4e0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1257660595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1257660588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5c194eb79a28cc4dbd67e2c64075868, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1288215046
@@ -8105,7 +8169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 147f53be4a131b04bb08be2478480cbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ImagePrefab: {fileID: 0}
+  ImagePrefab: {fileID: 1886674104}
   EventImagePanel: {fileID: 0}
 --- !u!114 &1498442798
 MonoBehaviour:
@@ -8254,9 +8318,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: popup_for_equipment, Assembly-CSharp
-        m_MethodName: ClosePanel
+      - m_Target: {fileID: 560991834}
+        m_TargetAssemblyTypeName: OpenShopScene, Assembly-CSharp
+        m_MethodName: OnClickOpenShop
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10056,6 +10120,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1886508693}
   m_CullTransparentMesh: 1
+--- !u!1 &1886674104 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3946166641883170535, guid: 81a202c3f44ec9f47b5bd34abd4b202b, type: 3}
+  m_PrefabInstance: {fileID: 4423673019608853564}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1917837718
 GameObject:
   m_ObjectHideFlags: 0

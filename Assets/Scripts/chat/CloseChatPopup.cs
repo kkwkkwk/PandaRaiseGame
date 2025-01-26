@@ -7,9 +7,9 @@ public class CloseChatPopup : MonoBehaviour, IPointerClickHandler
 {
     public void OnPointerClick(PointerEventData eventData)  // 팝업 외 공간 클릭 한 경우 --> 팝업 비활성화
     {
-        if (PopupForChat.Instance != null)
+        if (ChatPopupManager.Instance != null)
         {
-            PopupForChat.Instance.CloseChat(); // 팝업 비활성화
+            ChatPopupManager.Instance.CloseChat(); // 팝업 비활성화
         }
         else
         {

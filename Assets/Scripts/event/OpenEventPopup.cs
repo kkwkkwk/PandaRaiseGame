@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class OpenEventPopup : MonoBehaviour
 {
-    public void OnClickOpenEventPanel() // 장비 버튼 클릭
+    public void OnClickOpenEventPanel()
     {
-        PopupForEvent.Instance.OpenEventPopup();
+        EventPopupManager.Instance.OpenEventPopup();
         EventList.Instance.PopulateImages();
     }
 }

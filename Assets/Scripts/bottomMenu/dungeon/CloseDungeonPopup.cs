@@ -7,9 +7,9 @@ public class CloseDungeonPopup : MonoBehaviour, IPointerClickHandler
 {
     public void OnPointerClick(PointerEventData eventData)  // 팝업 외 공간 클릭 한 경우 --> 팝업 비활성화
     {
-        if (PopupForDungeon.Instance != null)
+        if (DungeonPopupManager.Instance != null)
         {
-            PopupForDungeon.Instance.ClosePanel(); // 팝업 비활성화
+            DungeonPopupManager.Instance.ClosePanel(); // 팝업 비활성화
         }
         else
         {

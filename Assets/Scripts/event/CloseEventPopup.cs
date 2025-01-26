@@ -7,9 +7,9 @@ public class CloseEventPopup : MonoBehaviour, IPointerClickHandler
 {
     public void OnPointerClick(PointerEventData eventData)  // 팝업 외 공간 클릭 한 경우 --> 팝업 비활성화
     {
-        if (PopupForEvent.Instance != null)
+        if (EventPopupManager.Instance != null)
         {
-            PopupForEvent.Instance.CloseEventPopup(); // 팝업 비활성화
+            EventPopupManager.Instance.CloseEventPopup(); // 팝업 비활성화
         }
         else
         {

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PopupForEvent : MonoBehaviour
+public class EventPopupManager : MonoBehaviour
 {
-    public static PopupForEvent Instance { get; private set; }
+    public static EventPopupManager Instance { get; private set; }
 
     public GameObject EventCanvas;     // 이벤트 canvas
 

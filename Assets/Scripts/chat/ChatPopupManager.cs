@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Rendering.DebugUI;
 
-public class PopupForChat : MonoBehaviour
+public class ChatPopupManager : MonoBehaviour
 {
     // SingleTon instance. 어디서든 popup_for_chat.Instance로 접근 가능하게 설정(Canvas를 여러개로 나눔으로서 필요)
     // 딴 스크립트에서 popup_for_chat.Instance.function(); 로 함수 호출 가능
-    public static PopupForChat Instance { get; private set; }
+    public static ChatPopupManager Instance { get; private set; }
 
     public GameObject ChatCanvas;               // 채팅창 canvas
     public GameObject ChatPopup_Panel;          // 활성화/비활성화 시킬 전체화면 채팅 패널

@@ -7,9 +7,9 @@ public class CloseSkillPopup : MonoBehaviour
 {
     public void OnPointerClick(PointerEventData eventData)  // 팝업 외 공간 클릭 한 경우 --> 팝업 비활성화
     {
-        if (PopupForSkill.Instance != null)
+        if (SkillPopupManager.Instance != null)
         {
-            PopupForSkill.Instance.ClosePanel(); // 팝업 비활성화
+            SkillPopupManager.Instance.ClosePanel(); // 팝업 비활성화
         }
         else
         {
