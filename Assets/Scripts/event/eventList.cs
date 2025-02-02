@@ -19,17 +19,8 @@ public class EventList : MonoBehaviour
         }
     }
 
-    public void ClearSprite()
-    {
-        foreach (Transform child in EventImagePanel)
-        {
-            Destroy(child.gameObject); // 모든 자식 오브젝트 삭제
-        }
-    }
-
     public void PopulateImages()
     {
-        ClearSprite(); // 기존 자식 정리
 
         foreach (Sprite sprite in sprites)
         {
@@ -64,6 +55,8 @@ public class EventList : MonoBehaviour
         AddSprite(Resources.Load<Sprite>("button1")); // Resources/button1.png
         AddSprite(Resources.Load<Sprite>("button2")); // Resources/button2.png
         AddSprite(Resources.Load<Sprite>("button3")); // Resources/button3.png
-        AddSprite(Resources.Load<Sprite>("button3")); // Resources/button4.png
+        AddSprite(Resources.Load<Sprite>("button4")); // Resources/button4.png
+        UnityEngine.Debug.Log("이벤트창 이미지 호출");
+        PopulateImages(); // Start에서 처음 한 번 실행    
     }
 }
