@@ -56,7 +56,7 @@ TagManager:
   - name: Event
     uniqueID: 961516045
     locked: 0
-  - name: DailyLogin
+  - name: Popup
     uniqueID: 4128229625
     locked: 0
   - name: Test

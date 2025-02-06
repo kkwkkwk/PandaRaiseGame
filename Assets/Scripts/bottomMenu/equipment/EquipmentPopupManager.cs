@@ -47,7 +47,6 @@ public class EquipmentPopupManager : MonoBehaviour
     }
 
     void Start() { // 처음에 팝업 패널 비활성화 
-        Canvas canvas = GetComponent<Canvas>();
         if (PopupCanvas != null)
         {
             PopupCanvas.SetActive(false);

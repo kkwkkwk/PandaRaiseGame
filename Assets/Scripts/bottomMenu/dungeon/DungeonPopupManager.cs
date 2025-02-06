@@ -47,11 +47,8 @@ public class DungeonPopupManager : MonoBehaviour
     }
 
     void Start()
-    { // 처음에 팝업 패널 비활성화 
-        if (PopupCanvas != null)
-        {
-            PopupCanvas.SetActive(false);
-        }
+    { 
+
     }
 
 }
