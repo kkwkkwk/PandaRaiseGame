@@ -11,6 +11,8 @@ public class ChatPopupManager : MonoBehaviour
     // 딴 스크립트에서 popup_for_chat.Instance.function(); 로 함수 호출 가능
     public static ChatPopupManager Instance { get; private set; }
 
+    const int sortOrder = 12;                   // override sort order 순서
+
     public GameObject ChatCanvas;               // 채팅창 canvas
     public GameObject ChatPopup_Panel;          // 활성화/비활성화 시킬 전체화면 채팅 패널
     public GameObject ChatPreview_Panel;        // 활성화/비활성화 시킬 하단 채팅 패널
@@ -104,6 +106,10 @@ public class ChatPopupManager : MonoBehaviour
 
     private void Start() // 시작 초기 설정
     {
+        Canvas canvas = GetComponent<Canvas>();
+        canvas.overrideSorting = true;     // ✅ Override Sorting 활성화
+        canvas.sortingOrder = sortOrder;   // ✅ 팝업이 앞쪽으로 오도록 설정
+
         CloseFullScreenChat();
         CloseMiddleChatPreview();
         middlePreview = false;

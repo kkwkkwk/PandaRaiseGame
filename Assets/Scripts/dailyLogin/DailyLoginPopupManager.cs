@@ -8,6 +8,7 @@ public class DailyLoginPopupManager : MonoBehaviour
     public static DailyLoginPopupManager Instance { get; private set; }
 
     public GameObject DailyLoginCanvas;     // 출석체크 canvas
+    const int sortOrder = 14;               // override sort order 순서
 
     public void OpenDailyLoginPopup()
     {   // 팝업 활성화 
@@ -44,6 +45,9 @@ public class DailyLoginPopupManager : MonoBehaviour
     // Start is called before the first frame update
     void Start() 
     {
+        Canvas canvas = GetComponent<Canvas>();
+        canvas.overrideSorting = true;     // ✅ Override Sorting 활성화
+        canvas.sortingOrder = sortOrder;   // ✅ 팝업이 앞쪽으로 오도록 설정
         UnityEngine.Debug.Log("메인 화면 시작");
         OpenDailyLoginPopup(); // 게임 접속시 출첵화면 띄우기
     }

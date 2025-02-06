@@ -8,6 +8,7 @@ public class SkillPopupManager : MonoBehaviour
     // 딴 스크립트에서 SkillPopupManager.Instance.OpenSkillPanel(); 로 함수 호출 가능
     public static SkillPopupManager Instance { get; private set; }
 
+    const int sortOrder = 10;          // override sort order 순서
 
     public GameObject PopupCanvas;     // 팝업 canvas
 
@@ -48,8 +49,11 @@ public class SkillPopupManager : MonoBehaviour
 
     void Start()
     { // 처음에 팝업 패널 비활성화 
+        Canvas canvas = GetComponent<Canvas>();
         if (PopupCanvas != null)
         {
+            canvas.overrideSorting = true;     // ✅ Override Sorting 활성화
+            canvas.sortingOrder = sortOrder;   // ✅ 팝업이 앞쪽으로 오도록 설정
             PopupCanvas.SetActive(false);
         }
     }
