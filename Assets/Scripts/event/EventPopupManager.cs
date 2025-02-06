@@ -9,7 +9,6 @@ public class EventPopupManager : MonoBehaviour
     public static EventPopupManager Instance { get; private set; }
 
     public GameObject EventCanvas;     // 이벤트 canvas
-    const int sortOrder = 13;          // override sort order 순서
 
 
     public void OpenEventPopup()
@@ -47,8 +46,6 @@ public class EventPopupManager : MonoBehaviour
         Canvas canvas = GetComponent<Canvas>();
         if (EventCanvas != null)
         {
-            canvas.overrideSorting = true;     // ✅ Override Sorting 활성화
-            canvas.sortingOrder = sortOrder;   // ✅ 팝업이 앞쪽으로 오도록 설정
             EventCanvas.SetActive(false);
             UnityEngine.Debug.Log("이벤트창 설정 완료");
         }

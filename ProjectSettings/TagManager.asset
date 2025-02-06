@@ -41,3 +41,24 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: BackGround
+    uniqueID: 1595023505
+    locked: 0
+  - name: Character
+    uniqueID: 2354885875
+    locked: 0
+  - name: LowerMenu
+    uniqueID: 3711622335
+    locked: 0
+  - name: Chat
+    uniqueID: 3771247967
+    locked: 0
+  - name: Event
+    uniqueID: 961516045
+    locked: 0
+  - name: DailyLogin
+    uniqueID: 4128229625
+    locked: 0
+  - name: Test
+    uniqueID: 2449007683
+    locked: 0
