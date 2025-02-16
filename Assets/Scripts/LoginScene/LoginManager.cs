@@ -50,8 +50,22 @@ public class LoginManager : MonoBehaviour
     {
         if (status == SignInStatus.Success) // 로그인 성공 시
         {
-            // PlayGamesPlatform.Instance.RequestServerSideAccess(false, ProcessServerAuthCode);
-            SceneManager.LoadScene("Main_Screen");
+            LogMessage("✅ GPGS 로그인 성공!");
+
+            // ✅ 기존 코드 변경 부분: PlayFab 로그인 요청을 추가
+            PlayGamesPlatform.Instance.RequestServerSideAccess(false, authCode =>
+            {
+                if (!string.IsNullOrEmpty(authCode))
+                {
+                    LogMessage("✅ Google Auth Code 가져오기 성공");
+                    LoginPlayFabUser.Instance.LoginToPlayFab(authCode); // PlayFab 로그인 요청
+                    // SceneManager.LoadScene("Main_Screen");
+                }
+                else
+                {
+                    LogMessage("❌ Google Auth Code 가져오기 실패");
+                }
+            });
         }
         else //로그인 실패 시
         {
@@ -61,7 +75,7 @@ public class LoginManager : MonoBehaviour
             // PlayGamesPlatform.Instance.ManuallyAuthenticate(ProcessAuthentication).
         }
     }
-
+    /*
     private void ProcessServerAuthCode(string serverAuthCode)
     {
         Debug.Log("Server Auth Code: " + serverAuthCode);   // ServerAuthCode 반환
@@ -76,6 +90,7 @@ public class LoginManager : MonoBehaviour
         PlayFabClientAPI.LoginWithGooglePlayGamesServices(request, OnLoginWithGooglePlayGamesServicesSuccess, OnLoginWithGooglePlayGamesServicesFailure);
     }
 
+    
     private void OnLoginWithGooglePlayGamesServicesSuccess(LoginResult result)  // PlayFab 로그인 성공
     {
         Debug.Log("PF Login Success LoginWithGooglePlayGamesServices");
@@ -85,7 +100,7 @@ public class LoginManager : MonoBehaviour
     {
         Debug.Log("PF Login Failure LoginWithGooglePlayGamesServices: " + error.GenerateErrorReport());
     }
-
+    */
 
     // 구글 로그인 버튼 클릭 시
     void OnGoogleLoginClick()
