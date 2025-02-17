@@ -135,6 +135,8 @@ GameObject:
   - component: {fileID: 216948025}
   - component: {fileID: 216948024}
   - component: {fileID: 216948028}
+  - component: {fileID: 216948030}
+  - component: {fileID: 216948029}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -239,9 +241,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 507472dc554059e4885eacbd35649830, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GoogleLoginButton: {fileID: 767444233}
+  logText: {fileID: 0}
+--- !u!114 &216948029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 216948023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bd44c0d2af321348b81d1d75a7227b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   AppleLoginButton: {fileID: 2139451769}
-  logText: {fileID: 1264276678}
+--- !u!114 &216948030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 216948023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0994e6dce117d34db678e8b70c03795, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GoogleLoginButton: {fileID: 767444233}
 --- !u!1 &767444231
 GameObject:
   m_ObjectHideFlags: 0
@@ -324,7 +350,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1426206295}
+      - m_Target: {fileID: 11500000, guid: c0994e6dce117d34db678e8b70c03795, type: 3}
         m_TargetAssemblyTypeName: 
         m_MethodName: 
         m_Mode: 1
@@ -453,7 +479,6 @@ GameObject:
   - component: {fileID: 1264276677}
   - component: {fileID: 1264276679}
   - component: {fileID: 1264276678}
-  - component: {fileID: 1264276680}
   m_Layer: 5
   m_Name: logText
   m_TagString: Untagged
@@ -500,10 +525,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ffd68a3fee22ba246aa27bb3750859ee, type: 2}
+  m_sharedMaterial: {fileID: 5682343650433023305, guid: ffd68a3fee22ba246aa27bb3750859ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -577,21 +602,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1264276676}
   m_CullTransparentMesh: 1
---- !u!114 &1264276680
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1264276676}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 507472dc554059e4885eacbd35649830, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GoogleLoginButton: {fileID: 0}
-  AppleLoginButton: {fileID: 0}
-  logText: {fileID: 0}
 --- !u!1 &1426206295
 GameObject:
   m_ObjectHideFlags: 0
@@ -621,8 +631,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 507472dc554059e4885eacbd35649830, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GoogleLoginButton: {fileID: 0}
-  AppleLoginButton: {fileID: 0}
   logText: {fileID: 0}
 --- !u!4 &1426206297
 Transform:
@@ -858,7 +866,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1426206295}
+      - m_Target: {fileID: 11500000, guid: 3bd44c0d2af321348b81d1d75a7227b7, type: 3}
         m_TargetAssemblyTypeName: 
         m_MethodName: 
         m_Mode: 1
