@@ -44,7 +44,7 @@ public class GPGSLoginManager : MonoBehaviour
                 if (!string.IsNullOrEmpty(authCode))
                 {
                     LogMessage("✅ Google Auth Code 가져오기 성공");
-                    LoginPlayFabUser.Instance.LoginToPlayFab(authCode); // PlayFab 로그인 요청
+                    LoginPlayFabUser.Instance.GPGSLoginToPlayFab(authCode); // PlayFab 로그인 요청
                 }
                 else
                 {

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayFabSharedSettings
   m_EditorClassIdentifier: 
   TitleId: DBDFA
-  DeveloperSecretKey: 'USMNHI4U93WRBCXU8NY554IA898DMOSIYYDW96SN79I5IIOX8E '
+  DeveloperSecretKey: USMNHI4U93WRBCXU8NY554IA898DMOSIYYDW96SN79I5IIOX8E
   ProductionEnvironmentUrl: 
   RequestType: 0
   DisableDeviceInfo: 0

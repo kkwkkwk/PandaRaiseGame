@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 216948028}
   - component: {fileID: 216948030}
   - component: {fileID: 216948029}
+  - component: {fileID: 216948031}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -268,6 +269,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GoogleLoginButton: {fileID: 767444233}
+--- !u!114 &216948031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 216948023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c654336a6d79754fbc5d51b7fb4e015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  logText: {fileID: 0}
 --- !u!1 &767444231
 GameObject:
   m_ObjectHideFlags: 0

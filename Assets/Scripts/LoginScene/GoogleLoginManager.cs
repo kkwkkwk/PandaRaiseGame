@@ -16,7 +16,8 @@ public class GoogleLoginManager : MonoBehaviour
         configuration = new GoogleSignInConfiguration
         {
             RequestIdToken = true, // Google ID 토큰 요청 (Firebase 등과 연동 가능)
-            WebClientId = "74415822987-5s663358988psf2bv1bpmae6i1uh7olj.apps.googleusercontent.com" // Google Cloud Console에서 생성한 Web Client ID
+            WebClientId = "74415822987-5s663358988psf2bv1bpmae6i1uh7olj.apps.googleusercontent.com",  // Google Cloud Console에서 생성한 Web Client ID
+            RequestAuthCode = true
         };
 
         // ✅ 로그인 버튼 클릭 시 OnGoogleLoginClick 함수 실행
@@ -50,7 +51,11 @@ public class GoogleLoginManager : MonoBehaviour
                     Debug.Log("✅ Google 로그인 성공!");
                     Debug.Log("사용자 이메일: " + task.Result.Email); // 이메일 출력
                     Debug.Log("사용자 이름: " + task.Result.DisplayName); // 이름 출력
-                    SceneManager.LoadScene("Main_Screen");
+                    if (!string.IsNullOrEmpty(task.Result.AuthCode))
+                    {
+                        // 이 authCode를 PlayFab에 전달
+                        LoginPlayFabUser.Instance.GoogleLoginToPlayFab(task.Result.AuthCode);
+                    }
                 }
             });
         }

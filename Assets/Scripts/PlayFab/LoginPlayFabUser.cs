@@ -26,10 +26,26 @@ public class LoginPlayFabUser : MonoBehaviour
     /// </summary>
     /// <param name="serverAuthCode">Google Auth Code</param>
 
-    public void LoginToPlayFab(string serverAuthCode)
+    public void GPGSLoginToPlayFab(string serverAuthCode) //GPGS-PlayFab 로그인
     {
-        LogMessage("PlayFab 로그인 시도 중...");
+        LogMessage("GPGS-PlayFab 로그인 시도 중...");
+        LogMessage("authcode: "+serverAuthCode);
+        LogMessage("titleid: " + PlayFabSettings.TitleId);
+        // PlayFab 로그인 요청 생성
+        var request = new LoginWithGooglePlayGamesServicesRequest
+        {
+            ServerAuthCode = serverAuthCode,
+            CreateAccount = true,
+            TitleId = PlayFabSettings.TitleId
+        };
+        PlayFabClientAPI.LoginWithGooglePlayGamesServices(request, OnPlayFabLoginSuccess, OnPlayFabLoginFailure);
+    }
 
+    public void GoogleLoginToPlayFab(string serverAuthCode) //Google-PlayFab 로그인
+    {
+        LogMessage("Google-PlayFab 로그인 시도 중...");
+        LogMessage("authcode: " + serverAuthCode);
+        LogMessage("titleid: " + PlayFabSettings.TitleId);
         // PlayFab 로그인 요청 생성
         var request = new LoginWithGoogleAccountRequest
         {
@@ -37,7 +53,6 @@ public class LoginPlayFabUser : MonoBehaviour
             CreateAccount = true, // 계정이 없으면 새로 생성
             TitleId = PlayFabSettings.TitleId // PlayFab 타이틀 ID
         };
-
         // PlayFab 로그인 실행
         PlayFabClientAPI.LoginWithGoogleAccount(request, OnPlayFabLoginSuccess, OnPlayFabLoginFailure);
     }
