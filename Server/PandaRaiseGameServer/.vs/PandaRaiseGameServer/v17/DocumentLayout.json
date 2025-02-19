@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|solutionrelative:dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\dailylogin\\dailylogin.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|solutionrelative:dailylogin\\dailylogin.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DailyLogin.csproj",
+              "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLogin.csproj",
+              "RelativeDocumentMoniker": "DailyLogin\\DailyLogin.csproj",
+              "ToolTip": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLogin.csproj",
+              "RelativeToolTip": "DailyLogin\\DailyLogin.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-02-19T00:21:24.862Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DailyLoginReward.cs",
+              "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
+              "RelativeDocumentMoniker": "DailyLogin\\DailyLoginReward.cs",
+              "ToolTip": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
+              "RelativeToolTip": "DailyLogin\\DailyLoginReward.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAIwEIAAABaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-18T23:22:58.032Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
