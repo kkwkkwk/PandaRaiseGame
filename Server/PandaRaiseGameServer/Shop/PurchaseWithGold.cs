@@ -57,7 +57,7 @@ namespace Shop
                 };
             }
 
-            var item = catalogResult.Result.Catalog.Find(i => i.ItemId == "itemtest001"); // 임시 아이템 아이디 itemtest001
+            var item = catalogResult.Result.Catalog.Find(i => i.ItemId == "itemtest_001"); // 임시 아이템 아이디 itemtest001
             if (item == null || !item.VirtualCurrencyPrices.ContainsKey("GC"))
             {
                 return new BadRequestObjectResult("잘못된 아이템 ID 또는 가격 정보 없음.");

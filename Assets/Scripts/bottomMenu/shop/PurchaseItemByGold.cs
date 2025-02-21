@@ -14,7 +14,7 @@ public class PurchaseItemByGold : MonoBehaviour
     public Button purchaseButton; // 유니티 버튼 참조
     private string PlayFabId; // // PlayFab 사용자 ID
     private string itemId = "itemtest_001"; // 구매할 아이템의 ID
-    private string azureFunctionUrl = "https://pandaraisegame-shop.azurewebsites.net/api/PurchaseWithGold?code=9WFQxHRVtEk1XPtR1BWCqIw84ySflr7ba1LsiEMH-TC7AzFumhpR4A=="; // Azure Function URL
+    private string azureFunctionUrl = "https://pandaraisegame-shop.azurewebsites.net/api/PurchaseWithGold?code=6RKJD-VDGDnuvxg5v39tW_SR4XeIf24FJvbg9qau3-WaAzFubcVozg=="; // Azure Function URL
 
     // Start is called before the first frame update
     void Start()
