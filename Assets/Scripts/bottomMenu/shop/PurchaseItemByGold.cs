@@ -12,29 +12,28 @@ public class PurchaseItemByGold : MonoBehaviour
 {
 
     public Button purchaseButton; // 유니티 버튼 참조
-    private string playFabId; // // PlayFab 사용자 ID
+    private string PlayFabId; // // PlayFab 사용자 ID
     private string itemId = "itemtest_001"; // 구매할 아이템의 ID
     private string azureFunctionUrl = "https://pandaraisegame-shop.azurewebsites.net/api/PurchaseWithGold?code=9WFQxHRVtEk1XPtR1BWCqIw84ySflr7ba1LsiEMH-TC7AzFumhpR4A=="; // Azure Function URL
 
     // Start is called before the first frame update
     void Start()
     {
-        // PlayFab 로그인 성공 시 PlayFab ID 가져오기
-        LoginPlayFabUser.OnPlayFabLoginSuccessEvent += SetPlayFabId;
+        if (!string.IsNullOrEmpty(GlobalData.playFabId)) // 플레이팹 id 가져오기
+        {
+            PlayFabId = GlobalData.playFabId;
+            Debug.Log("PlayFab ID 가져오기 성공: " + PlayFabId);
+        }
+        else
+        {
+            Debug.LogError("PlayFab ID가 설정되지 않았습니다.");
+        }
 
         // 버튼 클릭 이벤트 등록
         purchaseButton.onClick.AddListener(() => BuyItem());
     }
 
-    /// <summary>
-    /// PlayFab 로그인 성공 시 호출되는 함수로, PlayFab ID를 저장한다.
-    /// </summary>
-    /// <param name="id">로그인된 플레이어의 PlayFab ID</param>
-    private void SetPlayFabId(string id)
-    {
-        playFabId = id;
-        Debug.Log("PlayFab ID 저장됨: " + playFabId);
-    }
+    
 
     /// <summary>
     /// 아이템 구매 요청을 Azure Function으로 보내는 함수
@@ -42,7 +41,7 @@ public class PurchaseItemByGold : MonoBehaviour
     async void BuyItem()
     {
         // PlayFab ID가 없는 경우, 로그 출력 후 요청하지 않음
-        if (string.IsNullOrEmpty(playFabId))
+        if (string.IsNullOrEmpty(PlayFabId))
         {
             Debug.LogError("PlayFab ID가 설정되지 않았습니다. 로그인 후 다시 시도하세요.");
             return;
@@ -53,7 +52,7 @@ public class PurchaseItemByGold : MonoBehaviour
             // 요청 데이터 생성 (PlayFab ID와 아이템 ID 포함)
             var requestData = new
             {
-                playFabId = playFabId,
+                playFabId = PlayFabId,
                 itemId = itemId
             };
 

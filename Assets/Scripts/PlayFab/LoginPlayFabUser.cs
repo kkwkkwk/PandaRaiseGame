@@ -7,22 +7,22 @@ using TMPro;
 using System;
 using UnityEngine.Networking;
 
+
 [Serializable]
 public class PlayFabIdRequestData
 {
     public string playFabId;
 }
 
+public static class GlobalData
+{
+    public static string playFabId;
+}
+
 public class LoginPlayFabUser : MonoBehaviour
 {
     public static LoginPlayFabUser Instance;
     public TextMeshProUGUI logText; // UI 로그 표시용
-
-    // 로그인 성공 시 PlayFab ID를 전달하는 이벤트
-    public static event Action<string> OnPlayFabLoginSuccessEvent;
-
-    // Azure Function 호출 URL (실제 URL과 함수 키로 교체)
-    private string azureFunctionUrl = "https://pandaraisegame-dailylogin.azurewebsites.net/api/DailyLoginReward?code=sSAMUqYTNoDQh02WphrHPxKYRdRD75Nfr9RDARtWv6CEAzFuE4855A==";
 
     void Awake()
     {
@@ -31,6 +31,12 @@ public class LoginPlayFabUser : MonoBehaviour
             Instance = this;
         }
     }
+
+    // 로그인 성공 시 PlayFab ID를 전달하는 이벤트
+    public static event Action<string> OnPlayFabLoginSuccessEvent;
+
+    // Azure Function 호출 URL (실제 URL과 함수 키로 교체)
+    private string azureFunctionUrl = "https://pandaraisegame-dailylogin.azurewebsites.net/api/DailyLoginReward?code=sSAMUqYTNoDQh02WphrHPxKYRdRD75Nfr9RDARtWv6CEAzFuE4855A==";
 
     /// <summary>
     /// GPGS에서 받은 Auth Code를 사용하여 PlayFab 로그인 요청 (GPGS 방식)
@@ -76,6 +82,7 @@ public class LoginPlayFabUser : MonoBehaviour
     /// </summary>
     private void OnPlayFabLoginSuccess(LoginResult result)
     {
+        GlobalData.playFabId = result.PlayFabId; // PlayFab ID 저장
         LogMessage("✅ PlayFab 로그인 성공! PlayFab ID: " + result.PlayFabId);
         OnPlayFabLoginSuccessEvent?.Invoke(result.PlayFabId);
 

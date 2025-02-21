@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\",
+  "WorkspaceRootPath": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}|Shop\\Shop.csproj|c:\\users\\gps97\\unity\\pandaraisegame\\server\\pandaraisegameserver\\shop\\purchasewithgold.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}|Shop\\Shop.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\shop\\purchasewithgold.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}|Shop\\Shop.csproj|solutionrelative:shop\\purchasewithgold.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|c:\\users\\gps97\\unity\\pandaraisegame\\server\\pandaraisegameserver\\dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|solutionrelative:dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -18,21 +18,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "PurchaseWithGold.cs",
-              "DocumentMoniker": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Shop\\PurchaseWithGold.cs",
+              "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Shop\\PurchaseWithGold.cs",
               "RelativeDocumentMoniker": "Shop\\PurchaseWithGold.cs",
-              "ToolTip": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Shop\\PurchaseWithGold.cs",
+              "ToolTip": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Shop\\PurchaseWithGold.cs",
               "RelativeToolTip": "Shop\\PurchaseWithGold.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAuwA0AAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAADwv0MAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-21T00:24:31.547Z",
               "EditorCaption": ""
@@ -41,11 +37,11 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "DailyLoginReward.cs",
-              "DocumentMoniker": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
+              "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
               "RelativeDocumentMoniker": "DailyLogin\\DailyLoginReward.cs",
-              "ToolTip": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
+              "ToolTip": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
               "RelativeToolTip": "DailyLogin\\DailyLoginReward.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAADwvycAAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAAwCcAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-18T23:22:58.032Z",
               "EditorCaption": ""
