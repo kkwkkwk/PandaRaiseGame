@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DailyLogin", "DailyLogin\DailyLogin.csproj", "{F3722222-E55E-4F37-813E-56CF41B0DF4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DailyLogin", "DailyLogin\DailyLogin.csproj", "{F3722222-E55E-4F37-813E-56CF41B0DF4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shop", "Shop\Shop.csproj", "{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{F3722222-E55E-4F37-813E-56CF41B0DF4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3722222-E55E-4F37-813E-56CF41B0DF4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3722222-E55E-4F37-813E-56CF41B0DF4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3E2CF6A5-FAA7-4958-9A78-B37BBFEDECA1}
 	EndGlobalSection
 EndGlobal
