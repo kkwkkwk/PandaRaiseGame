@@ -1,0 +1,13 @@
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\bin\Release\net8.0\CommonLibrary.deps.json
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\bin\Release\net8.0\CommonLibrary.dll
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\bin\Release\net8.0\CommonLibrary.pdb
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.csproj.AssemblyReference.cache
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.AssemblyInfoInputs.cache
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.AssemblyInfo.cs
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.csproj.CoreCompileInputs.cache
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.sourcelink.json
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.dll
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\refint\CommonLibrary.dll
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.pdb
+C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\ref\CommonLibrary.dll

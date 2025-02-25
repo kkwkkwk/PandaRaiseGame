@@ -1,0 +1,59 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "CommonLibrary/1.0.0": {
+        "dependencies": {
+          "PlayFabAllSDK": "1.195.250214"
+        },
+        "runtime": {
+          "CommonLibrary.dll": {}
+        }
+      },
+      "PlayFabAllSDK/1.195.250214": {
+        "dependencies": {
+          "Polly": "7.2.3"
+        },
+        "runtime": {
+          "lib/netstandard2.0/PlayFabAllSDK.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Polly/7.2.3": {
+        "runtime": {
+          "lib/netstandard2.0/Polly.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.2.3.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "CommonLibrary/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PlayFabAllSDK/1.195.250214": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6+NC9GFAAtO+kSvV6QwGEaa0x1w7EJaPaGclhCAKbzJ8ky+q0wmyrusyi3Dfa3kas7tODLqLf/+kc0K4U+nx8w==",
+      "path": "playfaballsdk/1.195.250214",
+      "hashPath": "playfaballsdk.1.195.250214.nupkg.sha512"
+    },
+    "Polly/7.2.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-DeCY0OFbNdNxsjntr1gTXHJ5pKUwYzp04Er2LLeN3g6pWhffsGuKVfMBLe1lw7x76HrPkLxKEFxBlpRxS2nDEQ==",
+      "path": "polly/7.2.3",
+      "hashPath": "polly.7.2.3.nupkg.sha512"
+    }
+  }
+}

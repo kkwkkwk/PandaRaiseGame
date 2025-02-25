@@ -36,7 +36,8 @@ public class LoginPlayFabUser : MonoBehaviour
     public static event Action<string> OnPlayFabLoginSuccessEvent;
 
     // Azure Function 호출 URL (실제 URL과 함수 키로 교체)
-    private string azureFunctionUrl = "https://pandaraisegame-dailylogin.azurewebsites.net/api/DailyLoginReward?code=sSAMUqYTNoDQh02WphrHPxKYRdRD75Nfr9RDARtWv6CEAzFuE4855A==";
+    private string loginCountUrl = "https://pandaraisegame-dailylogin.azurewebsites.net/api/DailyLoginCount?code=9ej0IZ4F5KNmHmWEc4GJxYJHf2WkGQgkQKc8yS-o6j2jAzFu_Cm-vg==";
+    private string loginRewardUrl = "https://pandaraisegame-dailylogin.azurewebsites.net/api/DailyLoginReward?code=sSAMUqYTNoDQh02WphrHPxKYRdRD75Nfr9RDARtWv6CEAzFuE4855A==";
 
     /// <summary>
     /// GPGS에서 받은 Auth Code를 사용하여 PlayFab 로그인 요청 (GPGS 방식)
@@ -87,7 +88,7 @@ public class LoginPlayFabUser : MonoBehaviour
         OnPlayFabLoginSuccessEvent?.Invoke(result.PlayFabId);
 
         // Azure Function 호출을 위해 코루틴 시작
-        StartCoroutine(CallDailyLoginReward(result.PlayFabId));
+        StartCoroutine(CallDailyLoginFunctions(result.PlayFabId));
     }
 
     /// <summary>
@@ -97,6 +98,46 @@ public class LoginPlayFabUser : MonoBehaviour
     {
         LogMessage("❌ PlayFab 로그인 실패: " + error.GenerateErrorReport());
     }
+
+    /// <summary>
+    /// Azure Function(DailyLoginCount)을 호출하여 
+    /// 플레이어의 로그인 횟수를 +1 업데이트 하는 코루틴.
+    /// </summary>
+    private IEnumerator CallDailyLoginCount(string playFabId)
+    {
+        // 1. JSON 직렬화 (RequestBody)
+        PlayFabIdRequestData requestData = new PlayFabIdRequestData { playFabId = playFabId };
+        string jsonData = JsonUtility.ToJson(requestData);
+
+        LogMessage("[DailyLoginCount] 전송할 JSON: " + jsonData);
+
+        // 2. UnityWebRequest 생성
+        UnityWebRequest request = new UnityWebRequest(loginCountUrl, "POST");
+
+        // 3. JSON 데이터를 바이트 배열로 변환 후 업로드 핸들러에 세팅
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        // 4. 다운로드 핸들러 세팅
+        request.downloadHandler = new DownloadHandlerBuffer();
+        // 5. Content-Type 설정
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        LogMessage("[DailyLoginCount] Azure Function 호출 시작...");
+
+        // 6. 전송 및 대기
+        yield return request.SendWebRequest();
+
+        // 7. 응답 결과 확인
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            LogMessage("[DailyLoginCount] 호출 실패: " + request.error);
+        }
+        else
+        {
+            LogMessage("[DailyLoginCount] 호출 성공: " + request.downloadHandler.text);
+        }
+    }
+
 
     /// <summary>
     /// Azure Function을 호출하여 데일리 리워드를 지급하는 코루틴.
@@ -114,7 +155,7 @@ public class LoginPlayFabUser : MonoBehaviour
         LogMessage("전송할 JSON: " + jsonData);
 
         // 2. UnityWebRequest 생성 (POST 방식)
-        UnityWebRequest request = new UnityWebRequest(azureFunctionUrl, "POST");
+        UnityWebRequest request = new UnityWebRequest(loginRewardUrl, "POST");
 
         // 3. 요청 본문 설정: JSON 데이터를 UTF-8 바이트 배열로 변환
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
@@ -144,6 +185,19 @@ public class LoginPlayFabUser : MonoBehaviour
         // 8. 함수 호출 후 메인 화면으로 전환
         SceneManager.LoadScene("Main_Screen");
     }
+
+    private IEnumerator CallDailyLoginFunctions(string playFabId)
+    {
+        // 1) 로그인 횟수 업데이트 먼저
+        yield return StartCoroutine(CallDailyLoginCount(playFabId));
+
+        // 2) 보상 지급
+        yield return StartCoroutine(CallDailyLoginReward(playFabId));
+
+        // 3) 모든 작업이 끝난 후 씬 전환
+        SceneManager.LoadScene("Main_Screen");
+    }
+
 
     /// <summary>
     /// UI에 로그 메시지를 출력하는 함수.

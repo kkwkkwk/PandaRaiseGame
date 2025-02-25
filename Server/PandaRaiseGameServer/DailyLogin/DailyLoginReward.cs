@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
+using CommonLibrary;
 
 namespace DailyLogin
 {
@@ -37,8 +38,7 @@ namespace DailyLogin
             }
 
             // PlayFab 설정 적용
-            PlayFabSettings.staticSettings.TitleId = "DBDFA";
-            PlayFabSettings.staticSettings.DeveloperSecretKey = "USMNHI4U93WRBCXU8NY554IA898DMOSIYYDW96SN79I5IIOX8E";
+            PlayFabConfig.Configure();
 
             // 가상 화폐 추가 요청 생성 (여기서는 1000골드 지급)
             var addCurrencyRequest = new AddUserVirtualCurrencyRequest

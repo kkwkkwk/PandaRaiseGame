@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "UBIyBJTN/w8=",
+  "success": true,
+  "projectFilePath": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\dbk05\\.nuget\\packages\\playfaballsdk\\1.195.250214\\playfaballsdk.1.195.250214.nupkg.sha512",
+    "C:\\Users\\dbk05\\.nuget\\packages\\polly\\7.2.3\\polly.7.2.3.nupkg.sha512"
+  ],
+  "logs": []
+}
