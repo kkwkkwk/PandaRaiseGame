@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj": {}
+    "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj": {}
   },
   "projects": {
-    "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj": {
+    "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj",
+        "projectUniqueName": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj",
         "projectName": "CommonLibrary",
-        "projectPath": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj",
-        "packagesPath": "C:\\Users\\dbk05\\.nuget\\packages\\",
-        "outputPath": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\obj\\",
+        "projectPath": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\CommonLibrary.csproj",
+        "packagesPath": "C:\\Users\\gps97\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\gps97\\Unity\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\dbk05\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\gps97\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -43,8 +39,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -71,12 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

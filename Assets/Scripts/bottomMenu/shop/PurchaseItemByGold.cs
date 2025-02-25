@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro; // TextMeshPro 사용
 using System.Collections;
 using System.Text;
 using System.Net.Http;
@@ -11,10 +12,16 @@ using PlayFab.ClientModels;
 public class PurchaseItemByGold : MonoBehaviour
 {
 
-    public Button purchaseButton; // 유니티 버튼 참조
+    public Button purchaseButton;           // 유니티 버튼 참조
+    public TextMeshProUGUI goldText;        // 보유 골드 표시용
+    public TextMeshProUGUI itemCountText;   // 아이템 개수 표시용
+
     private string PlayFabId; // // PlayFab 사용자 ID
     private string itemId = "itemtest_001"; // 구매할 아이템의 ID
     private string azureFunctionUrl = "https://pandaraisegame-shop.azurewebsites.net/api/PurchaseWithGold?code=6RKJD-VDGDnuvxg5v39tW_SR4XeIf24FJvbg9qau3-WaAzFubcVozg=="; // Azure Function URL
+
+    private int currentGold = 0;
+    private int itemCount = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +30,10 @@ public class PurchaseItemByGold : MonoBehaviour
         {
             PlayFabId = GlobalData.playFabId;
             Debug.Log("PlayFab ID 가져오기 성공: " + PlayFabId);
+
+            // 현재 보유 골드 및 아이템 개수 가져오기
+            StartCoroutine(GetPlayerCurrency());
+            StartCoroutine(GetPlayerInventory());
         }
         else
         {
@@ -33,7 +44,51 @@ public class PurchaseItemByGold : MonoBehaviour
         purchaseButton.onClick.AddListener(() => BuyItem());
     }
 
-    
+    /// <summary>
+    /// PlayFab에서 현재 보유 골드 조회
+    /// </summary>
+    private IEnumerator GetPlayerCurrency()
+    {
+        var request = new GetUserInventoryRequest();
+        PlayFabClientAPI.GetUserInventory(request, result =>
+        {
+            currentGold = result.VirtualCurrency.ContainsKey("GC") ? result.VirtualCurrency["GC"] : 0;
+            UpdateGoldUI();
+        },
+        error =>
+        {
+            Debug.LogError("골드 조회 실패: " + error.GenerateErrorReport());
+        });
+
+        yield return null;
+    }
+
+    /// <summary>
+    /// PlayFab에서 현재 아이템 개수 조회
+    /// </summary>
+    private IEnumerator GetPlayerInventory()
+    {
+        var request = new GetUserInventoryRequest();
+        PlayFabClientAPI.GetUserInventory(request, result =>
+        {
+            itemCount = 0;
+            foreach (var item in result.Inventory)
+            {
+                if (item.ItemId == itemId)
+                {
+                    itemCount += item.RemainingUses ?? 1; // 아이템 개수 업데이트
+                }
+            }
+            UpdateItemUI();
+        },
+        error =>
+        {
+            Debug.LogError("아이템 개수 조회 실패: " + error.GenerateErrorReport());
+        });
+
+        yield return null;
+    }
+
 
     /// <summary>
     /// 아이템 구매 요청을 Azure Function으로 보내는 함수
@@ -70,6 +125,11 @@ public class PurchaseItemByGold : MonoBehaviour
                 if (response.IsSuccessStatusCode)
                 {
                     Debug.Log($"아이템 구매 성공: {responseText}");
+
+                    // 구매 성공 후 PlayFab에서 골드 및 아이템 개수 업데이트
+
+                    // 0.3초 정도 대기 후 아이템 및 재화 조회
+                    StartCoroutine(UpdateInventoryAfterDelay(0.3f));
                 }
                 else
                 {
@@ -80,6 +140,36 @@ public class PurchaseItemByGold : MonoBehaviour
             {
                 Debug.LogError($"HTTP 요청 실패: {e.Message}");
             }
+        }
+    }
+    /// <summary>
+    /// 아이템 구매시 잠시 대기
+    /// </summary>
+    private IEnumerator UpdateInventoryAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        StartCoroutine(GetPlayerCurrency());
+        StartCoroutine(GetPlayerInventory());
+    }
+    /// <summary>
+    /// UI에 현재 보유 골드 업데이트
+    /// </summary>
+    private void UpdateGoldUI()
+    {
+        if (goldText != null)
+        {
+            goldText.text = $"골드: {currentGold}";
+        }
+    }
+
+    /// <summary>
+    /// UI에 현재 아이템 개수 업데이트
+    /// </summary>
+    private void UpdateItemUI()
+    {
+        if (itemCountText != null)
+        {
+            itemCountText.text = $"아이템 개수: {itemCount}";
         }
     }
 }
