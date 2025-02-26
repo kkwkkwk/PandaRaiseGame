@@ -4,7 +4,7 @@
   "parameters": {
     "resourceGroupName": {
       "type": "string",
-      "defaultValue": "DefaultResourceGroup-EA",
+      "defaultValue": "PandaRaiseGame-Shop_Group",
       "metadata": {
         "_parameterType": "resourceGroup",
         "description": "리소스에 대한 리소스 그룹의 이름입니다. 추적 기능 향상을 위해 리소스를 같은 리소스 그룹에 배치하는 것이 좋습니다."
@@ -36,7 +36,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('Shop', subscription().subscriptionId)))]",
+      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('PandaRaiseGame-Shop', subscription().subscriptionId)))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "apiVersion": "2019-10-01",
       "dependsOn": [
@@ -50,7 +50,7 @@
           "resources": [
             {
               "kind": "web",
-              "name": "Shop",
+              "name": "PandaRaiseGame-Shop",
               "type": "microsoft.insights/components",
               "location": "[parameters('resourceLocation')]",
               "properties": {},

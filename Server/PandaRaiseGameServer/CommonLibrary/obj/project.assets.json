@@ -27,33 +27,6 @@
           }
         }
       }
-    },
-    "net8.0/win-x64": {
-      "PlayFabAllSDK/1.195.250214": {
-        "type": "package",
-        "dependencies": {
-          "Polly": "7.2.3"
-        },
-        "compile": {
-          "lib/netstandard2.0/PlayFabAllSDK.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/PlayFabAllSDK.dll": {}
-        }
-      },
-      "Polly/7.2.3": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/Polly.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Polly.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      }
     }
   },
   "libraries": {
@@ -173,11 +146,6 @@
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
-      }
-    },
-    "runtimes": {
-      "win-x64": {
-        "#import": []
       }
     }
   }

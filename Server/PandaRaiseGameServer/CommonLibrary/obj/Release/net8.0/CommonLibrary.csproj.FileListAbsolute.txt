@@ -11,3 +11,16 @@ C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\n
 C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\refint\CommonLibrary.dll
 C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.pdb
 C:\GitHub\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\ref\CommonLibrary.dll
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\bin\Release\net8.0\CommonLibrary.deps.json
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\bin\Release\net8.0\CommonLibrary.dll
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\bin\Release\net8.0\CommonLibrary.pdb
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.csproj.AssemblyReference.cache
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.AssemblyInfoInputs.cache
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.AssemblyInfo.cs
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.csproj.CoreCompileInputs.cache
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.sourcelink.json
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.dll
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\refint\CommonLibrary.dll
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\CommonLibrary.pdb
+C:\Users\gps97\Unity\PandaRaiseGame\Server\PandaRaiseGameServer\CommonLibrary\obj\Release\net8.0\ref\CommonLibrary.dll
