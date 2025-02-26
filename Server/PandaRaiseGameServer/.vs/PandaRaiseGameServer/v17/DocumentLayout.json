@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|solutionrelative:dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}|Shop\\Shop.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\shop\\purchasewithgold.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}|Shop\\Shop.csproj|solutionrelative:shop\\purchasewithgold.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -17,10 +21,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{227D740B-B1F7-4353-AFE3-300057FC158B}|LeaderBoard\\LeaderBoard.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\leaderboard\\getleaderboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{227D740B-B1F7-4353-AFE3-300057FC158B}|LeaderBoard\\LeaderBoard.csproj|solutionrelative:leaderboard\\getleaderboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|solutionrelative:dailylogin\\dailyloginreward.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F3722222-E55E-4F37-813E-56CF41B0DF4E}|DailyLogin\\DailyLogin.csproj|c:\\github\\pandaraisegame\\server\\pandaraisegameserver\\dailylogin\\dailylogincount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -42,11 +42,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "ChangeDisplayName.cs",
               "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Profile\\ChangeDisplayName.cs",
               "RelativeDocumentMoniker": "Profile\\ChangeDisplayName.cs",
@@ -54,12 +54,11 @@
               "RelativeToolTip": "Profile\\ChangeDisplayName.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-25T23:22:14.089Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-25T23:22:14.089Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "GetProfile.cs",
               "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Profile\\GetProfile.cs",
               "RelativeDocumentMoniker": "Profile\\GetProfile.cs",
@@ -71,7 +70,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "GetLeaderBoard.cs",
               "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\LeaderBoard\\GetLeaderBoard.cs",
               "RelativeDocumentMoniker": "LeaderBoard\\GetLeaderBoard.cs",
@@ -89,7 +88,7 @@
               "RelativeDocumentMoniker": "CommonLibrary\\PlayFabConfig.cs",
               "ToolTip": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\CommonLibrary\\PlayFabConfig.cs",
               "RelativeToolTip": "CommonLibrary\\PlayFabConfig.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAABYwA0AAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAABiwA0AAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-24T23:56:52.041Z"
             },
@@ -107,15 +106,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "DailyLoginReward.cs",
               "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
               "RelativeDocumentMoniker": "DailyLogin\\DailyLoginReward.cs",
               "ToolTip": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\DailyLogin\\DailyLoginReward.cs",
               "RelativeToolTip": "DailyLogin\\DailyLoginReward.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAIwDQAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-18T23:22:58.032Z"
+              "WhenOpened": "2025-02-18T23:22:58.032Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -131,16 +131,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "PurchaseWithGold.cs",
               "DocumentMoniker": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Shop\\PurchaseWithGold.cs",
               "RelativeDocumentMoniker": "Shop\\PurchaseWithGold.cs",
               "ToolTip": "C:\\GitHub\\PandaRaiseGame\\Server\\PandaRaiseGameServer\\Shop\\PurchaseWithGold.cs",
               "RelativeToolTip": "Shop\\PurchaseWithGold.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACkAAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-21T00:24:31.547Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-21T00:24:31.547Z"
             }
           ]
         }
