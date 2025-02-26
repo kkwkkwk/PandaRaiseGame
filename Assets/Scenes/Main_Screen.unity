@@ -2948,7 +2948,7 @@ GameObject:
   - component: {fileID: 275987734}
   - component: {fileID: 275987733}
   m_Layer: 0
-  m_Name: InputField (TMP)
+  m_Name: inputNewName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10401,6 +10401,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ProfileCanvas: {fileID: 1059278133}
+  player_name_Text: {fileID: 402487879}
+  sign_in_date_Text: {fileID: 1052123717}
+  login_count_Text: {fileID: 31425912}
 --- !u!114 &1059278135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12530,6 +12533,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FixNameCanvas: {fileID: 1308644484}
+  inputNewName: {fileID: 275987733}
+  changeNameButton: {fileID: 2041361103}
 --- !u!114 &1308644487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18209,7 +18214,7 @@ GameObject:
   - component: {fileID: 2041361104}
   - component: {fileID: 2041361103}
   m_Layer: 0
-  m_Name: Button
+  m_Name: change_name_button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

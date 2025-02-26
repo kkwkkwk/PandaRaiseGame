@@ -26,8 +26,14 @@ namespace Profile
 
             // 1. HTTP 요청에서 JSON 바디 파싱 (예: { "playFabId": "..." })
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            // ★ 추가 로그: requestBody 전체 출력
+            _logger.LogInformation($"요청 바디: {requestBody}");
+
             dynamic data = JsonConvert.DeserializeObject(requestBody)!;
             string playFabId = data?.playFabId!;
+
+            // ★ 추가 로그: 파싱된 playFabId 출력
+            _logger.LogInformation($"파싱된 playFabId: {playFabId}");
 
             if (string.IsNullOrEmpty(playFabId))
             {
@@ -40,7 +46,16 @@ namespace Profile
 
             // 3. PlayFab에서 PlayerInfo(계정 정보) 조회
             _logger.LogInformation($"플레이어 {playFabId}의 계정 정보 조회 중...");
-            var playerProfileReq = new GetPlayerProfileRequest { PlayFabId = playFabId };
+            var playerProfileReq = new GetPlayerProfileRequest
+            {
+                PlayFabId = playFabId,
+                ProfileConstraints = new PlayerProfileViewConstraints
+                {
+                    ShowCreated = true,
+                    ShowLastLogin = true,
+                    ShowDisplayName = true,
+                }
+            };
             var playerProfileResult = await PlayFabServerAPI.GetPlayerProfileAsync(playerProfileReq);
             if (playerProfileResult.Error != null)
             {

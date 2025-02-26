@@ -5,11 +5,13 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DailyLogin", "DailyLogin\DailyLogin.csproj", "{F3722222-E55E-4F37-813E-56CF41B0DF4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shop", "Shop\Shop.csproj", "{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop", "Shop\Shop.csproj", "{30F6BBC5-E49B-4BF8-8E85-1408DD2C70D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLibrary", "CommonLibrary\CommonLibrary.csproj", "{F639C334-3F88-493D-B02B-4CE93D74F1EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonLibrary", "CommonLibrary\CommonLibrary.csproj", "{F639C334-3F88-493D-B02B-4CE93D74F1EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeaderBoard", "LeaderBoard\LeaderBoard.csproj", "{227D740B-B1F7-4353-AFE3-300057FC158B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeaderBoard", "LeaderBoard\LeaderBoard.csproj", "{227D740B-B1F7-4353-AFE3-300057FC158B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Profile", "Profile\Profile.csproj", "{68ABACC5-BCFF-4A8C-9DD6-97BFFBF15F8B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{227D740B-B1F7-4353-AFE3-300057FC158B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{227D740B-B1F7-4353-AFE3-300057FC158B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{227D740B-B1F7-4353-AFE3-300057FC158B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68ABACC5-BCFF-4A8C-9DD6-97BFFBF15F8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68ABACC5-BCFF-4A8C-9DD6-97BFFBF15F8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68ABACC5-BCFF-4A8C-9DD6-97BFFBF15F8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68ABACC5-BCFF-4A8C-9DD6-97BFFBF15F8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
