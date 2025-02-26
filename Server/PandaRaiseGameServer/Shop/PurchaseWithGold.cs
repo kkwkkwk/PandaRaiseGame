@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using CommonLibrary; // <- 여기서 PlayFabConfig 접근
 using PlayFab;
 using PlayFab.ServerModels;
 using System.IO;
@@ -40,8 +41,8 @@ namespace Shop
             }
 
             // 3. PlayFab 설정
-            PlayFabSettings.staticSettings.TitleId = "DBDFA";
-            PlayFabSettings.staticSettings.DeveloperSecretKey = "USMNHI4U93WRBCXU8NY554IA898DMOSIYYDW96SN79I5IIOX8E";
+            // 공통 설정 적용
+            PlayFabConfig.Configure();
 
             _logger.LogInformation($"플레이어 {playFabId}의 아이템 {itemId} 구매 시도 중...");
 
