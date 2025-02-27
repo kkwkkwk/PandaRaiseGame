@@ -22,7 +22,7 @@ public class LeaderboardPopupManager : MonoBehaviour
     public GameObject LeaderboardCanvas;     // 리더보드 canvas
     public TextMeshProUGUI leaderboardText;      // 리더보드 결과 표시용 Text (TMPro)
 
-    public string getLeaderboardUrl = "https://pandaraisegame-leaderboard.azurewebsites.net/api/GetLeaderBoard?code=Wpj4FIqgFxix697XXeysbU6M67cO_R-ekFq-jq5prpfsAzFuoeb33w==";
+    private string getLeaderboardUrl = "https://pandaraisegame-leaderboard.azurewebsites.net/api/GetLeaderBoard?code=Wpj4FIqgFxix697XXeysbU6M67cO_R-ekFq-jq5prpfsAzFuoeb33w==";
 
     private void Awake() // Unity의 Awake() 메서드에서 싱글톤 설정
     {
@@ -56,7 +56,6 @@ public class LeaderboardPopupManager : MonoBehaviour
             // 리더보드 가져오기
             StartCoroutine(CallGetLeaderboard());
         }
-
     }
     public void CloseLeaderboardPopup()
     {   // 팝업 비활성화 

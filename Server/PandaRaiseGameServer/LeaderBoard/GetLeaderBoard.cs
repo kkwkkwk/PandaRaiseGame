@@ -2,13 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using CommonLibrary;
 
 namespace LeaderBoard

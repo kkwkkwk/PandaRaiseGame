@@ -1732,7 +1732,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1609053422}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.99999994
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7201,7 +7201,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1726873213}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.99999887
+  m_Size: 0.9979852
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -10604,7 +10604,6 @@ GameObject:
   - component: {fileID: 990376378}
   - component: {fileID: 990376377}
   - component: {fileID: 990376376}
-  - component: {fileID: 990376375}
   m_Layer: 5
   m_Name: QuestPopupBottom_Panel
   m_TagString: Untagged
@@ -10632,24 +10631,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -0.099975586}
   m_SizeDelta: {x: 0, y: -0.19999695}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &990376375
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 990376373}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7c1dece1f6e5b04c925b18169408375, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  questDetailPrefab: {fileID: 2675623109856072085, guid: 7e60a1a357803f34482f0db5567068e6, type: 3}
-  contentParent: {fileID: 1146430929}
-  dailyTabButton: {fileID: 592095238}
-  weeklyTabButton: {fileID: 1632498592}
-  repeatableTabButton: {fileID: 362269232}
-  achievementsTabButton: {fileID: 1357732627}
 --- !u!114 &990376376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12333,7 +12314,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00041495933}
+  m_AnchoredPosition: {x: 0.000091552734, y: -0.00006519592}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1146430930
@@ -13785,7 +13766,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LeaderboardCanvas: {fileID: 1354366332}
   leaderboardText: {fileID: 1086530664}
-  getLeaderboardUrl: https://pandaraisegame-leaderboard.azurewebsites.net/api/GetLeaderBoard?code=Wpj4FIqgFxix697XXeysbU6M67cO_R-ekFq-jq5prpfsAzFuoeb33w==
 --- !u!114 &1354366334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14933,6 +14913,7 @@ GameObject:
   - component: {fileID: 1428882981}
   - component: {fileID: 1428882980}
   - component: {fileID: 1428882979}
+  - component: {fileID: 1428882984}
   m_Layer: 5
   m_Name: QuestCanvas
   m_TagString: Untagged
@@ -14953,6 +14934,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   QuestCanvas: {fileID: 1428882978}
+  questListCreator: {fileID: 1428882984}
+  questPopupText: {fileID: 0}
 --- !u!114 &1428882980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15036,6 +15019,24 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1428882984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428882978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7c1dece1f6e5b04c925b18169408375, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questItemPrefab: {fileID: 2675623109856072085, guid: 7e60a1a357803f34482f0db5567068e6, type: 3}
+  contentParent: {fileID: 1146430929}
+  dailyTabButton: {fileID: 592095238}
+  weeklyTabButton: {fileID: 1632498592}
+  repeatableTabButton: {fileID: 362269232}
+  achievementTabButton: {fileID: 1357732627}
 --- !u!1 &1438916448
 GameObject:
   m_ObjectHideFlags: 0

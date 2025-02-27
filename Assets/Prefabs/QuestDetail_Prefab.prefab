@@ -560,7 +560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8086fdcb9686f0846b90724116464c8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  infoText: {fileID: 7529725268281449703}
+  questInfoText: {fileID: 7529725268281449703}
   actionButton: {fileID: 986477401831427676}
 --- !u!1 &3638436497334154643
 GameObject:

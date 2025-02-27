@@ -1,0 +1,170 @@
+{
+    "DailyQuestList": [
+        {
+            "id": "Daily_Login_01",
+            "title": "로그인 1회 성공",
+            "description": "매일 1회 로그인하여 보상을 받으세요.",
+            "goal": 1,
+            "reward": {},
+            "resetType": "daily"
+        },
+        {
+            "id": "Daily_Monster_01",
+            "title": "몬스터 200마리 처치",
+            "description": "매일 200마리의 몬스터를 처치하세요.",
+            "goal": 200,
+            "reward": {},
+            "resetType": "daily"
+        },
+        {
+            "id": "Daily_Farm_01",
+            "title": "농장 1회 수확",
+            "description": "매일 1회 농장을 수확하세요.",
+            "goal": 1,
+            "reward": {},
+            "resetType": "daily"
+        },
+        {
+            "id": "Daily_PVP_01",
+            "title": "PVP 1회 승리",
+            "description": "매일 PVP에서 1회 승리하세요.",
+            "goal": 1,
+            "reward": {},
+            "resetType": "daily"
+        }
+    ],
+    "WeeklyQuestList": [
+        {
+            "id": "Weekly_Login_01",
+            "title": "로그인 5회 성공",
+            "description": "주간 5회 로그인하여 보상을 받으세요.",
+            "goal": 5,
+            "reward": {},
+            "resetType": "weekly"
+        },
+        {
+            "id": "Weekly_Monster_01",
+            "title": "몬스터 1000마리 처치",
+            "description": "주간 1000마리의 몬스터를 처치하세요.",
+            "goal": 1000,
+            "reward": {},
+            "resetType": "weekly"
+        },
+        {
+            "id": "Weekly_Farm_01",
+            "title": "농장 5회 수확",
+            "description": "주간 5회 농장을 수확하세요.",
+            "goal": 5,
+            "reward": {},
+            "resetType": "weekly"
+        },
+        {
+            "id": "Weekly_PVP_01",
+            "title": "PVP 5회 승리",
+            "description": "주간 PVP에서 5회 승리하세요.",
+            "goal": 5,
+            "reward": {},
+            "resetType": "weekly"
+        }
+    ],
+    "RepeatQuestList": [
+        {
+            "id": "Repeat_Monster_01",
+            "title": "몬스터 2000마리 처치",
+            "description": "반복 퀘스트: 몬스터 2000마리 처치",
+            "goal": 2000,
+            "reward": {},
+            "resetType": "repeat"
+        },
+        {
+            "id": "Repeat_Farm_01",
+            "title": "농장 10회 수확",
+            "description": "반복 퀘스트: 농장 10회 수확",
+            "goal": 10,
+            "reward": {},
+            "resetType": "repeat"
+        },
+        {
+            "id": "Repeat_PVP_01",
+            "title": "PVP 10회 승리",
+            "description": "반복 퀘스트: PVP 10회 승리",
+            "goal": 10,
+            "reward": {},
+            "resetType": "repeat"
+        }
+    ],
+    "AchievementQuestList": [
+        {
+            "id": "Ach_Monster_01",
+            "title": "몬스터 누적 1000마리 처치",
+            "description": "누적 1000마리의 몬스터를 처치하세요.",
+            "goal": 1000,
+            "reward": {},
+            "resetType": "monster"
+        },
+        {
+            "id": "Ach_Monster_02",
+            "title": "몬스터 누적 2000마리 처치",
+            "description": "누적 2000마리의 몬스터를 처치하세요.",
+            "goal": 2000,
+            "reward": {},
+            "resetType": "monster"
+        },
+        {
+            "id": "Ach_Monster_03",
+            "title": "몬스터 누적 4000마리 처치",
+            "description": "누적 4000마리의 몬스터를 처치하세요.",
+            "goal": 4000,
+            "reward": {},
+            "resetType": "monster"
+        },
+        {
+            "id": "Ach_Farm_01",
+            "title": "농장 5회 수확",
+            "description": "누적 5회 농장을 수확하세요.",
+            "goal": 5,
+            "reward": {},
+            "resetType": "farm"
+        },
+        {
+            "id": "Ach_Farm_02",
+            "title": "농장 10회 수확",
+            "description": "누적 10회 농장을 수확하세요.",
+            "goal": 10,
+            "reward": {},
+            "resetType": "farm"
+        },
+        {
+            "id": "Ach_Farm_03",
+            "title": "농장 20회 수확",
+            "description": "누적 20회 농장을 수확하세요.",
+            "goal": 20,
+            "reward": {},
+            "resetType": "farm"
+        },
+        {
+            "id": "Ach_PVP_01",
+            "title": "PVP 5회 승리",
+            "description": "누적 PVP 5회 승리하세요.",
+            "goal": 5,
+            "reward": {},
+            "resetType": "pvp"
+        },
+        {
+            "id": "Ach_PVP_02",
+            "title": "PVP 10회 승리",
+            "description": "누적 PVP 10회 승리하세요.",
+            "goal": 10,
+            "reward": {},
+            "resetType": "pvp"
+        },
+        {
+            "id": "Ach_PVP_03",
+            "title": "PVP 20회 승리",
+            "description": "누적 PVP 20회 승리하세요.",
+            "goal": 20,
+            "reward": {},
+            "resetType": "pvp"
+        }
+    ]
+}
