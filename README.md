@@ -10,7 +10,7 @@
 ------------------------------------------
 
 ### 프로젝트 구조
-	/Scripts :
+	/Scripts
 		/bottomMenu
 		/chat
 		/LeftMenu
