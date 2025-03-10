@@ -11,12 +11,12 @@
 
 ### 프로젝트 구조
 	/Scripts :
-		/bottomMenu : 하단 메뉴 관련 기능을 담당
-		/chat : 게임 내 채팅 시스템 관련 스크립트
-		/LeftMenu : 왼쪽 UI 메뉴 및 퀘스트 관련 기능
-		/LoginScene : 게임 로그인 관련 기능
-		/PlayFab : PlayFab을 활용한 로그인, 유저 데이터 관리 및 랭킹 기능
-		/RightMenu : 오른쪽 UI 메뉴 및 길드, 패키지 관련 기능
+		/bottomMenu
+		/chat
+		/LeftMenu
+		/LoginScene
+		/PlayFab
+		/RightMenu
  
 -------------------------------------------------------
 
