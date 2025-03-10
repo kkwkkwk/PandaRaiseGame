@@ -31,7 +31,7 @@
 			ClosePopup.cs : 팝업을 닫는 기능
 			OpenPopup.cs : 팝업을 여는 기능
 			PopupManager.cs : 팝업 UI 관리 및 데이터 연동
-			PopupRaycaster.cs : 팝업에서 UI 클릭 이벤트를 관리하여 상위? 패널로 이벤트가 전달되지 않도록 하는 기능
+			PopupRaycaster.cs : 팝업에서 UI 클릭 이벤트를 관리하여 상위 패널로 이벤트가 전달되지 않도록 하는 기능
    
   		/shop
     		OpenShopScene.cs : 상점 씬을 여는 기능
@@ -50,7 +50,7 @@
     		ClosePopup.cs : 팝업을 닫는 기능
 			OpenPopup.cs : 팝업을 여는 기능
 			PopupManager.cs : 팝업 UI 관리 및 데이터 연동
-			PopupRaycaster.cs : 팝업에서 UI 클릭 이벤트를 관리하여 상위? 패널로 이벤트가 전달되지 않도록 하는 기능 
+			PopupRaycaster.cs : 팝업에서 UI 클릭 이벤트를 관리하여 상위 패널로 이벤트가 전달되지 않도록 하는 기능 
   
   		/profile
     		LoadProfileData.cs : 기능 미구현, 추후 업로드 예정
@@ -79,7 +79,7 @@
     		ClosePopup.cs : 팝업을 닫는 기능
 			OpenPopup.cs : 팝업을 여는 기능
 			PopupManager.cs : 팝업 UI 관리 및 데이터 연동
-			PopupRaycaster.cs : 팝업에서 UI 클릭 이벤트를 관리하여 상위? 패널로 이벤트가 전달되지 않도록 하는 기능 
+			PopupRaycaster.cs : 팝업에서 UI 클릭 이벤트를 관리하여 상위 패널로 이벤트가 전달되지 않도록 하는 기능 
 
   		/event
 			eventList.cs : 이벤트 리스트 출력
