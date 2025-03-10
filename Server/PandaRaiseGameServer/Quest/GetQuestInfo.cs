@@ -50,7 +50,7 @@ namespace Quest
             _logger.LogInformation("QuestData 타이틀 데이터 조회 성공.");
 
             // 4. QuestData 키의 값 가져오기
-            string questDataJson = null;
+            string? questDataJson = null;
             if (titleDataResult.Result.Data != null && titleDataResult.Result.Data.ContainsKey("QuestData"))
             {
                 questDataJson = titleDataResult.Result.Data["QuestData"];
