@@ -268,7 +268,7 @@ PlayerSettings:
   AndroidTargetDevices: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:/PandaRaiseGame.keystore
+  AndroidKeystoreName: '{dedicated}: PandaRaiseGame.keystore'
   AndroidKeyaliasName: panda
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidBuildApkPerCpuArchitecture: 0
@@ -875,11 +875,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 9fa0082b-b74b-4802-bb34-1075fe1ff5f9
+  cloudProjectId: 5ad53af6-7f72-489f-97a9-5a475f7d5d19
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: PandaRaiseGame
-  organizationId: rlarjsdn0316
+  organizationId: jjungsu
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
