@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
-using UnityEditor.VersionControl;
 
 public class ChatInputController : MonoBehaviour
 {

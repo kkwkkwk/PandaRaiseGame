@@ -182,9 +182,12 @@ public class ChatManager : MonoBehaviour
             content = rawMessage.Substring(idx + 1).Trim();
         }
 
-        // 내 메시지인지 여부 판단(선택 사항)
-        // if (senderName == GlobalData.playFabId) isMine = true;
-        // 여기서는 예시로 isMine = false 고정 (다른 유저가 보낸 메시지라고 가정)
+        bool isMine = (senderName == GlobalData.playFabId);
+        if (isMine)
+        {
+            // 이미 내 로컬에 표시했으므로 굳이 2번 표시하지 않음
+            return;
+        }
         AddChatMessage(senderName, content, false);
     }
 }
