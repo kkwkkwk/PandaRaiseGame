@@ -875,11 +875,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 9fa0082b-b74b-4802-bb34-1075fe1ff5f9
+  cloudProjectId: df9262f6-c29f-45a2-87e7-04ef74e258f4
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: PandaRaiseGame
-  organizationId: rlarjsdn0316
+  projectName: RasingPandaGame
+  organizationId: jjungsu
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

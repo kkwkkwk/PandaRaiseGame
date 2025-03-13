@@ -1,0 +1,302 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Networking;
+using System.Text;
+using Newtonsoft.Json;  // Newtonsoft (Json.NET) 사용 시
+
+public class GuildTabPanelController : MonoBehaviour
+{
+    [Header("Server Info")]
+    [Tooltip("길드 정보를 가져오기 위한 서버 URL(Azure Function 등)")]
+    public string getGuildInfoURL = "https://your-azure-function-url/GetGuildInfo";
+
+    [Header("Guild Join State")]
+    [Tooltip("현재 유저가 길드에 가입되어 있는지 여부")]
+    public bool isJoinedGuild = false;
+
+    [Header("Tab Buttons")]
+    public Button guildInfoTabButton;       // 길드 정보 탭
+    public Button guildMissionTabButton;    // 길드 미션 탭
+    public Button guildStatTabButton;       // 길드 스탯 탭
+    public Button guildRegisterTabButton;   // 길드 가입 탭
+    public Button guildRankTabButton;       // 길드 랭킹 탭
+
+    [Header("Tab Panels")]
+    [Tooltip("길드 정보 UI 패널")]
+    public GameObject guildInfoPanel;       // GuildPopupMainUI_Panel
+    [Tooltip("길드 미션 UI 패널")]
+    public GameObject guildMissionPanel;    // GuildPopupMissionUI_Panel
+    [Tooltip("길드 스탯 UI 패널")]
+    public GameObject guildStatPanel;       // GuildPopupStatUI_Panel
+    [Tooltip("길드 가입 UI 패널")]
+    public GameObject guildRegisterPanel;   // GuildPopupRegisterUI_Panel
+    [Tooltip("길드 랭킹 UI 패널")]
+    public GameObject guildRankPanel;       // GuildPopupRankUI_Panel
+
+    /// <summary>
+    /// 현재 선택된 탭 인덱스 (0: 길드정보, 1: 미션, 2: 스탯, 3: 가입, 4: 랭킹)
+    /// </summary>
+    private int currentTabIndex;
+
+    // 서버 응답 DTO (예시)
+    private class GuildInfoResponse
+    {
+        public string playFabId;        // 유저의 플레이팹 아이디
+        public string guildId;          // 유저가 가입한 길드 ID (없으면 null 또는 빈 문자열)
+        public string guildName;        // 길드 이름
+        public string guildLevel;       // 길드 레벨
+        public string guildRank;        // 길드 랭킹
+        public string guildHeadCount;   // 길드 인원 수
+        // (예시) 길드에 가입한 상태인지 여부를 판별해줄 수 있는 프로퍼티
+        // 서버 설계에 따라 bool로 직접 주거나, guildId 유무로 확인할 수도 있음
+        public bool isJoined;
+    }
+
+    void Awake()
+    {
+        if (guildInfoTabButton != null)
+        {
+            Debug.Log("[GuildTabPanelController] guildInfoTabButton 할당됨");
+            guildInfoTabButton.onClick.AddListener(() => OnClickTab(0));
+        }
+        else Debug.LogWarning("[GuildTabPanelController] guildInfoTabButton가 인스펙터에 할당되지 않았습니다!");
+
+        if (guildMissionTabButton != null)
+        {
+            Debug.Log("[GuildTabPanelController] guildMissionTabButton 할당됨");
+            guildMissionTabButton.onClick.AddListener(() => OnClickTab(1));
+        }
+        else Debug.LogWarning("[GuildTabPanelController] guildMissionTabButton가 인스펙터에 할당되지 않았습니다!");
+
+        if (guildStatTabButton != null)
+        {
+            Debug.Log("[GuildTabPanelController] guildStatTabButton 할당됨");
+            guildStatTabButton.onClick.AddListener(() => OnClickTab(2));
+        }
+        else Debug.LogWarning("[GuildTabPanelController] guildStatTabButton가 인스펙터에 할당되지 않았습니다!");
+
+        if (guildRegisterTabButton != null)
+        {
+            Debug.Log("[GuildTabPanelController] guildRegisterTabButton 할당됨");
+            guildRegisterTabButton.onClick.AddListener(() => OnClickTab(3));
+        }
+        else Debug.LogWarning("[GuildTabPanelController] guildRegisterTabButton가 인스펙터에 할당되지 않았습니다!");
+
+        if (guildRankTabButton != null)
+        {
+            Debug.Log("[GuildTabPanelController] guildRankTabButton 할당됨");
+            guildRankTabButton.onClick.AddListener(() => OnClickTab(4));
+        }
+        else Debug.LogWarning("[GuildTabPanelController] guildRankTabButton가 인스펙터에 할당되지 않았습니다!");
+
+        if (guildInfoTabButton) guildInfoTabButton.gameObject.SetActive(false);
+        if (guildMissionTabButton) guildMissionTabButton.gameObject.SetActive(false);
+        if (guildStatTabButton) guildStatTabButton.gameObject.SetActive(false);
+        if (guildRegisterTabButton) guildRegisterTabButton.gameObject.SetActive(false);
+        if (guildRankTabButton) guildRankTabButton.gameObject.SetActive(false);
+        Debug.Log("[GuildTabPanelController] Awake(). All buttons forcibly disabled.");
+    }
+
+    void OnEnable()
+    {
+        Debug.Log("[GuildTabPanelController] OnEnable() -> StartCoroutine(GetGuildInfoCoroutine())");
+        StartCoroutine(GetGuildInfoCoroutine());
+    }
+
+    void Start()
+    {
+        Debug.Log("[GuildTabPanelController] Start()");
+    }
+
+    /// <summary>
+    /// 서버에 플레이어의 길드 정보를 요청하여 isJoinedGuild 값을 세팅하고 UI를 초기화.
+    /// </summary>
+    private IEnumerator GetGuildInfoCoroutine()
+    {
+
+        // (1) 전송할 JSON { "playFabId": "..." }
+        string jsonData = $"{{\"playFabId\":\"{GlobalData.playFabId}\"}}";
+        Debug.Log($"[GuildTabPanelController] [GetGuildInfo] 요청 JSON: {jsonData}");
+
+        // (2) UnityWebRequest 설정 (POST 예시)
+        UnityWebRequest request = new UnityWebRequest(getGuildInfoURL, "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        // (3) 요청 전송
+        yield return request.SendWebRequest();
+
+        // (4) 결과 확인
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[GetGuildInfo] 호출 실패: {request.error}");
+            Debug.Log("[GetGuildInfo] 서버 통신 실패로 isJoinedGuild를 false로 설정하고 초기화 진행.");
+
+            // 서버 연결 실패 시, 임시로 false 세팅
+            isJoinedGuild = false;
+            InitializeGuildTabs();
+        }
+        else
+        {
+            string responseJson = request.downloadHandler.text;
+            Debug.Log($"[GetGuildInfo] 호출 성공, 응답: {responseJson}");
+
+            // (5) JSON 파싱
+            try
+            {
+                GuildInfoResponse response = JsonConvert.DeserializeObject<GuildInfoResponse>(responseJson);
+
+                if (response != null)
+                {
+                    // (6) 길드 가입 여부 세팅
+                    isJoinedGuild = response.isJoined;
+                    Debug.Log($"[GetGuildInfo] 응답 파싱 완료. isJoinedGuild={isJoinedGuild}");
+
+                    // UI 초기화
+                    InitializeGuildTabs();
+                }
+                else
+                {
+                    Debug.LogError("[GetGuildInfo] 응답 파싱 실패! (response == null)");
+                    isJoinedGuild = false;
+                    InitializeGuildTabs();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[GetGuildInfo] JSON 파싱 오류: {ex.Message}");
+                isJoinedGuild = false;
+                InitializeGuildTabs();
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// 길드 가입 여부에 따라 탭(버튼)과 기본 탭을 세팅하는 함수
+    /// </summary>
+    public void InitializeGuildTabs()
+    {
+        Debug.Log($"[InitializeGuildTabs] isJoinedGuild = {isJoinedGuild}");
+
+        // (1) 먼저 전부 끄기
+        guildInfoTabButton.gameObject.SetActive(false);
+        guildMissionTabButton.gameObject.SetActive(false);
+        guildStatTabButton.gameObject.SetActive(false);
+        guildRegisterTabButton.gameObject.SetActive(false);
+        guildRankTabButton.gameObject.SetActive(false);
+
+        Debug.Log("[InitializeGuildTabs] 먼저 모든 버튼을 SetActive(false) 처리 완료.");
+
+        // (2) 그 다음 분기에 따라 필요한 것만 켜기
+        if (isJoinedGuild)
+        {
+            guildInfoTabButton.gameObject.SetActive(true);
+            guildMissionTabButton.gameObject.SetActive(true);
+            guildStatTabButton.gameObject.SetActive(true);
+            guildRankTabButton.gameObject.SetActive(true);
+            Debug.Log("[InitializeGuildTabs] 길드 가입 상태 -> 정보/미션/스탯/랭킹 4개 탭만 켬.");
+
+            OnClickTab(0); // 길드 정보 탭
+        }
+        else
+        {
+            guildRegisterTabButton.gameObject.SetActive(true);
+            guildRankTabButton.gameObject.SetActive(true);
+            Debug.Log("[InitializeGuildTabs] 길드 미가입 상태 -> 가입/랭킹 2개 탭만 켬.");
+
+            OnClickTab(3); // 길드 가입 탭
+        }
+    }
+
+
+    /// <summary>
+    /// 탭 버튼 클릭 시 실행되는 함수
+    /// </summary>
+    /// <param name="tabIndex">0: 길드 정보, 1: 길드 미션, 2: 길드 스탯, 3: 길드 가입, 4: 길드 랭킹</param>
+    public void OnClickTab(int tabIndex)
+    {
+        currentTabIndex = tabIndex;
+        Debug.Log($"[OnClickTab] 탭 {tabIndex} 클릭됨 -> HideAllPanels 후 해당 탭 패널 활성화");
+        HideAllPanels();
+
+        switch (tabIndex)
+        {
+            case 0:
+                if (guildInfoPanel != null)
+                {
+                    guildInfoPanel.SetActive(true);
+                    Debug.Log($"[OnClickTab] guildInfoPanel SetActive(true)");
+                }
+                break;
+            case 1:
+                if (guildMissionPanel != null)
+                {
+                    guildMissionPanel.SetActive(true);
+                    Debug.Log($"[OnClickTab] guildMissionPanel SetActive(true)");
+                }
+                break;
+            case 2:
+                if (guildStatPanel != null)
+                {
+                    guildStatPanel.SetActive(true);
+                    Debug.Log($"[OnClickTab] guildStatPanel SetActive(true)");
+                }
+                break;
+            case 3:
+                if (guildRegisterPanel != null)
+                {
+                    guildRegisterPanel.SetActive(true);
+                    Debug.Log($"[OnClickTab] guildRegisterPanel SetActive(true)");
+                }
+                break;
+            case 4:
+                if (guildRankPanel != null)
+                {
+                    guildRankPanel.SetActive(true);
+                    Debug.Log($"[OnClickTab] guildRankPanel SetActive(true)");
+                }
+                break;
+            default:
+                Debug.LogWarning($"[OnClickTab] 알 수 없는 탭 인덱스: {tabIndex}");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 모든 패널을 비활성화하여, 새 탭 패널만 보이게 합니다.
+    /// </summary>
+    private void HideAllPanels()
+    {
+        // 안전하게 null 체크 후 SetActive(false) 처리
+        if (guildInfoPanel)
+        {
+            guildInfoPanel.SetActive(false);
+            Debug.Log($"[HideAllPanels] guildInfoPanel SetActive(false)");
+        }
+        if (guildMissionPanel)
+        {
+            guildMissionPanel.SetActive(false);
+            Debug.Log($"[HideAllPanels] guildMissionPanel SetActive(false)");
+        }
+        if (guildStatPanel)
+        {
+            guildStatPanel.SetActive(false);
+            Debug.Log($"[HideAllPanels] guildStatPanel SetActive(false)");
+        }
+        if (guildRegisterPanel)
+        {
+            guildRegisterPanel.SetActive(false);
+            Debug.Log($"[HideAllPanels] guildRegisterPanel SetActive(false)");
+        }
+        if (guildRankPanel)
+        {
+            guildRankPanel.SetActive(false);
+            Debug.Log($"[HideAllPanels] guildRankPanel SetActive(false)");
+        }
+    }
+}

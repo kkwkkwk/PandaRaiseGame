@@ -24,6 +24,7 @@ public class GuildPopupManager : MonoBehaviour
         {
             GuildCanvas.SetActive(false);
             UnityEngine.Debug.Log("길드 닫기");
+
         }
     }
 
