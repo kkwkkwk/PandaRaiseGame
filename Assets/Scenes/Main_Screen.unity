@@ -905,6 +905,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 35460463}
+  - component: {fileID: 35460464}
+  - component: {fileID: 35460465}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -927,10 +929,50 @@ RectTransform:
   m_Father: {fileID: 903181139}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -0.00007870204}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &35460464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 35460462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
+--- !u!114 &35460465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 35460462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
 --- !u!1 &36518159
 GameObject:
   m_ObjectHideFlags: 0
@@ -2334,7 +2376,7 @@ GameObject:
   - component: {fileID: 133341120}
   - component: {fileID: 133341119}
   m_Layer: 5
-  m_Name: GuildUserListInfo_Panel
+  m_Name: GuildMissionListInfo_Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2955,10 +2997,10 @@ RectTransform:
   - {fileID: 1165926466}
   m_Father: {fileID: 966996731}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000015259, y: 0.0023651}
-  m_SizeDelta: {x: 756, y: 897.24}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0.000030517578, y: 0.000061035156}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &158332736
 MonoBehaviour:
@@ -3479,6 +3521,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 180023158}
+  - component: {fileID: 180023159}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -3503,8 +3546,34 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -0.000062661195}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &180023159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180023157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &186779201
 GameObject:
   m_ObjectHideFlags: 0
@@ -12602,6 +12671,8 @@ MonoBehaviour:
   guildStatPanel: {fileID: 1176653154}
   guildRegisterPanel: {fileID: 1644356117}
   guildRankPanel: {fileID: 1111908024}
+  guildUserListCreator: {fileID: 966996734}
+  guildMissionListCreator: {fileID: 1573683963}
 --- !u!1 &802433347
 GameObject:
   m_ObjectHideFlags: 0
@@ -14909,6 +14980,7 @@ GameObject:
   - component: {fileID: 966996731}
   - component: {fileID: 966996733}
   - component: {fileID: 966996732}
+  - component: {fileID: 966996734}
   m_Layer: 5
   m_Name: GuildUser_Panel
   m_TagString: Untagged
@@ -14974,6 +15046,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 966996730}
   m_CullTransparentMesh: 1
+--- !u!114 &966996734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966996730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9395d8f2a0d61f04b82c925df95e621c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guildUserPrefab: {fileID: 946922104831143756, guid: 9f462819f5d429845a08238781677854, type: 3}
+  contentParent: {fileID: 35460463}
 --- !u!1 &969897964
 GameObject:
   m_ObjectHideFlags: 0
@@ -15898,10 +15984,10 @@ RectTransform:
   - {fileID: 1579671695}
   m_Father: {fileID: 1573683960}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000015259, y: 0.0023651}
-  m_SizeDelta: {x: 756, y: 897.24}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0.5000305, y: -0.000030517578}
+  m_SizeDelta: {x: 1.0001, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1007564394
 MonoBehaviour:
@@ -25323,6 +25409,7 @@ GameObject:
   - component: {fileID: 1573683960}
   - component: {fileID: 1573683962}
   - component: {fileID: 1573683961}
+  - component: {fileID: 1573683963}
   m_Layer: 5
   m_Name: GuildMissionList_Panel
   m_TagString: Untagged
@@ -25388,6 +25475,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1573683959}
   m_CullTransparentMesh: 1
+--- !u!114 &1573683963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1573683959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72e2173bc4fcdd24db3272f7a187b536, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guildMissionPrefab: {fileID: 5858748118400585862, guid: 7cf763eb0c6241c4c980358db0b55692, type: 3}
+  contentParent: {fileID: 180023158}
 --- !u!1 &1579671694
 GameObject:
   m_ObjectHideFlags: 0

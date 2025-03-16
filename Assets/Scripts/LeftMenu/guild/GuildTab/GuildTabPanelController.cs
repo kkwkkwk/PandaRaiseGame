@@ -35,6 +35,17 @@ public class GuildTabPanelController : MonoBehaviour
     [Tooltip("길드 랭킹 UI 패널")]
     public GameObject guildRankPanel;       // GuildPopupRankUI_Panel
 
+
+    [Header("Guild User List")]
+    public GuildUserPanelListCreator guildUserListCreator;  // ScrollView에 프리팹을 생성해줄 스크립트
+    // 서버에서 가져온 길드원 정보 리스트
+    private List<GuildMemberData> currentGuildMemberList;
+
+    [Header("Guild Mission List")]
+    public GuildMissionPanelListCreator guildMissionListCreator;
+    // 서버나 다른 곳에서 받아올 길드 미션 목록
+    private List<GuildMissionData> currentGuildMissionList;
+
     /// <summary>
     /// 현재 선택된 탭 인덱스 (0: 길드정보, 1: 미션, 2: 스탯, 3: 가입, 4: 랭킹)
     /// </summary>
@@ -44,14 +55,16 @@ public class GuildTabPanelController : MonoBehaviour
     private class GuildInfoResponse
     {
         public string playFabId;        // 유저의 플레이팹 아이디
-        public string guildId;          // 유저가 가입한 길드 ID (없으면 null 또는 빈 문자열)
+        public string guildId;          // 유저가 가입한 길드 ID (가입하지 않은 경우 null 또는 빈 문자열)
         public string guildName;        // 길드 이름
         public string guildLevel;       // 길드 레벨
         public string guildRank;        // 길드 랭킹
         public string guildHeadCount;   // 길드 인원 수
-        // (예시) 길드에 가입한 상태인지 여부를 판별해줄 수 있는 프로퍼티
-        // 서버 설계에 따라 bool로 직접 주거나, guildId 유무로 확인할 수도 있음
-        public bool isJoined;
+
+        // 길드원 목록 (있으면 가입한 상태로 판단)
+        public List<GuildMemberData> guildMemberList;
+        // 길드 미션 목록 (길드 정보 응답에 포함)
+        public List<GuildMissionData> guildMissionList;
     }
 
     void Awake()
@@ -116,7 +129,7 @@ public class GuildTabPanelController : MonoBehaviour
     private IEnumerator GetGuildInfoCoroutine()
     {
 
-        // (1) 전송할 JSON { "playFabId": "..." }
+        // (1) 요청 JSON
         string jsonData = $"{{\"playFabId\":\"{GlobalData.playFabId}\"}}";
         Debug.Log($"[GuildTabPanelController] [GetGuildInfo] 요청 JSON: {jsonData}");
 
@@ -136,33 +149,79 @@ public class GuildTabPanelController : MonoBehaviour
             Debug.LogError($"[GetGuildInfo] 호출 실패: {request.error}");
             Debug.Log("[GetGuildInfo] 서버 통신 실패로 isJoinedGuild를 false로 설정하고 초기화 진행.");
 
-            // 서버 연결 실패 시, 임시로 false 세팅
+            /*
+             서버 연결 용
+
+             // 서버 연결 실패 시, false 세팅
             isJoinedGuild = false;
+            currentGuildMemberList = null;
+            currentGuildMissionList = null;
             InitializeGuildTabs();
+             
+             */
+
+            
+             //코딩 테스트 용
+             
+            // 가입 여부 임의로 true
+            isJoinedGuild = true;
+
+            // 임시 길드원 데이터
+            currentGuildMemberList = new List<GuildMemberData>()
+            {
+                new GuildMemberData() { userName="홍길동", userClass="길드원", userPower=12345, isOnline=true },
+                new GuildMemberData() { userName="김길동", userClass="길드마스터", userPower=99999, isOnline=false },
+                new GuildMemberData() { userName="박길동", userClass="부길마", userPower=50000, isOnline=true },
+            };
+
+            // 미션 목록 임의 생성
+            currentGuildMissionList = new List<GuildMissionData>()
+            {
+                new GuildMissionData() { missionContent="길드 출석하기", isCleared=false },
+                new GuildMissionData() { missionContent="길드 보스 처치", isCleared=true },
+                new GuildMissionData() { missionContent="길드 레이드 5회 클리어", isCleared=false },
+            };
+
+            InitializeGuildTabs();
+
+
         }
         else
         {
             string responseJson = request.downloadHandler.text;
             Debug.Log($"[GetGuildInfo] 호출 성공, 응답: {responseJson}");
 
-            // (5) JSON 파싱
             try
             {
                 GuildInfoResponse response = JsonConvert.DeserializeObject<GuildInfoResponse>(responseJson);
 
                 if (response != null)
                 {
-                    // (6) 길드 가입 여부 세팅
-                    isJoinedGuild = response.isJoined;
+                    // guildId가 null 또는 빈 문자열이면 가입하지 않은 것으로 판단
+                    isJoinedGuild = !string.IsNullOrEmpty(response.guildId);
                     Debug.Log($"[GetGuildInfo] 응답 파싱 완료. isJoinedGuild={isJoinedGuild}");
 
-                    // UI 초기화
+                    if (isJoinedGuild)
+                    {
+                        // 길드원 목록
+                        currentGuildMemberList = response.guildMemberList;
+
+                        // 길드 미션 목록
+                        currentGuildMissionList = response.guildMissionList;
+                    }
+                    else
+                    {
+                        currentGuildMemberList = null;
+                        currentGuildMissionList = null;
+                    }
                     InitializeGuildTabs();
                 }
                 else
                 {
                     Debug.LogError("[GetGuildInfo] 응답 파싱 실패! (response == null)");
                     isJoinedGuild = false;
+                    currentGuildMemberList = null;
+                    currentGuildMissionList = null;
                     InitializeGuildTabs();
                 }
             }
@@ -170,10 +229,11 @@ public class GuildTabPanelController : MonoBehaviour
             {
                 Debug.LogError($"[GetGuildInfo] JSON 파싱 오류: {ex.Message}");
                 isJoinedGuild = false;
+                currentGuildMemberList = null;
+                currentGuildMissionList = null;
                 InitializeGuildTabs();
             }
         }
-
     }
 
     /// <summary>
@@ -232,12 +292,30 @@ public class GuildTabPanelController : MonoBehaviour
                     guildInfoPanel.SetActive(true);
                     Debug.Log($"[OnClickTab] guildInfoPanel SetActive(true)");
                 }
+                if (guildUserListCreator != null && currentGuildMemberList != null) // 여기서 길드원 프리팹들을 ScrollView에 배치
+                {
+                    Debug.Log($"[OnClickTab(0)] 길드원 목록을 ScrollView에 표시합니다. 멤버 수: {currentGuildMemberList.Count}");
+                    guildUserListCreator.SetGuildUserList(currentGuildMemberList);
+                }
+                else
+                {
+                    Debug.LogWarning("[OnClickTab(0)] guildUserListCreator 또는 currentGuildMemberList가 null입니다.");
+                }
                 break;
             case 1:
                 if (guildMissionPanel != null)
                 {
                     guildMissionPanel.SetActive(true);
                     Debug.Log($"[OnClickTab] guildMissionPanel SetActive(true)");
+                }
+                if (guildMissionListCreator != null && currentGuildMissionList != null) // 여기서 미션 프리팹들을 ScrollView에 배치
+                {
+                    Debug.Log($"[OnClickTab(1)] 길드 미션 목록 표시. 미션 수: {currentGuildMissionList.Count}");
+                    guildMissionListCreator.SetGuildMissionList(currentGuildMissionList);
+                }
+                else
+                {
+                    Debug.LogWarning("[OnClickTab(1)] guildMissionListCreator 또는 currentGuildMissionList가 null입니다.");
                 }
                 break;
             case 2:
