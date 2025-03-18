@@ -26,6 +26,8 @@ public class EnemySpawner : MonoBehaviour
     {
         if (enemies.Count >= maxEnemyCount) return; // 현재 몬스터 개수가 최대치라면 추가 생성 X
 
+        // spawnPoint.position ( x 값이 일정 범위 내에서 랜덤으로 바뀌도록)
+
         GameObject newEnemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
         enemies.Add(newEnemy);
 

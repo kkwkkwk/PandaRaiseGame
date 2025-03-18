@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Search;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -14,6 +15,7 @@ public class EnemyMovement : MonoBehaviour
         if (playerObj != null)
         {
             player = playerObj.transform;
+            Debug.Log($"[EnemyMovemonet.cs] 플레이어 태그 설정: {playerObj}");
         }
     }
 
@@ -23,6 +25,7 @@ public class EnemyMovement : MonoBehaviour
         {
             // 현재 위치에서 플레이어 위치로 이동 (X축 이동)
             transform.position = Vector2.MoveTowards(transform.position, new Vector2(player.position.x, transform.position.y), moveSpeed * Time.deltaTime);
+            Debug.Log($"[EnemyMovement.cs] 몬스터 이동: {transform.position}");
         }
     }
 }
