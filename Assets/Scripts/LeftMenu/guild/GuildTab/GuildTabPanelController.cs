@@ -46,25 +46,32 @@ public class GuildTabPanelController : MonoBehaviour
     // 서버나 다른 곳에서 받아올 길드 미션 목록
     private List<GuildMissionData> currentGuildMissionList;
 
+    [Header("Guild Register List (추천 길드)")]
+    public GuildListPanelListCreator guildListPanelListCreator;  // ScrollView에 추천 길드 목록 표시용
+    private List<GuildData> currentGuildRegisterList;  // 추천 길드 목록
+
     /// <summary>
     /// 현재 선택된 탭 인덱스 (0: 길드정보, 1: 미션, 2: 스탯, 3: 가입, 4: 랭킹)
     /// </summary>
     private int currentTabIndex;
 
-    // 서버 응답 DTO (예시)
+    // 서버 응답 DTO
     private class GuildInfoResponse
     {
         public string playFabId;        // 유저의 플레이팹 아이디
         public string guildId;          // 유저가 가입한 길드 ID (가입하지 않은 경우 null 또는 빈 문자열)
         public string guildName;        // 길드 이름
-        public string guildLevel;       // 길드 레벨
-        public string guildRank;        // 길드 랭킹
-        public string guildHeadCount;   // 길드 인원 수
+
+        public int guildRank;        // 길드 랭킹
+        public int guildLevel;       // 길드 레벨
+        public int guildHeadCount;   // 길드 인원 수
 
         // 길드원 목록 (있으면 가입한 상태로 판단)
         public List<GuildMemberData> guildMemberList;
         // 길드 미션 목록 (길드 정보 응답에 포함)
         public List<GuildMissionData> guildMissionList;
+        // 가입하지 않은 경우(추천 길드 목록) 서버에서 내려올 수도 있음
+        public List<GuildData> guildRegisterList;
     }
 
     void Awake()
@@ -156,15 +163,16 @@ public class GuildTabPanelController : MonoBehaviour
             isJoinedGuild = false;
             currentGuildMemberList = null;
             currentGuildMissionList = null;
+            currentGuildRegisterList = null;
             InitializeGuildTabs();
              
              */
 
-            
-             //코딩 테스트 용
-             
-            // 가입 여부 임의로 true
-            isJoinedGuild = true;
+
+            //코딩 테스트 용
+
+            // 가입 여부 임의로 true/false
+            isJoinedGuild = false;
 
             // 임시 길드원 데이터
             currentGuildMemberList = new List<GuildMemberData>()
@@ -181,7 +189,13 @@ public class GuildTabPanelController : MonoBehaviour
                 new GuildMissionData() { missionContent="길드 보스 처치", isCleared=true },
                 new GuildMissionData() { missionContent="길드 레이드 5회 클리어", isCleared=false },
             };
-
+            // 여기에 "추천 길드" 임시 데이터 추가
+            currentGuildRegisterList = new List<GuildData>()
+            {
+                new GuildData(){ guildName="길드A", guildLevel=10, guildHeadCount=50 },
+                new GuildData(){ guildName="길드B", guildLevel=8, guildHeadCount=40 },
+                new GuildData(){ guildName="길드C", guildLevel=12, guildHeadCount=30 }
+            };
             InitializeGuildTabs();
 
 
@@ -208,11 +222,25 @@ public class GuildTabPanelController : MonoBehaviour
 
                         // 길드 미션 목록
                         currentGuildMissionList = response.guildMissionList;
+
+                        // 추천 길드 목록은 사용하지 않음
+                        currentGuildRegisterList = null;
                     }
                     else
                     {
+                        // 미가입 상태: 추천 길드 목록 할당
                         currentGuildMemberList = null;
                         currentGuildMissionList = null;
+
+                        // 만약 서버 응답에 추천 길드 목록이 있다면 아래와 같이 할당
+                        // currentGuildRegisterList = response.guildRegisterList;
+                        // 임시 테스트 데이터 (추천 길드 목록)
+                        currentGuildRegisterList = new List<GuildData>()
+                        {
+                            new GuildData(){ guildName="길드A", guildLevel=10, guildHeadCount=50 },
+                            new GuildData(){ guildName="길드B", guildLevel=8, guildHeadCount=40 },
+                            new GuildData(){ guildName="길드C", guildLevel=12, guildHeadCount=30 }
+                        };
                     }
                     InitializeGuildTabs();
                 }
@@ -222,6 +250,7 @@ public class GuildTabPanelController : MonoBehaviour
                     isJoinedGuild = false;
                     currentGuildMemberList = null;
                     currentGuildMissionList = null;
+                    currentGuildRegisterList = null;
                     InitializeGuildTabs();
                 }
             }
@@ -231,6 +260,7 @@ public class GuildTabPanelController : MonoBehaviour
                 isJoinedGuild = false;
                 currentGuildMemberList = null;
                 currentGuildMissionList = null;
+                currentGuildRegisterList = null;
                 InitializeGuildTabs();
             }
         }
@@ -329,7 +359,14 @@ public class GuildTabPanelController : MonoBehaviour
                 if (guildRegisterPanel != null)
                 {
                     guildRegisterPanel.SetActive(true);
-                    Debug.Log($"[OnClickTab] guildRegisterPanel SetActive(true)");
+                    Debug.Log("[OnClickTab] guildRegisterPanel 활성화");
+
+                    // 미가입 상태: 추천 길드 목록(가입 가능한 길드 목록) 표시
+                    if (guildListPanelListCreator != null && currentGuildRegisterList != null)
+                    {
+                        Debug.Log($"[OnClickTab(3)] 추천 길드 목록 표시, 길드 수: {currentGuildRegisterList.Count}");
+                        guildListPanelListCreator.SetGuildList(currentGuildRegisterList);
+                    }
                 }
                 break;
             case 4:

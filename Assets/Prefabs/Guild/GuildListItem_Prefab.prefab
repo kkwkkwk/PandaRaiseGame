@@ -602,6 +602,7 @@ GameObject:
   - component: {fileID: 5389681269527738139}
   - component: {fileID: 4107631765659954514}
   - component: {fileID: 8209790349471930330}
+  - component: {fileID: 5071620118134996981}
   m_Layer: 5
   m_Name: GuildListItem_Prefab
   m_TagString: Untagged
@@ -627,10 +628,10 @@ RectTransform:
   - {fileID: 1310669291121387655}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.92200005}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000030517578}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 540, y: -75}
+  m_SizeDelta: {x: 760, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4107631765659954514
 CanvasRenderer:
@@ -670,6 +671,24 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5071620118134996981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5173936908445185583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8aaee235574fcce48ba6cb7074abea91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guildNameText: {fileID: 9066563392799175281}
+  guildLevelText: {fileID: 2961399473838578243}
+  guildHeadCountText: {fileID: 3856856374772246679}
+  guildRegisterButton: {fileID: 3489309953114651033}
+  baseCapacity: 30
+  incrementPerLevel: 2
 --- !u!1 &6370468916625112763
 GameObject:
   m_ObjectHideFlags: 0
