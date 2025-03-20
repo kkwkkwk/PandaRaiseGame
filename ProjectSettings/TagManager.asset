@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -61,6 +62,9 @@ TagManager:
     locked: 0
   - name: FixName
     uniqueID: 883452171
+    locked: 0
+  - name: Toast
+    uniqueID: 3074230297
     locked: 0
   - name: Test
     uniqueID: 2449007683
