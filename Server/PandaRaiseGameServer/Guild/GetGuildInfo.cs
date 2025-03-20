@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.GroupsModels;
-using PlayFab.ProfilesModels; // Profiles API
-using PlayFab.ServerModels;
+using PlayFab.ProfilesModels;
+using PlayFab.AuthenticationModels;
 using CommonLibrary;
 
 namespace Guild
@@ -31,195 +31,252 @@ namespace Guild
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req)
         {
-            // 1) 요청 바디 파싱
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var input = JsonConvert.DeserializeObject<GetGuildInfoRequest>(requestBody);
-            if (input == null || string.IsNullOrEmpty(input.playFabId))
+            try
             {
-                return new BadRequestObjectResult("Invalid request: playFabId is required.");
-            }
+                _logger.LogInformation("[GetGuildInfo] Function invoked.");
 
-            // 2) PlayFab 설정
-            PlayFabConfig.Configure();
+                // 1) 요청 바디 읽기
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                _logger.LogInformation($"[GetGuildInfo] Request body: {requestBody}");
 
-            // 3) playFabId -> entityId 가져오기 (GetUserAccountInfo)
-            var accountInfoRes = await PlayFabServerAPI.GetUserAccountInfoAsync(
-                new GetUserAccountInfoRequest { PlayFabId = input.playFabId }
-            );
-            if (accountInfoRes.Error != null ||
-                accountInfoRes.Result.UserInfo?.TitleInfo?.TitlePlayerAccount == null)
-            {
-                _logger.LogWarning("[GetGuildInfo] title_player_account가 없음. 미로그인 유저?");
-                return new OkObjectResult(new GuildInfoResponse { isJoined = false });
-            }
-
-            string entityId = accountInfoRes.Result.UserInfo.TitleInfo.TitlePlayerAccount.Id;
-            _logger.LogInformation($"[GetGuildInfo] entityId = {entityId}");
-
-            // 4) ListMembership: 이 엔터티가 속한 그룹(길드) 조회
-            var listMembershipReq = new ListMembershipRequest
-            {
-                Entity = new PlayFab.GroupsModels.EntityKey
+                // 2) JSON 파싱
+                var input = JsonConvert.DeserializeObject<GetGuildInfoRequest>(requestBody);
+                if (input == null || string.IsNullOrEmpty(input.PlayFabId))
                 {
-                    Id = entityId,
-                    Type = "title_player_account"
+                    _logger.LogWarning("[GetGuildInfo] playFabId missing in request.");
+                    return new BadRequestObjectResult("Invalid request: playFabId is required.");
                 }
-            };
-            var listMembershipRes = await PlayFabGroupsAPI.ListMembershipAsync(listMembershipReq);
-            if (listMembershipRes.Error != null)
-            {
-                _logger.LogError("[GetGuildInfo] ListMembership 오류: " + listMembershipRes.Error.GenerateErrorReport());
-                return new BadRequestObjectResult("ListMembership 오류");
-            }
 
-            var userGroups = listMembershipRes.Result.Groups;
-            if (userGroups == null || userGroups.Count == 0)
-            {
-                // 길드 미가입
-                var noGuildResp = new GuildInfoResponse
+                // entityToken 체크
+                if (input.EntityToken == null
+                    || string.IsNullOrEmpty(input.EntityToken.EntityToken)
+                    || input.EntityToken.Entity == null
+                    || string.IsNullOrEmpty(input.EntityToken.Entity.Id)
+                    || string.IsNullOrEmpty(input.EntityToken.Entity.Type))
                 {
-                    isJoined = false,
-                    groupId = null,
-                    groupName = null,
-                    memberList = null
+                    _logger.LogWarning("[GetGuildInfo] entityToken is missing or incomplete.");
+                    return new BadRequestObjectResult("Invalid request: entityToken is required.");
+                }
+
+                // 값 추출
+                string entityTokenFromClient = input.EntityToken.EntityToken;
+                string entityId = input.EntityToken.Entity.Id;
+                string entityType = input.EntityToken.Entity.Type;
+
+                // 3) PlayFab 초기 설정 (SecretKey, TitleId 등)
+                PlayFabConfig.Configure();
+                _logger.LogInformation("[GetGuildInfo] PlayFab configured.");
+
+                // 4) AuthenticationContext 준비
+                var authContext = new PlayFabAuthenticationContext
+                {
+                    EntityId = entityId,
+                    EntityType = entityType,
+                    EntityToken = entityTokenFromClient
                 };
-                return new OkObjectResult(noGuildResp);
-            }
 
-            // (예시) 첫 번째 그룹만
-            var firstGroup = userGroups[0];
-            string groupId = firstGroup.Group.Id;
-            string groupName = firstGroup.GroupName ?? "(NoName)";
-
-            // 5) ListGroupMembers: 결과는 List<EntityMemberRole>
-            var listMembersGroupReq = new ListGroupMembersRequest
-            {
-                Group = new PlayFab.GroupsModels.EntityKey { Id = groupId }
-            };
-            var listMembersGroupRes = await PlayFabGroupsAPI.ListGroupMembersAsync(listMembersGroupReq);
-            if (listMembersGroupRes.Error != null || listMembersGroupRes.Result.Members == null)
-            {
-                _logger.LogWarning("[GetGuildInfo] 그룹 멤버(역할) 정보 없음?");
-                var emptyResp = new GuildInfoResponse
+                // 5) ListMembership
+                _logger.LogInformation($"[GetGuildInfo] Listing memberships for entityId: {entityId}");
+                var listMembershipReq = new ListMembershipRequest
                 {
-                    isJoined = true,
-                    groupId = groupId,
-                    groupName = groupName,
-                    memberList = new List<GuildMemberData>()
-                };
-                return new OkObjectResult(emptyResp);
-            }
-
-            // "roleBlocks" = List<EntityMemberRole>
-            var roleBlocks = listMembersGroupRes.Result.Members;
-
-            // ========== (A) Flatten 엔터티 ID 목록 추출 ==========
-            // 여러 역할에 속한 엔터티가 중복될 수 있음 => 합칠지, 중복 OK인지 정책 결정
-            var entityKeySet = new HashSet<PlayFab.GroupsModels.EntityKey>();
-            // HashSet으로 중복 제거 (엔티티 중복 가입 시 1회만 프로필 조회)
-
-            foreach (var roleBlock in roleBlocks)
-            {
-                if (roleBlock.Members != null)
-                {
-                    foreach (var ewl in roleBlock.Members) // ewl = EntityWithLineage
+                    AuthenticationContext = authContext,
+                    Entity = new PlayFab.GroupsModels.EntityKey
                     {
-                        entityKeySet.Add(ewl.Key);
+                        Id = entityId,
+                        Type = entityType
+                    }
+                };
+                var listMembershipRes = await PlayFabGroupsAPI.ListMembershipAsync(listMembershipReq);
+                if (listMembershipRes.Error != null)
+                {
+                    _logger.LogError($"[GetGuildInfo] ListMembership error: {listMembershipRes.Error.GenerateErrorReport()}");
+                    return new BadRequestObjectResult("ListMembership 오류");
+                }
+
+                var userGroups = listMembershipRes.Result.Groups;
+                if (userGroups == null || userGroups.Count == 0)
+                {
+                    // 길드 미가입 상태
+                    _logger.LogInformation("[GetGuildInfo] No groups found for the entity.");
+                    var noGuildResp = new GuildInfoResponse
+                    {
+                        IsJoined = false,
+                        GroupId = null,
+                        GroupName = null,
+                        MemberList = null
+                    };
+
+                    // (디버그) 서버에서 직렬화된 JSON 확인
+                    string debugJson = JsonConvert.SerializeObject(noGuildResp);
+                    _logger.LogInformation("[GetGuildInfo] Final response JSON (no guild): " + debugJson);
+
+                    return new OkObjectResult(noGuildResp);
+                }
+
+                // 첫 번째 그룹만 사용
+                var firstGroup = userGroups[0];
+                string groupId = firstGroup.Group.Id;
+                string groupName = firstGroup.GroupName ?? "(NoName)";
+                _logger.LogInformation($"[GetGuildInfo] Selected group: groupId = {groupId}, groupName = {groupName}");
+
+                // 6) ListGroupMembers
+                _logger.LogInformation($"[GetGuildInfo] Listing group members for groupId: {groupId}");
+                var listMembersGroupReq = new ListGroupMembersRequest
+                {
+                    AuthenticationContext = authContext,
+                    Group = new PlayFab.GroupsModels.EntityKey { Id = groupId }
+                };
+                var listMembersGroupRes = await PlayFabGroupsAPI.ListGroupMembersAsync(listMembersGroupReq);
+                if (listMembersGroupRes.Error != null || listMembersGroupRes.Result.Members == null)
+                {
+                    _logger.LogWarning("[GetGuildInfo] No group member info found.");
+
+                    var emptyMemberResp = new GuildInfoResponse
+                    {
+                        IsJoined = true,
+                        GroupId = groupId,
+                        GroupName = groupName,
+                        MemberList = new List<GuildMemberData>()
+                    };
+
+                    // (디버그)
+                    string debugJson = JsonConvert.SerializeObject(emptyMemberResp);
+                    _logger.LogInformation("[GetGuildInfo] Final response JSON (no members): " + debugJson);
+
+                    return new OkObjectResult(emptyMemberResp);
+                }
+
+                var roleBlocks = listMembersGroupRes.Result.Members;
+                _logger.LogInformation($"[GetGuildInfo] Retrieved {roleBlocks.Count} role blocks.");
+
+                // (A) 그룹 멤버들의 엔터티 ID 목록 추출
+                var entityKeySet = new HashSet<PlayFab.GroupsModels.EntityKey>();
+                foreach (var roleBlock in roleBlocks)
+                {
+                    if (roleBlock.Members == null) continue;
+                    foreach (var ewl in roleBlock.Members)
+                    {
+                        if (ewl?.Key?.Id != null)
+                            entityKeySet.Add(ewl.Key);
                     }
                 }
-            }
+                _logger.LogInformation($"[GetGuildInfo] Total unique entity keys: {entityKeySet.Count}");
 
-            // 6) Profiles API로 엔티티 프로필 가져오기 => DisplayName
-            var getProfilesReq = new GetEntityProfilesRequest
-            {
-                Entities = entityKeySet.Select(k => new PlayFab.ProfilesModels.EntityKey
+                // 7) Profiles API (DisplayName 등 조회)
+                var getProfilesReq = new GetEntityProfilesRequest
                 {
-                    Id = k.Id,
-                    Type = k.Type
-                }).ToList()
-            };
-            var getProfilesRes = await PlayFabProfilesAPI.GetProfilesAsync(getProfilesReq);
-            if (getProfilesRes.Error != null || getProfilesRes.Result.Profiles == null)
-            {
-                _logger.LogError("[GetGuildInfo] GetProfilesAsync 오류: " + getProfilesRes.Error.GenerateErrorReport());
-                return new BadRequestObjectResult("GetProfiles 오류");
-            }
-
-            // entityId -> displayName 매핑
-            var entityIdToDisplayName = new Dictionary<string, string>();
-            foreach (var profile in getProfilesRes.Result.Profiles)
-            {
-                string? eId = profile.Entity?.Id;
-                // profile.DisplayName: 프로필에 설정된 표시 이름(없을 수도 있음)
-                // NOTE: 실제로 DisplayName을 채우려면 "SetEntityProfilePolicy" 등으로 권한을 열고 
-                //       "SetProfile"에서 DisplayName을 설정해두어야 할 수도 있음
-                string? disp = profile.DisplayName;
-                if (!string.IsNullOrEmpty(eId))
-                {
-                    entityIdToDisplayName[eId] = !string.IsNullOrEmpty(disp) ? disp : eId;
-                }
-            }
-
-            // ========== (B) 역할 블록 순회하여 실제 멤버 목록 구성 ==========
-            var memberList = new List<GuildMemberData>();
-            foreach (var roleBlock in roleBlocks)
-            {
-                string roleName = roleBlock.RoleName ?? "(NoRoleName)";
-                if (roleBlock.Members == null) continue;
-
-                foreach (var ewl in roleBlock.Members)
-                {
-                    string eId = ewl.Key.Id;
-                    // displayName 매핑
-                    string finalDisplayName = entityIdToDisplayName.ContainsKey(eId)
-                        ? entityIdToDisplayName[eId]
-                        : eId;
-
-                    memberList.Add(new GuildMemberData
+                    AuthenticationContext = authContext,
+                    Entities = entityKeySet.Select(k => new PlayFab.ProfilesModels.EntityKey
                     {
-                        entityId = eId,
-                        role = roleName,
-                        displayName = finalDisplayName,
-                        power = 0 // 일단 생략
-                    });
+                        Id = k.Id,
+                        Type = k.Type
+                    }).ToList()
+                };
+                _logger.LogInformation("[GetGuildInfo] Calling GetProfilesAsync...");
+                var getProfilesRes = await PlayFabProfilesAPI.GetProfilesAsync(getProfilesReq);
+                if (getProfilesRes.Error != null || getProfilesRes.Result?.Profiles == null)
+                {
+                    _logger.LogError($"[GetGuildInfo] GetProfilesAsync error: {getProfilesRes.Error?.GenerateErrorReport()}");
+                    return new BadRequestObjectResult("GetProfiles 오류");
                 }
+
+                // 엔터티 ID -> displayName 맵
+                var entityIdToDisplayName = new Dictionary<string, string>();
+                foreach (var profile in getProfilesRes.Result.Profiles)
+                {
+                    string eId = profile.Entity.Id;
+                    string disp = profile.DisplayName;
+                    if (!string.IsNullOrEmpty(eId))
+                        entityIdToDisplayName[eId] = !string.IsNullOrEmpty(disp) ? disp : eId;
+                }
+
+                // (B) 최종 멤버 리스트 생성
+                var memberList = new List<GuildMemberData>();
+                foreach (var roleBlock in roleBlocks)
+                {
+                    string roleName = roleBlock.RoleName ?? "(NoRoleName)";
+                    if (roleBlock.Members == null) continue;
+
+                    foreach (var ewl in roleBlock.Members)
+                    {
+                        string eId = ewl.Key.Id;
+                        string finalDisplayName = entityIdToDisplayName.ContainsKey(eId)
+                            ? entityIdToDisplayName[eId]
+                            : eId;
+
+                        memberList.Add(new GuildMemberData
+                        {
+                            EntityId = eId,
+                            Role = roleName,
+                            DisplayName = finalDisplayName,
+                            Power = 0 // 필요 시 수정
+                        });
+                    }
+                }
+                _logger.LogInformation($"[GetGuildInfo] Final member list count: {memberList.Count}");
+
+                // 8) 최종 응답
+                var resp = new GuildInfoResponse
+                {
+                    IsJoined = true,
+                    GroupId = groupId,
+                    GroupName = groupName,
+                    MemberList = memberList
+                };
+
+                // (디버그) 직렬화된 결과를 서버 로그에 남기기
+                string finalJson = JsonConvert.SerializeObject(resp);
+                _logger.LogInformation("[GetGuildInfo] Final response JSON: " + finalJson);
+
+                return new OkObjectResult(resp);
             }
-
-            // 7) 최종 응답
-            var resp = new GuildInfoResponse
+            catch (Exception ex)
             {
-                isJoined = true,
-                groupId = groupId,
-                groupName = groupName,
-                memberList = memberList
-            };
-
-            return new OkObjectResult(resp);
+                _logger.LogError($"[GetGuildInfo] Exception: {ex.Message}\n{ex.StackTrace}");
+                return new BadRequestObjectResult("Internal server error in GetGuildInfo.");
+            }
         }
     }
 
-    // -----------------------
-    // DTO
-    // -----------------------
-
+    // ------------------------------------------------------------
+    // [REQUEST DTO] 
+    // ------------------------------------------------------------
+    // *요청 DTO도 가능하면 프로퍼티 사용 권장. (필드는 무시될 수 있음)
     public class GetGuildInfoRequest
     {
-        public string? playFabId;
+        public string? PlayFabId { get; set; }
+        public EntityTokenData? EntityToken { get; set; }
     }
 
+    public class EntityTokenData
+    {
+        public EntityKeyData? Entity { get; set; }
+        public string? EntityToken { get; set; }
+        public DateTime? TokenExpiration { get; set; }
+    }
+
+    public class EntityKeyData
+    {
+        public string? Id { get; set; }
+        public string? Type { get; set; }
+    }
+
+    // ------------------------------------------------------------
+    // [RESPONSE DTO] 
+    // ------------------------------------------------------------
     public class GuildInfoResponse
     {
-        public bool isJoined;
-        public string? groupId;
-        public string? groupName;
-        public List<GuildMemberData>? memberList;
+        public bool IsJoined { get; set; }
+        public string? GroupId { get; set; }
+        public string? GroupName { get; set; }
+        public List<GuildMemberData>? MemberList { get; set; }
     }
 
     public class GuildMemberData
     {
-        public string? entityId;
-        public string? role;
-        public string? displayName;
-        public int power;
+        public string? EntityId { get; set; }
+        public string? Role { get; set; }
+        public string? DisplayName { get; set; }
+        public int Power { get; set; }
     }
 }

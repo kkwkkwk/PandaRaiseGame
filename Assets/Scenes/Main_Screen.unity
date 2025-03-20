@@ -6025,10 +6025,10 @@ RectTransform:
   - {fileID: 843802891}
   m_Father: {fileID: 1756508664}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 440.5, y: -34.200012}
-  m_SizeDelta: {x: 120, y: 60}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &362269232
 MonoBehaviour:
@@ -9898,10 +9898,10 @@ RectTransform:
   - {fileID: 145216901}
   m_Father: {fileID: 1756508664}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 190.5, y: -34.200012}
-  m_SizeDelta: {x: 120, y: 60}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &592095238
 MonoBehaviour:
@@ -12674,8 +12674,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d06096fc91178fe4b97800007a4166c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  getGuildInfoURL: https://your-azure-function-url/GetGuildInfo
-  isJoinedGuild: 1
   guildInfoTabButton: {fileID: 539867347}
   guildMissionTabButton: {fileID: 303002852}
   guildStatTabButton: {fileID: 1177620473}
@@ -12687,8 +12685,6 @@ MonoBehaviour:
   guildRegisterPanel: {fileID: 1644356117}
   guildRankPanel: {fileID: 1111908024}
   guildUserListCreator: {fileID: 966996734}
-  guildMissionListCreator: {fileID: 1573683963}
-  guildListPanelListCreator: {fileID: 696991175}
 --- !u!1 &802433347
 GameObject:
   m_ObjectHideFlags: 0
@@ -21755,10 +21751,10 @@ RectTransform:
   - {fileID: 1840539110}
   m_Father: {fileID: 1756508664}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 565.5, y: -34.200012}
-  m_SizeDelta: {x: 120, y: 60}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1357732627
 MonoBehaviour:
@@ -22882,10 +22878,10 @@ RectTransform:
   - {fileID: 883441478}
   m_Father: {fileID: 2058087970}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 763.5, y: -8.599976}
-  m_SizeDelta: {x: 65, y: 65}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.4999999, y: 0.5}
 --- !u!114 &1401278948
 MonoBehaviour:
@@ -23325,7 +23321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1428882979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24331,9 +24327,9 @@ RectTransform:
   m_Father: {fileID: 1974443639}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -17, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1510223597
 MonoBehaviour:
@@ -26419,10 +26415,10 @@ RectTransform:
   - {fileID: 1531055669}
   m_Father: {fileID: 1756508664}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 315.5, y: -34.200012}
-  m_SizeDelta: {x: 120, y: 60}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1632498592
 MonoBehaviour:
@@ -27228,7 +27224,7 @@ RectTransform:
   m_Father: {fileID: 1355812049}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}

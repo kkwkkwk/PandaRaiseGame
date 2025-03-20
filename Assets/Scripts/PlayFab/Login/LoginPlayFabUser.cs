@@ -17,6 +17,7 @@ public class PlayFabIdRequestData
 public static class GlobalData
 {
     public static string playFabId;
+    public static EntityTokenResponse entityToken;
 }
 
 public class LoginPlayFabUser : MonoBehaviour
@@ -84,7 +85,8 @@ public class LoginPlayFabUser : MonoBehaviour
     private void OnPlayFabLoginSuccess(LoginResult result)
     {
         GlobalData.playFabId = result.PlayFabId; // PlayFab ID 저장
-        LogMessage("✅ PlayFab 로그인 성공! PlayFab ID: " + result.PlayFabId);
+        GlobalData.entityToken = result.EntityToken;
+        LogMessage("✅ PlayFab 로그인 성공! PlayFab ID: " + result.PlayFabId + result.EntityToken);
         OnPlayFabLoginSuccessEvent?.Invoke(result.PlayFabId);
 
         // Azure Function 호출을 위해 코루틴 시작
