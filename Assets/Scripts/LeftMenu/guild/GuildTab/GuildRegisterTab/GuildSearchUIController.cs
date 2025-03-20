@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Text;
 using TMPro;          // 혹은 InputField가 TMP가 아니라면 TMP는 제외
+using Newtonsoft.Json;
 
 public class GuildSearchUIController : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class GuildSearchUIController : MonoBehaviour
 
     [Header("Server Info")]
     // 길드 검색을 수행하기 위한 서버 URL 
-    public string guildSearchUrl = "https://your-azure-function-url/GetGuildSearch";
+    private string guildSearchUrl = "https://pandaraisegame-guild.azurewebsites.net/api/SearchGuildInfo?code=BoxlcBs-Gy3a5xnGpz7rsEW59Nn4j77MhwhQg4pP5uOWAzFugC6r6A==";
 
     private void Awake()
     {
@@ -53,7 +54,21 @@ public class GuildSearchUIController : MonoBehaviour
     private IEnumerator SearchGuildCoroutine(string query)
     {
         // 예시로 { "searchQuery": "안녕" } 형태의 JSON을 보낸다고 가정
-        string jsonData = $"{{\"searchQuery\":\"{query}\"}}";
+        var requestPayload = new
+        {
+            SearchQuery = query,
+            EntityToken = new
+            {
+                Entity = new
+                {
+                    Id = GlobalData.entityToken.Entity.Id,
+                    Type = GlobalData.entityToken.Entity.Type
+                },
+                EntityToken = GlobalData.entityToken.EntityToken,
+                TokenExpiration = GlobalData.entityToken.TokenExpiration
+            }
+        };
+        string jsonData = JsonConvert.SerializeObject(requestPayload);
         Debug.Log("[SearchGuildCoroutine] 요청 JSON: " + jsonData);
 
         // UnityWebRequest 준비 (POST)

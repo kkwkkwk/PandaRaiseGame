@@ -13,7 +13,6 @@ using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.GroupsModels;
 using PlayFab.ProfilesModels;
-using PlayFab.AuthenticationModels;
 using CommonLibrary;
 
 namespace Guild

@@ -29,6 +29,15 @@ public class GuildTabPanelController : MonoBehaviour
     public GuildUserPanelListCreator guildUserListCreator; // ScrollView 쪽에 프리팹 배치 스크립트
     private List<GuildMemberData> currentGuildMemberList;  // 실제 UI에 표시할 최종 멤버 목록
 
+    [Header("Guild Mission List")]
+    public GuildMissionPanelListCreator guildMissionListCreator;
+    // 서버나 다른 곳에서 받아올 길드 미션 목록
+    private List<GuildMissionData> currentGuildMissionList;
+
+    [Header("Guild Register List (추천 길드)")]
+    public GuildListPanelListCreator guildListPanelListCreator;  // ScrollView에 추천 길드 목록 표시용
+    private List<GuildData> currentGuildRegisterList;  // 추천 길드 목록
+
     private bool isJoinedGuild = false;
 
     void Awake()

@@ -12685,6 +12685,8 @@ MonoBehaviour:
   guildRegisterPanel: {fileID: 1644356117}
   guildRankPanel: {fileID: 1111908024}
   guildUserListCreator: {fileID: 966996734}
+  guildMissionListCreator: {fileID: 0}
+  guildListPanelListCreator: {fileID: 0}
 --- !u!1 &802433347
 GameObject:
   m_ObjectHideFlags: 0
@@ -21354,7 +21356,6 @@ MonoBehaviour:
   searchInputField: {fileID: 1637242146}
   searchButton: {fileID: 657267386}
   searchResultListCreator: {fileID: 696991175}
-  guildSearchUrl: https://your-azure-function-url/GetGuildSearch
 --- !u!1 &1329060941
 GameObject:
   m_ObjectHideFlags: 0
