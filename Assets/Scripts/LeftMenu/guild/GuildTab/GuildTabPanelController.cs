@@ -10,6 +10,8 @@ public class GuildTabPanelController : MonoBehaviour
 {
     [Header("Server Info")]
     private string getGuildInfoURL = "https://pandaraisegame-guild.azurewebsites.net/api/GetGuildInfo?code=rF0MNAlNGQAzW_jLfF3A5QBKvRCGmR92yd3CTvzb5NopAzFuLTJeAg==";
+    private string getGuildMissionURL = "https://pandaraisegame-guild.azurewebsites.net/api/GetGuildMissionInfo?code=_ZkbGvKAPencIUseyN0dApN-WiB9XfrCOp1GBWw7MZ06AzFuiw5Ejw==";
+    // ↑ 실제 함수 URL & 코드로 교체
 
     [Header("Tab Buttons")]
     public Button guildInfoTabButton;
@@ -30,13 +32,12 @@ public class GuildTabPanelController : MonoBehaviour
     private List<GuildMemberData> currentGuildMemberList;  // 실제 UI에 표시할 최종 멤버 목록
 
     [Header("Guild Mission List")]
-    public GuildMissionPanelListCreator guildMissionListCreator;
-    // 서버나 다른 곳에서 받아올 길드 미션 목록
-    private List<GuildMissionData> currentGuildMissionList;
+    public GuildMissionPanelListCreator guildMissionListCreator;  // 미션 목록 표시용
+    private List<GuildMissionData> currentGuildMissionList;       // 미션 데이터를 저장
 
     [Header("Guild Register List (추천 길드)")]
-    public GuildListPanelListCreator guildListPanelListCreator;  // ScrollView에 추천 길드 목록 표시용
-    private List<GuildData> currentGuildRegisterList;  // 추천 길드 목록
+    public GuildListPanelListCreator guildListPanelListCreator;  // 추천 길드 목록 표시용
+    private List<GuildData> currentGuildRegisterList;            // 추천 길드 목록
 
     private bool isJoinedGuild = false;
 
@@ -58,13 +59,15 @@ public class GuildTabPanelController : MonoBehaviour
 
     private void OnEnable()
     {
-        // Guild Info 조회
+        // 길드 정보 조회
         StartCoroutine(GetGuildInfoCoroutine());
     }
 
+    /// <summary>
+    /// 서버로부터 길드 가입 정보 + 길드원 목록 등을 받아오는 코루틴
+    /// </summary>
     private IEnumerator GetGuildInfoCoroutine()
     {
-        // 예: { "playFabId": GlobalData.playFabId }
         var requestJson = new
         {
             playFabId = GlobalData.playFabId,
@@ -121,22 +124,18 @@ public class GuildTabPanelController : MonoBehaviour
                 isJoinedGuild = serverResponse.isJoined;
                 if (isJoinedGuild)
                 {
-                    // ===== 여기서 서버 멤버 구조 -> GuildMemberData로 변환 =====
+                    // 서버 멤버 구조 -> GuildMemberData로 변환
                     currentGuildMemberList = new List<GuildMemberData>();
                     if (serverResponse.memberList != null)
                     {
                         foreach (var m in serverResponse.memberList)
                         {
-                            // 서버에서 받은 displayName -> userName
-                            // 서버에서 받은 role -> userClass
-                            // 서버에서 받은 power -> userPower
-                            // isOnline은 임의로 false (또는 다른 로직)
                             var localData = new GuildMemberData
                             {
                                 userName = m.displayName,
                                 userClass = m.role,
                                 userPower = m.power,
-                                isOnline = false
+                                isOnline = false // 임의 값
                             };
                             currentGuildMemberList.Add(localData);
                         }
@@ -153,6 +152,101 @@ public class GuildTabPanelController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 길드 미션 정보를 서버(Azure Function)로부터 받아오는 코루틴
+    /// </summary>
+    private IEnumerator GetGuildMissionCoroutine()
+    {
+        Debug.Log("[GuildTabPanelController] 길드 미션 조회 시작...");
+        using (UnityWebRequest request = new UnityWebRequest(getGuildMissionURL, "POST"))
+        {
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes("{}");
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("[GuildTabPanelController] 길드 미션 조회 실패: " + request.error);
+                yield break;
+            }
+
+            string responseJson = request.downloadHandler.text;
+            Debug.Log("[GuildTabPanelController] 길드 미션 조회 성공, 응답: " + responseJson);
+
+            // 1) GuildMissionResponse 역직렬화
+            GuildMissionResponse response = null;
+            try
+            {
+                response = JsonConvert.DeserializeObject<GuildMissionResponse>(responseJson);
+                Debug.Log("[GuildTabPanelController] GuildMissionResponse.GuildMissionData: " + response.GuildMissionData);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("[GuildTabPanelController] JSON 파싱 오류(1단계): " + ex.Message);
+                yield break;
+            }
+
+            if (response == null || string.IsNullOrEmpty(response.GuildMissionData))
+            {
+                Debug.LogWarning("[GuildTabPanelController] GuildMissionData가 비어있음.");
+                yield break;
+            }
+
+            // 2) 내부 JSON 객체를 GuildMissionTitleData로 역직렬화
+            GuildMissionTitleData missionTitleData = null;
+            try
+            {
+                missionTitleData = JsonConvert.DeserializeObject<GuildMissionTitleData>(response.GuildMissionData);
+                if (missionTitleData != null && missionTitleData.GuildMissionList != null)
+                {
+                    Debug.Log("[GuildTabPanelController] 역직렬화 성공, 미션 개수: " + missionTitleData.GuildMissionList.Count);
+                }
+                else
+                {
+                    Debug.LogWarning("[GuildTabPanelController] missionTitleData 또는 미션 목록이 null입니다.");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("[GuildTabPanelController] JSON 파싱 오류(2단계): " + ex.Message);
+                yield break;
+            }
+
+            if (missionTitleData == null || missionTitleData.GuildMissionList == null)
+            {
+                Debug.LogWarning("[GuildTabPanelController] 길드 미션 목록이 비어 있습니다.");
+                yield break;
+            }
+
+            // 3) DTO -> 클라이언트용 GuildMissionData 변환
+            currentGuildMissionList = new List<GuildMissionData>();
+            foreach (var dto in missionTitleData.GuildMissionList)
+            {
+                currentGuildMissionList.Add(new GuildMissionData
+                {
+                    guildMissionID = dto.id,
+                    guildMissionReward = "미구현 보상",
+                    missionContent = $"{dto.title}",
+                    isCleared = false
+                });
+            }
+
+            Debug.Log("[GuildTabPanelController] 최종 변환된 미션 개수: " + currentGuildMissionList.Count);
+
+            // 미션 탭이 활성화되어 있다면 UI 갱신
+            if (guildMissionPanel.activeSelf && guildMissionListCreator != null)
+            {
+                guildMissionListCreator.SetGuildMissionList(currentGuildMissionList);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 길드 탭 버튼 활성화/비활성 처리
+    /// </summary>
     private void InitializeGuildTabs()
     {
         guildInfoTabButton.gameObject.SetActive(false);
@@ -172,6 +266,7 @@ public class GuildTabPanelController : MonoBehaviour
         }
         else
         {
+            // 길드 미가입
             guildRegisterTabButton.gameObject.SetActive(true);
             guildRankTabButton.gameObject.SetActive(true);
 
@@ -179,6 +274,9 @@ public class GuildTabPanelController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 탭 버튼을 클릭했을 때 호출되는 함수
+    /// </summary>
     public void OnClickTab(int idx)
     {
         HideAllPanels();
@@ -186,6 +284,7 @@ public class GuildTabPanelController : MonoBehaviour
         switch (idx)
         {
             case 0:
+                // 길드 정보 패널
                 if (guildInfoPanel) guildInfoPanel.SetActive(true);
 
                 // 길드원 목록 표시
@@ -194,21 +293,46 @@ public class GuildTabPanelController : MonoBehaviour
                     guildUserListCreator.SetGuildUserList(currentGuildMemberList);
                 }
                 break;
+
             case 1:
+                // 길드 미션 패널
                 if (guildMissionPanel) guildMissionPanel.SetActive(true);
+
+                // 아직 미션을 한 번도 불러오지 않았다면, 서버에서 가져옴
+                if (currentGuildMissionList == null || currentGuildMissionList.Count == 0)
+                {
+                    StartCoroutine(GetGuildMissionCoroutine());
+                }
+                else
+                {
+                    // 이미 로드된 미션 목록이 있으면 바로 표시
+                    if (guildMissionListCreator != null)
+                    {
+                        guildMissionListCreator.SetGuildMissionList(currentGuildMissionList);
+                    }
+                }
                 break;
+
             case 2:
+                // 길드 스탯 패널
                 if (guildStatPanel) guildStatPanel.SetActive(true);
                 break;
+
             case 3:
+                // 길드 가입 패널
                 if (guildRegisterPanel) guildRegisterPanel.SetActive(true);
                 break;
+
             case 4:
+                // 길드 랭크 패널
                 if (guildRankPanel) guildRankPanel.SetActive(true);
                 break;
         }
     }
 
+    /// <summary>
+    /// 모든 탭 패널을 비활성화
+    /// </summary>
     private void HideAllPanels()
     {
         if (guildInfoPanel) guildInfoPanel.SetActive(false);
@@ -220,7 +344,7 @@ public class GuildTabPanelController : MonoBehaviour
 }
 
 // -----------------------------------------------------
-// 서버 응답 DTO
+// 서버 응답 DTO (길드 정보)
 // -----------------------------------------------------
 [System.Serializable]
 public class GuildInfoResponse
@@ -231,9 +355,6 @@ public class GuildInfoResponse
     public List<ServerGuildMember> memberList;
 }
 
-// -----------------------------------------------------
-// 서버 측 멤버 구조
-// -----------------------------------------------------
 [System.Serializable]
 public class ServerGuildMember
 {
@@ -241,4 +362,32 @@ public class ServerGuildMember
     public string role;
     public string displayName;
     public int power;
+}
+
+// -----------------------------------------------------
+// 서버 응답 DTO (길드 미션)
+// -----------------------------------------------------
+[System.Serializable]
+public class GuildMissionResponse
+{
+    [JsonProperty("guildMissionData")]
+    public string GuildMissionData { get; set; }
+}
+
+[System.Serializable]
+public class GuildMissionDTO
+{
+    public string id;
+    public string title;
+    public string description;
+    public int goal;
+    public string resetType;
+    // public object reward; // 필요 시
+}
+
+[System.Serializable]
+public class GuildMissionTitleData
+{
+    [JsonProperty("GuildMissionList")]
+    public List<GuildMissionDTO> GuildMissionList { get; set; }
 }
