@@ -172,7 +172,7 @@ public class GuildTabPanelController : MonoBehaviour
             //코딩 테스트 용
 
             // 가입 여부 임의로 true/false
-            isJoinedGuild = false;
+            isJoinedGuild = true;
 
             // 임시 길드원 데이터
             currentGuildMemberList = new List<GuildMemberData>()
