@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    public int maxHealth = 100;  // 플레이어 최대 체력
-    public int currentHealth;    // 현재 체력
-    public int attackPower = 15; // 공격력
+    public int maxHealth = 100;   // 플레이어 최대 체력
+    public int currentHealth;     // 현재 체력
 
     void Start()
     {

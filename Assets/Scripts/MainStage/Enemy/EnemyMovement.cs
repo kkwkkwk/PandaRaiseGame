@@ -1,30 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public float moveSpeed = 2.0f; // 이동 속도 (Inspector에서 조정 가능)
-    private Transform player;      // 플레이어의 위치
+    [Tooltip("이동 속도 (초당 거리)")]
+    public float moveSpeed = 2f;
 
-    void Start()
+    private Transform playerTransform;
+
+    private void Start()
     {
-        // 플레이어 찾기 (태그가 "Player"인 오브젝트)
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        // 씬에서 태그가 "Player"인 오브젝트를 찾고 Transform을 가져옵니다.
+        GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
         {
-            player = playerObj.transform;
-            Debug.Log($"[EnemyMovemonet.cs] 플레이어 태그 설정: {playerObj}");
+            playerTransform = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogWarning("[EnemyMovement] 태그가 'Player'인 오브젝트를 찾을 수 없습니다!");
         }
     }
 
-    void Update()
+    private void Update()
     {
-        if (player != null)
+        // 플레이어를 찾았다면, x좌표만 향해 이동
+        if (playerTransform != null)
         {
-            // 현재 위치에서 플레이어 위치로 이동 (X축 이동)
-            transform.position = Vector2.MoveTowards(transform.position, new Vector2(player.position.x, transform.position.y), moveSpeed * Time.deltaTime);
-            Debug.Log($"[EnemyMovement.cs] 몬스터 이동: {transform.position}");
+            // 현재 위치
+            Vector3 currentPos = transform.position;
+            // 목표 x좌표(플레이어의 x)
+            float targetX = playerTransform.position.x;
+
+            // moveSpeed * Time.deltaTime 만큼 부드럽게 이동
+            float step = moveSpeed * Time.deltaTime;
+
+            // x좌표만 플레이어 쪽으로 이동, y/z는 기존값 유지
+            float newX = Mathf.MoveTowards(currentPos.x, targetX, step);
+            transform.position = new Vector3(newX, currentPos.y, currentPos.z);
         }
     }
 }

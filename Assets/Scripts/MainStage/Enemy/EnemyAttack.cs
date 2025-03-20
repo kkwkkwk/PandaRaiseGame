@@ -4,49 +4,63 @@ using UnityEngine;
 
 public class EnemyAttack : MonoBehaviour
 {
-    public float attackRange = 1.5f; // 공격 범위
-    public float attackDelay = 1.0f; // 공격 딜레이 (몇 초마다 공격할지)
-    public int attackPower = 10;     // 몬스터 공격력
-    private Transform player;        // 플레이어 위치
-    private PlayerStats playerStats; // 플레이어 스탯
-    private bool isAttacking = false; // 현재 공격 중인지 여부
+    [Header("Attack Settings")]
+    [Tooltip("적의 공격력")]
+    public int damage = 8;
 
-    void Start()
+    [Tooltip("공격 사거리 (거리가 이 값 이하일 때 공격)")]
+    public float attackRange = 1.5f;
+
+    [Tooltip("얼마나 자주 공격을 시도할지 (초 간격)")]
+    public float attackInterval = 1f;
+
+    private Transform playerTransform;
+    private Coroutine attackLoop;
+
+    private void Start()
     {
-        // 플레이어 찾기
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        // 태그 "Player"인 오브젝트 찾기
+        GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
         {
-            player = playerObj.transform;
-            playerStats = playerObj.GetComponent<PlayerStats>();
+            playerTransform = playerObj.transform;
         }
-    }
-
-    void Update()
-    {
-        if (player != null && playerStats != null)
+        else
         {
-            // 몬스터와 플레이어 간 거리 계산
-            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            Debug.LogWarning("[EnemyAttack] 태그가 'Player'인 오브젝트를 찾지 못했습니다!");
+        }
 
-            // 플레이어가 공격 범위 안에 있다면 공격 실행
-            if (distanceToPlayer <= attackRange && !isAttacking)
+        attackLoop = StartCoroutine(AttackRoutine());
+    }
+
+    private IEnumerator AttackRoutine()
+    {
+        while (true)
+        {
+            if (playerTransform != null)
             {
-                StartCoroutine(Attack());
+                float distance = Vector2.Distance(transform.position, playerTransform.position);
+                if (distance <= attackRange)
+                {
+                    // 플레이어에게 데미지를 준다
+                    PlayerStats playerStats = playerTransform.GetComponent<PlayerStats>();
+                    if (playerStats != null)
+                    {
+                        playerStats.TakeDamage(damage);
+                        Debug.Log($"[EnemyAttack] Enemy가 Player에게 {damage} 데미지! 남은 체력: {playerStats.currentHealth}");
+                    }
+                }
             }
+
+            yield return new WaitForSeconds(attackInterval);
         }
     }
 
-    IEnumerator Attack()
+    private void OnDisable()
     {
-        isAttacking = true;
-        Debug.Log($"몬스터가 플레이어를 공격! 플레이어 체력: {playerStats.currentHealth}");
-
-        // 플레이어에게 데미지 입힘
-        playerStats.TakeDamage(attackPower);
-
-        // 공격 대기 시간 후 다시 공격 가능
-        yield return new WaitForSeconds(attackDelay);
-        isAttacking = false;
+        if (attackLoop != null)
+        {
+            StopCoroutine(attackLoop);
+        }
     }
 }

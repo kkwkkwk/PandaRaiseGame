@@ -4,56 +4,96 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public GameObject enemyPrefab;  // 스폰할 몬스터 프리팹
-    public Transform spawnPoint;    // 몬스터가 생성될 위치
-    public int maxEnemyCount = 3;   // 동시에 존재할 수 있는 최대 몬스터 수
+    [Header("Required Prefabs/Transforms")]
+    [Tooltip("소환할 적(Enemy) 프리팹 (Inspector에서 드래그)")]
+    public GameObject enemyPrefab;
 
-    private List<GameObject> enemies = new List<GameObject>();
+    [Tooltip("소환 위치 기준 Transform (Inspector에서 EnemySpawnPoint를 드래그)")]
+    public Transform spawnPointTransform;
 
-    void Start()
+    [Header("Spawn Settings")]
+    [Tooltip("동시에 유지할 적의 최대 수 (예: 3)")]
+    public int maxEnemyCount = 3;
+
+    [Tooltip("스폰 체크 간격 (초) (예: 2초)")]
+    public float spawnCheckInterval = 2f;
+
+    [Header("X Offset Range")]
+    [Tooltip("spawnPointTransform 기준 x 좌표에 ±로 더할 범위 (예: 20)")]
+    public float xOffsetRange = 20f;
+
+    // 현재 소환된 적을 추적
+    private List<GameObject> spawnedEnemies = new List<GameObject>();
+    private Coroutine spawnLoop;
+
+    private void Start()
     {
-        // 스테이지에 필요한 몬스터 개수만큼 즉시 생성
-        for (int i = 0; i < maxEnemyCount; i++)
+        // 필수 필드 확인
+        if (enemyPrefab == null)
         {
-            SpawnEnemy();
+            Debug.LogError("[EnemySpawner] enemyPrefab이 할당되지 않았습니다!");
+            return;
+        }
+        if (spawnPointTransform == null)
+        {
+            Debug.LogError("[EnemySpawner] spawnPointTransform이 할당되지 않았습니다!");
+            return;
+        }
+
+        Debug.Log($"[EnemySpawner] enemyPrefab='{enemyPrefab.name}', spawnPoint='{spawnPointTransform.name}'가 정상 할당됨.");
+
+        // 코루틴 시작
+        spawnLoop = StartCoroutine(SpawnLoop());
+        Debug.Log("[EnemySpawner] Start() - 스폰 코루틴 시작");
+    }
+
+    private IEnumerator SpawnLoop()
+    {
+        while (true)
+        {
+            // 이미 파괴된(null) 오브젝트 제거
+            spawnedEnemies.RemoveAll(e => e == null);
+
+            Debug.Log($"[EnemySpawner] SpawnLoop 실행. 현재 소환된 적 수={spawnedEnemies.Count}");
+
+            // 부족하면 새로 스폰
+            while (spawnedEnemies.Count < maxEnemyCount)
+            {
+                SpawnEnemy();
+            }
+
+            yield return new WaitForSeconds(spawnCheckInterval);
         }
     }
 
-    /// <summary>
-    /// 몬스터를 생성하는 함수 (즉시 실행)
-    /// </summary>
     private void SpawnEnemy()
     {
-        if (enemies.Count >= maxEnemyCount) return; // 현재 몬스터 개수가 최대치라면 추가 생성 X
-
-        // spawnPoint.position ( x 값이 일정 범위 내에서 랜덤으로 바뀌도록)
-
-        GameObject newEnemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
-        enemies.Add(newEnemy);
-
-        // 몬스터의 `EnemyStats` 컴포넌트에서 사망 시 알림을 받도록 설정
-        EnemyStats enemyStats = newEnemy.GetComponent<EnemyStats>();
-        if (enemyStats != null)
+        if (enemyPrefab == null || spawnPointTransform == null)
         {
-            enemyStats.OnEnemyDeath += () => RemoveEnemy(newEnemy);
+            Debug.LogError("[EnemySpawner] SpawnEnemy() 실패: Prefab 또는 SpawnPoint가 null입니다!");
+            return;
         }
 
-        Debug.Log($"몬스터 생성됨! 위치: {spawnPoint.position}");
+        // spawnPointTransform 위치를 기준으로 xOffsetRange 범위 내에서만 X좌표 랜덤
+        Vector3 basePos = spawnPointTransform.position;
+        float randomXOffset = Random.Range(-xOffsetRange, xOffsetRange);
+        Vector3 spawnPos = new Vector3(basePos.x + randomXOffset, basePos.y, basePos.z);
+
+        // Instantiate (부모 없이) → Scene 루트(또는 EnemySpawner 오브젝트의 자식)로 놓일 수 있음
+        GameObject newEnemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+
+        // 리스트 등록
+        spawnedEnemies.Add(newEnemy);
+
+        Debug.Log($"[EnemySpawner] 적 소환 완료. 최종 소환 위치={spawnPos}, 현재 소환된 적 수={spawnedEnemies.Count}");
     }
 
-    /// <summary>
-    /// 몬스터 사망 시 리스트에서 제거하고 즉시 새로운 몬스터 생성
-    /// </summary>
-    public void RemoveEnemy(GameObject enemy)
+    private void OnDisable()
     {
-        if (enemies.Contains(enemy))
+        if (spawnLoop != null)
         {
-            enemies.Remove(enemy);
-            Destroy(enemy);
-            Debug.Log("몬스터 사망 → 리스트에서 제거됨!");
-
-            // 한 마리가 사망하면 즉시 새로운 몬스터를 스폰
-            SpawnEnemy();
+            StopCoroutine(spawnLoop);
+            Debug.Log("[EnemySpawner] OnDisable() - 스폰 코루틴 중지");
         }
     }
 }
