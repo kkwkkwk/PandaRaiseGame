@@ -11,7 +11,6 @@ public class GuildTabPanelController : MonoBehaviour
     [Header("Server Info")]
     private string getGuildInfoURL = "https://pandaraisegame-guild.azurewebsites.net/api/GetGuildInfo?code=rF0MNAlNGQAzW_jLfF3A5QBKvRCGmR92yd3CTvzb5NopAzFuLTJeAg==";
     private string getGuildMissionURL = "https://pandaraisegame-guild.azurewebsites.net/api/GetGuildMissionInfo?code=_ZkbGvKAPencIUseyN0dApN-WiB9XfrCOp1GBWw7MZ06AzFuiw5Ejw==";
-    // ↑ 실제 함수 URL & 코드로 교체
 
     [Header("Tab Buttons")]
     public Button guildInfoTabButton;
@@ -34,10 +33,6 @@ public class GuildTabPanelController : MonoBehaviour
     [Header("Guild Mission List")]
     public GuildMissionPanelListCreator guildMissionListCreator;  // 미션 목록 표시용
     private List<GuildMissionData> currentGuildMissionList;       // 미션 데이터를 저장
-
-    [Header("Guild Register List (추천 길드)")]
-    public GuildListPanelListCreator guildListPanelListCreator;  // 추천 길드 목록 표시용
-    private List<GuildData> currentGuildRegisterList;            // 추천 길드 목록
 
     private bool isJoinedGuild = false;
 

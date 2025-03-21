@@ -33,7 +33,7 @@ public class StageManager : MonoBehaviour
     public GameObject enemyPrefab;
 
     // enemyPrefab을 이용해 생성한 스포너 인스턴스가 이미 생성되었는지 여부
-    private bool enemySpawnerInstantiated = false;
+    // private bool enemySpawnerInstantiated = false;
 
     void Start()
     {
