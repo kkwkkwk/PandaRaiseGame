@@ -171,8 +171,8 @@ MonoBehaviour:
   userClassText: {fileID: 3800045772352731503}
   userPowerText: {fileID: 2269402554000122109}
   userConnectionStatusImage: {fileID: 1933844666780271097}
-  onlineSprite: {fileID: 0}
-  offlineSprite: {fileID: 0}
+  onlineSprite: {fileID: 21300000, guid: 1b958d7da594b6448a2e74c645fefcc7, type: 3}
+  offlineSprite: {fileID: 21300000, guid: 05b944d7c074baa46a4744afb26fc5fa, type: 3}
 --- !u!1 &1333067670851314567
 GameObject:
   m_ObjectHideFlags: 0

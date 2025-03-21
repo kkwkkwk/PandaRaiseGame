@@ -130,7 +130,7 @@ public class GuildTabPanelController : MonoBehaviour
                                 userName = m.displayName,
                                 userClass = m.role,
                                 userPower = m.power,
-                                isOnline = false // 임의 값
+                                isOnline = m.isOnline,
                             };
                             currentGuildMemberList.Add(localData);
                         }
@@ -357,6 +357,7 @@ public class ServerGuildMember
     public string role;
     public string displayName;
     public int power;
+    public bool isOnline;
 }
 
 // -----------------------------------------------------

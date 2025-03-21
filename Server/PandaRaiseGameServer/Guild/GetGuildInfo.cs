@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.GroupsModels;
 using PlayFab.ProfilesModels;
+using PlayFab.AuthenticationModels;  // 추가: GetEntityTokenRequest 등
 using CommonLibrary;
 
 namespace Guild
@@ -58,7 +59,7 @@ namespace Guild
                 }
 
                 // 값 추출
-                string entityTokenFromClient = input.EntityToken.EntityToken;
+                string clientEntityToken = input.EntityToken.EntityToken;
                 string entityId = input.EntityToken.Entity.Id;
                 string entityType = input.EntityToken.Entity.Type;
 
@@ -66,19 +67,19 @@ namespace Guild
                 PlayFabConfig.Configure();
                 _logger.LogInformation("[GetGuildInfo] PlayFab configured.");
 
-                // 4) AuthenticationContext 준비
-                var authContext = new PlayFabAuthenticationContext
+                // 4) 클라이언트 토큰을 기반으로 AuthenticationContext 준비 (멤버 조회용)
+                var clientAuthContext = new PlayFabAuthenticationContext
                 {
                     EntityId = entityId,
                     EntityType = entityType,
-                    EntityToken = entityTokenFromClient
+                    EntityToken = clientEntityToken
                 };
 
-                // 5) ListMembership
+                // 5) ListMembership: 이 엔터티가 속한 그룹 조회
                 _logger.LogInformation($"[GetGuildInfo] Listing memberships for entityId: {entityId}");
                 var listMembershipReq = new ListMembershipRequest
                 {
-                    AuthenticationContext = authContext,
+                    AuthenticationContext = clientAuthContext,
                     Entity = new PlayFab.GroupsModels.EntityKey
                     {
                         Id = entityId,
@@ -105,7 +106,6 @@ namespace Guild
                         MemberList = null
                     };
 
-                    // (디버그) 서버에서 직렬화된 JSON 확인
                     string debugJson = JsonConvert.SerializeObject(noGuildResp);
                     _logger.LogInformation("[GetGuildInfo] Final response JSON (no guild): " + debugJson);
 
@@ -118,18 +118,17 @@ namespace Guild
                 string groupName = firstGroup.GroupName ?? "(NoName)";
                 _logger.LogInformation($"[GetGuildInfo] Selected group: groupId = {groupId}, groupName = {groupName}");
 
-                // 6) ListGroupMembers
+                // 6) ListGroupMembers: 그룹 멤버 조회 (클라이언트 토큰 사용)
                 _logger.LogInformation($"[GetGuildInfo] Listing group members for groupId: {groupId}");
                 var listMembersGroupReq = new ListGroupMembersRequest
                 {
-                    AuthenticationContext = authContext,
+                    AuthenticationContext = clientAuthContext,
                     Group = new PlayFab.GroupsModels.EntityKey { Id = groupId }
                 };
                 var listMembersGroupRes = await PlayFabGroupsAPI.ListGroupMembersAsync(listMembersGroupReq);
                 if (listMembersGroupRes.Error != null || listMembersGroupRes.Result.Members == null)
                 {
                     _logger.LogWarning("[GetGuildInfo] No group member info found.");
-
                     var emptyMemberResp = new GuildInfoResponse
                     {
                         IsJoined = true,
@@ -138,7 +137,6 @@ namespace Guild
                         MemberList = new List<GuildMemberData>()
                     };
 
-                    // (디버그)
                     string debugJson = JsonConvert.SerializeObject(emptyMemberResp);
                     _logger.LogInformation("[GetGuildInfo] Final response JSON (no members): " + debugJson);
 
@@ -161,17 +159,33 @@ namespace Guild
                 }
                 _logger.LogInformation($"[GetGuildInfo] Total unique entity keys: {entityKeySet.Count}");
 
-                // 7) Profiles API (DisplayName 등 조회)
+                // 7) 이제 프로필 API 호출 시 클라이언트 토큰 대신 서버 토큰 사용
+                // 2) 서버 토큰 획득
+                var tokenRequest = new GetEntityTokenRequest();
+                var tokenResult = await PlayFabAuthenticationAPI.GetEntityTokenAsync(tokenRequest);
+                if (tokenResult.Error != null)
+                {
+                    _logger.LogError("[GetGuildInfo] Error fetching server entity token: " + tokenResult.Error.GenerateErrorReport());
+                    return new BadRequestObjectResult("Error fetching server entity token");
+                }
+                var serverAuthContext = new PlayFabAuthenticationContext
+                {
+                    EntityId = tokenResult.Result.Entity.Id,
+                    EntityType = tokenResult.Result.Entity.Type,
+                    EntityToken = tokenResult.Result.EntityToken
+                };
+
+                // 3) Profiles API 호출 (서버 토큰 사용) → DisplayName + Lineage 조회
                 var getProfilesReq = new GetEntityProfilesRequest
                 {
-                    AuthenticationContext = authContext,
+                    AuthenticationContext = serverAuthContext,
                     Entities = entityKeySet.Select(k => new PlayFab.ProfilesModels.EntityKey
                     {
                         Id = k.Id,
                         Type = k.Type
                     }).ToList()
                 };
-                _logger.LogInformation("[GetGuildInfo] Calling GetProfilesAsync...");
+                _logger.LogInformation("[GetGuildInfo] Calling GetProfilesAsync with server token...");
                 var getProfilesRes = await PlayFabProfilesAPI.GetProfilesAsync(getProfilesReq);
                 if (getProfilesRes.Error != null || getProfilesRes.Result?.Profiles == null)
                 {
@@ -179,17 +193,75 @@ namespace Guild
                     return new BadRequestObjectResult("GetProfiles 오류");
                 }
 
-                // 엔터티 ID -> displayName 맵
+                // 4) 프로필에서 DisplayName과 MasterPlayerAccount Id를 추출
+                //    entityIdToDisplayName:  엔터티 ID → DisplayName
+                //    entityIdToMasterId:     엔터티 ID → 실제 PlayFabId (Lineage.MasterPlayerAccount.Id)
                 var entityIdToDisplayName = new Dictionary<string, string>();
+                var entityIdToMasterId = new Dictionary<string, string?>();
                 foreach (var profile in getProfilesRes.Result.Profiles)
                 {
                     string eId = profile.Entity.Id;
                     string disp = profile.DisplayName;
-                    if (!string.IsNullOrEmpty(eId))
-                        entityIdToDisplayName[eId] = !string.IsNullOrEmpty(disp) ? disp : eId;
+                    entityIdToDisplayName[eId] = !string.IsNullOrEmpty(disp) ? disp : eId;
+
+                    // Lineage에서 마스터 플레이어 계정 ID 추출
+                    string? masterId = profile.Lineage?.MasterPlayerAccountId;
+                    if (!string.IsNullOrEmpty(masterId))
+                    {
+                        entityIdToMasterId[eId] = masterId;
+                        _logger.LogInformation($"[GetGuildInfo] {eId} → MasterPlayerId: {masterId}");
+                    }
+                    else
+                    {
+                        // 없는 경우 fallback 처리 (엔터티 ID가 곧 PlayFabId는 아님)
+                        _logger.LogWarning($"[GetGuildInfo] {eId}: MasterPlayerAccount Id가 없습니다.");
+                        entityIdToMasterId[eId] = null;
+                    }
                 }
 
-                // (B) 최종 멤버 리스트 생성
+                // 5) UserData 조회 (MasterPlayerAccount Id 기준)
+                var additionalUserData = new Dictionary<string, (int UserPower, bool IsOnline)>();
+                foreach (var eKey in entityKeySet)
+                {
+                    string eId = eKey.Id;
+
+                    // 마스터 플레이어 ID가 있으면 그걸 사용, 없으면 UserData 조회 불가 → 기본값
+                    string? masterId = entityIdToMasterId.ContainsKey(eId) ? entityIdToMasterId[eId] : null;
+                    if (string.IsNullOrEmpty(masterId))
+                    {
+                        additionalUserData[eId] = (0, false);
+                        continue;
+                    }
+
+                    // GetUserData 호출
+                    var getUserDataReq = new PlayFab.ServerModels.GetUserDataRequest
+                    {
+                        PlayFabId = masterId,
+                        Keys = new List<string> { "UserPower", "isOnline" }
+                    };
+                    var getUserDataRes = await PlayFabServerAPI.GetUserDataAsync(getUserDataReq);
+                    if (getUserDataRes.Error != null)
+                    {
+                        _logger.LogWarning($"[GetGuildInfo] GetUserData 실패 for {masterId}: {getUserDataRes.Error.GenerateErrorReport()}");
+                        additionalUserData[eId] = (0, false);
+                    }
+                    else
+                    {
+                        int userPower = 0;
+                        bool isOnline = false;
+                        if (getUserDataRes.Result.Data != null)
+                        {
+                            if (getUserDataRes.Result.Data.ContainsKey("UserPower"))
+                                int.TryParse(getUserDataRes.Result.Data["UserPower"].Value, out userPower);
+
+                            if (getUserDataRes.Result.Data.ContainsKey("isOnline"))
+                                bool.TryParse(getUserDataRes.Result.Data["isOnline"].Value, out isOnline);
+                        }
+                        additionalUserData[eId] = (userPower, isOnline);
+                    }
+                }
+
+                // 6) 최종 멤버 리스트 구성
                 var memberList = new List<GuildMemberData>();
                 foreach (var roleBlock in roleBlocks)
                 {
@@ -199,31 +271,42 @@ namespace Guild
                     foreach (var ewl in roleBlock.Members)
                     {
                         string eId = ewl.Key.Id;
+                        // DisplayName
                         string finalDisplayName = entityIdToDisplayName.ContainsKey(eId)
                             ? entityIdToDisplayName[eId]
                             : eId;
+
+                        // Power, isOnline
+                        int userPower = 0;
+                        bool isOnline = false;
+                        if (additionalUserData.ContainsKey(eId))
+                        {
+                            userPower = additionalUserData[eId].UserPower;
+                            isOnline = additionalUserData[eId].IsOnline;
+                        }
 
                         memberList.Add(new GuildMemberData
                         {
                             EntityId = eId,
                             Role = roleName,
                             DisplayName = finalDisplayName,
-                            Power = 0 // 필요 시 수정
+                            Power = userPower,
+                            IsOnline = isOnline
                         });
                     }
                 }
                 _logger.LogInformation($"[GetGuildInfo] Final member list count: {memberList.Count}");
 
-                // 8) 최종 응답
+
+                // 8) 최종 응답 구성
                 var resp = new GuildInfoResponse
                 {
-                    IsJoined = true,
+                    IsJoined = true, 
                     GroupId = groupId,
                     GroupName = groupName,
                     MemberList = memberList
                 };
 
-                // (디버그) 직렬화된 결과를 서버 로그에 남기기
                 string finalJson = JsonConvert.SerializeObject(resp);
                 _logger.LogInformation("[GetGuildInfo] Final response JSON: " + finalJson);
 
@@ -238,9 +321,8 @@ namespace Guild
     }
 
     // ------------------------------------------------------------
-    // [REQUEST DTO] 
+    // [REQUEST DTO]
     // ------------------------------------------------------------
-    // *요청 DTO도 가능하면 프로퍼티 사용 권장. (필드는 무시될 수 있음)
     public class GetGuildInfoRequest
     {
         public string? PlayFabId { get; set; }
@@ -261,7 +343,7 @@ namespace Guild
     }
 
     // ------------------------------------------------------------
-    // [RESPONSE DTO] 
+    // [RESPONSE DTO]
     // ------------------------------------------------------------
     public class GuildInfoResponse
     {
@@ -277,5 +359,6 @@ namespace Guild
         public string? Role { get; set; }
         public string? DisplayName { get; set; }
         public int Power { get; set; }
+        public bool IsOnline { get; set; }
     }
 }
