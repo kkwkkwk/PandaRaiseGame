@@ -87,7 +87,6 @@ GameObject:
   - component: {fileID: 8447749601861433573}
   - component: {fileID: 1620178722402821308}
   - component: {fileID: 5910907824746109363}
-  - component: {fileID: 1339825897692722916}
   m_Layer: 5
   m_Name: GuildUser_Prefab
   m_TagString: Untagged
@@ -173,22 +172,10 @@ MonoBehaviour:
   userClassText: {fileID: 3800045772352731503}
   userPowerText: {fileID: 2269402554000122109}
   userConnectionStatusImage: {fileID: 1933844666780271097}
-  guildUserSettingIcon: {fileID: 2236426637611447176}
+  guildUserSettingIcon: {fileID: 5871856608352297037}
   onlineSprite: {fileID: 21300000, guid: 1b958d7da594b6448a2e74c645fefcc7, type: 3}
   offlineSprite: {fileID: 21300000, guid: 05b944d7c074baa46a4744afb26fc5fa, type: 3}
   guildUserSettingIcon_sprite: {fileID: 21300000, guid: d8143a50befc5604b9a8ab406fd9e28a, type: 3}
---- !u!114 &1339825897692722916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 946922104831143756}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9174e41835b64804789c5357d361d36d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1333067670851314567
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,19 +497,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4041277165930817421}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1339825897692722916}
-        m_TargetAssemblyTypeName: OpenGuildBanPopup, Assembly-CSharp
-        m_MethodName: OnClickOpenGuildBanPanel
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &2273960331408891730
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,7 +21,6 @@ public class GuildUserPanelItemController : MonoBehaviour
 
     private void Awake()
     {
-
         onlineSprite = Resources.Load<Sprite>("Sprites/Guild/OnlineStatus");
         offlineSprite = Resources.Load<Sprite>("Sprites/Guild/OfflineStatus");
         guildUserSettingIcon_sprite = Resources.Load<Sprite>("Sprites/Guild/setting_icon");
