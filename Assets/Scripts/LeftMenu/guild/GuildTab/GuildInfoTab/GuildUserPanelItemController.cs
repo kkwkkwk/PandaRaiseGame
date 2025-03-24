@@ -9,7 +9,8 @@ public class GuildUserPanelItemController : MonoBehaviour
     public TextMeshProUGUI userClassText;
     public TextMeshProUGUI userPowerText;
     public Image userConnectionStatusImage;
-    public GameObject guildUserSettingIcon;        // 왼쪽 흰색 사각형에 해당하는 Image 컴포넌트
+    public Button guildUserSettingIcon;        // 왼쪽 흰색 사각형에 해당하는 Image 컴포넌트
+    private GuildMemberData currentMemberData;
 
     [Header("Connection Status Sprites")]
     public Sprite onlineSprite;
@@ -38,6 +39,8 @@ public class GuildUserPanelItemController : MonoBehaviour
     /// </summary>
     public void SetData(GuildMemberData memberData)
     {
+        currentMemberData = memberData;
+
         if (userNameText != null)
             userNameText.text = memberData.userName;
 
@@ -57,24 +60,14 @@ public class GuildUserPanelItemController : MonoBehaviour
         //    '설정 아이콘' 오브젝트를 활성화
         // -------------------------------
         bool isMasterOrSub = (memberData.userClass == "길드마스터" || memberData.userClass == "부마스터");
+        guildUserSettingIcon.gameObject.SetActive(isMasterOrSub);
 
-        if (guildUserSettingIcon_sprite != null)
-        {
-            if (guildUserSettingIcon != null)
-            {
-                // (1) 아이콘 활성화/비활성
-                guildUserSettingIcon.SetActive(isMasterOrSub);
-
-                // (2) Image 컴포넌트에 sprite 할당
-                if (isMasterOrSub)
-                {
-                    var iconImage = guildUserSettingIcon.GetComponent<Image>();
-                    if (iconImage != null && guildUserSettingIcon_sprite != null)
-                    {
-                        iconImage.sprite = guildUserSettingIcon_sprite;
-                    }
-                }
-            }
-        }
+        guildUserSettingIcon.onClick.RemoveAllListeners();
+        guildUserSettingIcon.onClick.AddListener(() => OnClickSettingIcon());
+    }
+    private void OnClickSettingIcon()
+    {
+        // 팝업 열기 & 해당 길드원 정보 전달
+        GuildBanPopupManager.Instance.OpenGuildBanPopup(currentMemberData);
     }
 }

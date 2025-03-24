@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 
 public class GuildTabPanelController : MonoBehaviour
 {
+
+    public static GuildTabPanelController Instance { get; private set; }
+
     [Header("Server Info")]
     private string getGuildInfoURL = "https://pandaraisegame-guild.azurewebsites.net/api/GetGuildInfo?code=rF0MNAlNGQAzW_jLfF3A5QBKvRCGmR92yd3CTvzb5NopAzFuLTJeAg==";
     private string getGuildMissionURL = "https://pandaraisegame-guild.azurewebsites.net/api/GetGuildMissionInfo?code=_ZkbGvKAPencIUseyN0dApN-WiB9XfrCOp1GBWw7MZ06AzFuiw5Ejw==";
@@ -239,6 +242,32 @@ public class GuildTabPanelController : MonoBehaviour
         }
     }
 
+    public void RemoveMemberAndRefresh(GuildMemberData memberData)
+    {
+        if (currentGuildMemberList != null)
+        {
+            // userName으로 식별, 혹은 별도의 고유 ID가 있다면 그걸로 찾는 게 더 안전
+            GuildMemberData found = currentGuildMemberList.Find(m => m.userName == memberData.userName);
+
+            if (found != null)
+            {
+                currentGuildMemberList.Remove(found);
+                Debug.Log($"[GuildTabPanelController] {found.userName} 를 리스트에서 제거");
+            }
+            else
+            {
+                Debug.LogWarning($"[GuildTabPanelController] {memberData.userName}가 리스트 내에 없습니다.");
+            }
+        }
+
+        // 탭이 0 (길드 정보 탭)이 활성화 중이라면, 리스트 다시 표시
+        // 혹은 그냥 OnClickTab(0)을 다시 호출해도 됨
+        if (guildUserListCreator != null && currentGuildMemberList != null)
+        {
+            guildUserListCreator.SetGuildUserList(currentGuildMemberList);
+        }
+    }
+
     /// <summary>
     /// 길드 탭 버튼 활성화/비활성 처리
     /// </summary>
@@ -337,6 +366,8 @@ public class GuildTabPanelController : MonoBehaviour
         if (guildRankPanel) guildRankPanel.SetActive(false);
     }
 }
+
+
 
 // -----------------------------------------------------
 // 서버 응답 DTO (길드 정보)
