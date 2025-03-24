@@ -18,8 +18,8 @@ public class GuildGeneratePopupManager : MonoBehaviour
     public TMP_InputField guildNameInputField; // 길드 이름 입력 필드
     public Button createGuildButton;           // 길드 생성 버튼
 
-    // ★ 실제 서버 함수 URL로 교체
-    private string createGuildURL = "https://your-azure-function-url/CreateGuild?code=YOUR_FUNCTION_KEY";
+  
+    private string createGuildURL = "https://pandaraisegame-guild.azurewebsites.net/api/CreateGuild?code=PBi5G3ni054ZB9hvtm63r63waa90OK-WygcCgVFkdYkLAzFu9BH6Xw==";
 
     private void Awake()
     {
