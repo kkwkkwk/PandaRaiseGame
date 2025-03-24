@@ -123,7 +123,65 @@ namespace Guild
                     _logger.LogInformation("[CreateGuild] User added to admins role successfully.");
                 }
 
-                // 7) 최종 응답
+                // 7) subadmins 역할 생성
+                var createSubadminRoleReq = new CreateGroupRoleRequest
+                {
+                    AuthenticationContext = serverAuthContext,
+                    Group = createdGroup.Group,
+                    RoleId = "subadmins",
+                    RoleName = "부마스터", // 역할 이름 (표시용)
+                    CustomTags = new Dictionary<string, string>() // 필요 시 커스텀 태그 추가
+                };
+                var createSubadminRoleRes = await PlayFabGroupsAPI.CreateRoleAsync(createSubadminRoleReq);
+                if (createSubadminRoleRes.Error != null)
+                {
+                    _logger.LogWarning("[CreateGuild] CreateGroupRole for subadmins failed: " + createSubadminRoleRes.Error.GenerateErrorReport());
+                }
+                else
+                {
+                    _logger.LogInformation("[CreateGuild] subadmins role created successfully.");
+                }
+
+                // 8) 업데이트: 기본 역할들의 RoleName 변경
+                //    여기서 admins -> "길드마스터", members -> "길드원"
+                //    UpdateGroupRole API를 사용하여 RoleName을 업데이트합니다.
+                var updateAdminRoleReq = new UpdateGroupRoleRequest
+                {
+                    AuthenticationContext = serverAuthContext,
+                    Group = createdGroup.Group,
+                    RoleId = "admins",
+                    RoleName = "길드마스터",
+                    CustomTags = new Dictionary<string, string>()
+                };
+                var updateAdminRoleRes = await PlayFabGroupsAPI.UpdateRoleAsync(updateAdminRoleReq);
+                if (updateAdminRoleRes.Error != null)
+                {
+                    _logger.LogWarning("[CreateGuild] UpdateGroupRole for admins failed: " + updateAdminRoleRes.Error.GenerateErrorReport());
+                }
+                else
+                {
+                    _logger.LogInformation("[CreateGuild] Admin role updated to '길드마스터'.");
+                }
+
+                var updateMemberRoleReq = new UpdateGroupRoleRequest
+                {
+                    AuthenticationContext = serverAuthContext,
+                    Group = createdGroup.Group,
+                    RoleId = "members",
+                    RoleName = "길드원",
+                    CustomTags = new Dictionary<string, string>()
+                };
+                var updateMemberRoleRes = await PlayFabGroupsAPI.UpdateRoleAsync(updateMemberRoleReq);
+                if (updateMemberRoleRes.Error != null)
+                {
+                    _logger.LogWarning("[CreateGuild] UpdateGroupRole for members failed: " + updateMemberRoleRes.Error.GenerateErrorReport());
+                }
+                else
+                {
+                    _logger.LogInformation("[CreateGuild] Members role updated to '길드원'.");
+                }
+
+                // 9) 최종 응답
                 var resp = new CreateGuildResponse
                 {
                     guildId = createdGroup.Group.Id,
