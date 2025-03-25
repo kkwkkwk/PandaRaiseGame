@@ -38,10 +38,15 @@ public class GuildTabPanelController : MonoBehaviour
     private List<GuildMissionData> currentGuildMissionList;       // 미션 데이터를 저장
 
     private bool isJoinedGuild = false;
-    private bool myIsMasterOrSub = false; // GuildTabPanelController 클래스 멤버 변수
+
+    // 로그인 유저(나)의 계급 ("길드마스터", "부마스터", "길드원" 등)
+    private string myUserRole = "길드원"; // 기본값
 
     void Awake()
     {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
         guildInfoTabButton.onClick.AddListener(() => OnClickTab(0));
         guildMissionTabButton.onClick.AddListener(() => OnClickTab(1));
         guildStatTabButton.onClick.AddListener(() => OnClickTab(2));
@@ -97,7 +102,7 @@ public class GuildTabPanelController : MonoBehaviour
             isJoinedGuild = false;
             currentGuildMemberList = null;
 
-            myIsMasterOrSub = false;
+            myUserRole = "길드원";
 
             InitializeGuildTabs();
         }
@@ -121,7 +126,7 @@ public class GuildTabPanelController : MonoBehaviour
                 // 응답이 유효하지 않으면 길드 미가입으로 처리
                 isJoinedGuild = false;
                 currentGuildMemberList = null;
-                myIsMasterOrSub = false;
+                myUserRole = "길드원";
             }
             else
             {
@@ -129,7 +134,7 @@ public class GuildTabPanelController : MonoBehaviour
 
                 if (isJoinedGuild)
                 {
-                    // 1) 길드원 목록 세팅
+                    // 길드원 목록 세팅
                     currentGuildMemberList = new List<GuildMemberData>();
                     if (serverResponse.memberList != null)
                     {
@@ -137,6 +142,7 @@ public class GuildTabPanelController : MonoBehaviour
                         {
                             var localData = new GuildMemberData
                             {
+                                entityId = m.entityId,   // ★ 추가
                                 userName = m.displayName,
                                 userClass = m.role,
                                 userPower = m.power,
@@ -146,7 +152,7 @@ public class GuildTabPanelController : MonoBehaviour
                         }
                     }
 
-                    // 2) GuildInfoPanel: 길드 이름 / 레벨 / 소개 설정
+                    // GuildInfoPanel: 길드 이름 / 레벨 / 소개 설정
                     var infoPanelCtrl = guildInfoPanel.GetComponent<GuildInfoPanelController>();
                     if (infoPanelCtrl != null)
                     {
@@ -158,8 +164,8 @@ public class GuildTabPanelController : MonoBehaviour
                         );
                     }
 
-                    // 6) 내가 길드마스터/부마스터인지 판별
-                    myIsMasterOrSub = false;
+                    // 내 계급 찾기
+                    myUserRole = "길드원";
                     string myEntityId = GlobalData.entityToken.Entity.Id;
 
                     if (serverResponse.memberList != null)
@@ -168,22 +174,19 @@ public class GuildTabPanelController : MonoBehaviour
                         {
                             if (m.entityId == myEntityId)
                             {
-                                // "길드마스터", "부마스터" 등 체크
-                                if (m.role == "길드마스터" || m.role == "부마스터")
-                                {
-                                    myIsMasterOrSub = true;
-                                }
+                                myUserRole = m.role;
                                 break;
                             }
                         }
                     }
 
-                    Debug.Log($"[GetGuildInfo] 내가 마스터/부마스터인가? {myIsMasterOrSub}");
+                    Debug.Log($"[GetGuildInfo] 내 계급: {myUserRole}");
                 }
                 else
                 {
                     // 길드 미가입
                     currentGuildMemberList = null;
+                    myUserRole = "길드원";
                 }
             }
 
@@ -286,30 +289,13 @@ public class GuildTabPanelController : MonoBehaviour
         }
     }
 
-    public void RemoveMemberAndRefresh(GuildMemberData memberData)
+    /// <summary>
+    /// 서버에서 길드 정보를 다시 받아와 UI 갱신
+    /// </summary>
+    public void RefreshGuildData()
     {
-        if (currentGuildMemberList != null)
-        {
-            // userName으로 식별, 혹은 별도의 고유 ID가 있다면 그걸로 찾는 게 더 안전
-            GuildMemberData found = currentGuildMemberList.Find(m => m.userName == memberData.userName);
-
-            if (found != null)
-            {
-                currentGuildMemberList.Remove(found);
-                Debug.Log($"[GuildTabPanelController] {found.userName} 를 리스트에서 제거");
-            }
-            else
-            {
-                Debug.LogWarning($"[GuildTabPanelController] {memberData.userName}가 리스트 내에 없습니다.");
-            }
-        }
-
-        // 탭이 0 (길드 정보 탭)이 활성화 중이라면, 리스트 다시 표시
-        // 혹은 그냥 OnClickTab(0)을 다시 호출해도 됨
-        if (guildUserListCreator != null && currentGuildMemberList != null)
-        {
-            guildUserListCreator.SetGuildUserList(currentGuildMemberList, myIsMasterOrSub);
-        }
+        Debug.Log("[GuildTabPanelController] RefreshGuildData() 호출 -> 길드 정보 재조회");
+        StartCoroutine(GetGuildInfoCoroutine());
     }
 
     /// <summary>
@@ -358,7 +344,7 @@ public class GuildTabPanelController : MonoBehaviour
                 // 길드원 목록 표시
                 if (guildUserListCreator != null && currentGuildMemberList != null)
                 {
-                    guildUserListCreator.SetGuildUserList(currentGuildMemberList, myIsMasterOrSub);
+                    guildUserListCreator.SetGuildUserList(currentGuildMemberList, myUserRole);
                 }
                 break;
 

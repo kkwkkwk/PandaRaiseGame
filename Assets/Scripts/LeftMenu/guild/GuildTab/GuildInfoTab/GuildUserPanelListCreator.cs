@@ -10,7 +10,7 @@ public class GuildUserPanelListCreator : MonoBehaviour
     /// <summary>
     /// 기존 목록 Clear 후, guildMemberList에 있는 길드원들을 Prefab으로 표시
     /// </summary>
-    public void SetGuildUserList(List<GuildMemberData> guildMemberList, bool isLocalMasterOrSub)
+    public void SetGuildUserList(List<GuildMemberData> guildMemberList, string localUserRole)
     {
         ClearList();
 
@@ -30,7 +30,7 @@ public class GuildUserPanelListCreator : MonoBehaviour
             if (controller != null)
             {
                 // 3) 데이터 적용
-                controller.SetData(member, isLocalMasterOrSub);  // ★ bool 추가
+                controller.SetData(member, localUserRole);
             }
             else
             {

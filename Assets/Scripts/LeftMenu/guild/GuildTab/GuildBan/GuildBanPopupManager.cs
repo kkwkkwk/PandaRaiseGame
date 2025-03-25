@@ -111,13 +111,8 @@ public class GuildBanPopupManager : MonoBehaviour
     /// </summary>
     private IEnumerator CallKickGuildMemberCoroutine(GuildMemberData memberData)
     {
-        // (예) 서버가 "kickGuildMemberURL"로 POST를 받으며,
-        // JSON { "playFabId":"방출요청자", "targetId":"방출대상아이디" } 등을 요구한다고 가정
-        // 여기서는 "userName"으로 식별하기보다는 "playFabId"가 있어야 더 정확함
-        // 편의상 GuildMemberData에 "targetPlayFabId"가 있다고 가정하거나, userName으로 대체
-        // 아래는 예시로 userName만 전송
-        string jsonData = $"{{\"requestorId\":\"{GlobalData.playFabId}\",\"targetName\":\"{memberData.userName}\"}}";
-        Debug.Log("[CallKickGuildMemberCoroutine] 요청 JSON: " + jsonData);
+        string jsonData = $"{{\"requestorId\":\"{GlobalData.entityToken.Entity.Id}\",\"targetId\":\"{memberData.entityId}\"}}";
+        Debug.Log("[CallKickGuildMemberCoroutine] " + jsonData);
 
         UnityWebRequest request = new UnityWebRequest(kickGuildMemberURL, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
@@ -141,9 +136,8 @@ public class GuildBanPopupManager : MonoBehaviour
             // ex: KickGuildMemberResponse res = JsonConvert.DeserializeObject<KickGuildMemberResponse>(responseJson);
             // if (res.success) { ... }
 
-            // 팝업 닫기 + 길드원 목록 갱신
-            // 방출 성공 시 -> 로컬 리스트에서 제거
-            GuildTabPanelController.Instance.RemoveMemberAndRefresh(memberData);
+            // (새 방식) 서버 재조회
+            GuildTabPanelController.Instance.RefreshGuildData();
             ToastManager.Instance.ShowToast("해당 길드원은 방출되었습니다.");
             CloseGuildBanPopup();
             // 길드 정보 재조회 (ex: GuildTabPanelController.Instance.RefreshGuildData())
