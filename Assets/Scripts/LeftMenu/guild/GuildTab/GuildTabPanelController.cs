@@ -38,6 +38,7 @@ public class GuildTabPanelController : MonoBehaviour
     private List<GuildMissionData> currentGuildMissionList;       // 미션 데이터를 저장
 
     private bool isJoinedGuild = false;
+    private bool myIsMasterOrSub = false; // GuildTabPanelController 클래스 멤버 변수
 
     void Awake()
     {
@@ -95,6 +96,9 @@ public class GuildTabPanelController : MonoBehaviour
             Debug.LogError($"GetGuildInfo 실패: {request.error}");
             isJoinedGuild = false;
             currentGuildMemberList = null;
+
+            myIsMasterOrSub = false;
+
             InitializeGuildTabs();
         }
         else
@@ -117,6 +121,7 @@ public class GuildTabPanelController : MonoBehaviour
                 // 응답이 유효하지 않으면 길드 미가입으로 처리
                 isJoinedGuild = false;
                 currentGuildMemberList = null;
+                myIsMasterOrSub = false;
             }
             else
             {
@@ -153,8 +158,8 @@ public class GuildTabPanelController : MonoBehaviour
                         );
                     }
 
-                    // 3) '내' 계급이 마스터/부마스터인지 판단
-                    bool localIsMasterOrSub = false;
+                    // 6) 내가 길드마스터/부마스터인지 판별
+                    myIsMasterOrSub = false;
                     string myEntityId = GlobalData.entityToken.Entity.Id;
 
                     if (serverResponse.memberList != null)
@@ -163,21 +168,17 @@ public class GuildTabPanelController : MonoBehaviour
                         {
                             if (m.entityId == myEntityId)
                             {
+                                // "길드마스터", "부마스터" 등 체크
                                 if (m.role == "길드마스터" || m.role == "부마스터")
                                 {
-                                    localIsMasterOrSub = true;
+                                    myIsMasterOrSub = true;
                                 }
                                 break;
                             }
                         }
                     }
 
-                    // 4) 권한 정보 전달
-                    if (infoPanelCtrl != null)
-                    {
-                        infoPanelCtrl.isMasterOrSub = localIsMasterOrSub;
-                        Debug.Log("[GetGuildInfo] 내 계급은 마스터/부마스터인가? " + localIsMasterOrSub);
-                    }
+                    Debug.Log($"[GetGuildInfo] 내가 마스터/부마스터인가? {myIsMasterOrSub}");
                 }
                 else
                 {
@@ -307,7 +308,7 @@ public class GuildTabPanelController : MonoBehaviour
         // 혹은 그냥 OnClickTab(0)을 다시 호출해도 됨
         if (guildUserListCreator != null && currentGuildMemberList != null)
         {
-            guildUserListCreator.SetGuildUserList(currentGuildMemberList);
+            guildUserListCreator.SetGuildUserList(currentGuildMemberList, myIsMasterOrSub);
         }
     }
 
@@ -357,7 +358,7 @@ public class GuildTabPanelController : MonoBehaviour
                 // 길드원 목록 표시
                 if (guildUserListCreator != null && currentGuildMemberList != null)
                 {
-                    guildUserListCreator.SetGuildUserList(currentGuildMemberList);
+                    guildUserListCreator.SetGuildUserList(currentGuildMemberList, myIsMasterOrSub);
                 }
                 break;
 

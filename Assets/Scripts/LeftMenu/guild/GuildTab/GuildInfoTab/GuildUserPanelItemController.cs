@@ -36,7 +36,7 @@ public class GuildUserPanelItemController : MonoBehaviour
     /// <summary>
     /// GuildMemberData를 받아와 Prefab UI 요소에 적용
     /// </summary>
-    public void SetData(GuildMemberData memberData)
+    public void SetData(GuildMemberData memberData, bool localIsMasterOrSub)
     {
         currentMemberData = memberData;
 
@@ -58,8 +58,7 @@ public class GuildUserPanelItemController : MonoBehaviour
         //    길드 계급이 "부마스터" 또는 "길드마스터"인 경우만
         //    '설정 아이콘' 오브젝트를 활성화
         // -------------------------------
-        bool isMasterOrSub = (memberData.userClass == "길드마스터" || memberData.userClass == "부마스터");
-        guildUserSettingIcon.gameObject.SetActive(isMasterOrSub);
+        guildUserSettingIcon.gameObject.SetActive(localIsMasterOrSub);
 
         guildUserSettingIcon.onClick.RemoveAllListeners();
         guildUserSettingIcon.onClick.AddListener(() => OnClickSettingIcon());
