@@ -123,7 +123,7 @@ public class GuildTabPanelController : MonoBehaviour
 
             if (serverResponse == null)
             {
-                // 응답이 유효하지 않으면 길드 미가입으로 처리
+                Debug.LogWarning("[GetGuildInfo] serverResponse가 null임.");
                 isJoinedGuild = false;
                 currentGuildMemberList = null;
                 myUserRole = "길드원";
@@ -131,7 +131,7 @@ public class GuildTabPanelController : MonoBehaviour
             else
             {
                 isJoinedGuild = serverResponse.isJoined;
-
+                Debug.Log($"[GetGuildInfo] isJoinedGuild={isJoinedGuild}");
                 if (isJoinedGuild)
                 {
                     // 길드원 목록 세팅
@@ -149,6 +149,7 @@ public class GuildTabPanelController : MonoBehaviour
                                 isOnline = m.isOnline,
                             };
                             currentGuildMemberList.Add(localData);
+                            Debug.Log($"[GetGuildInfo] memberList: {m.displayName}, role={m.role}, entityId={m.entityId}");
                         }
                     }
 
@@ -167,6 +168,7 @@ public class GuildTabPanelController : MonoBehaviour
                     // 내 계급 찾기
                     myUserRole = "길드원";
                     string myEntityId = GlobalData.entityToken.Entity.Id;
+                    Debug.Log($"[GetGuildInfo] 내 entityId={myEntityId}");
 
                     if (serverResponse.memberList != null)
                     {
@@ -175,6 +177,7 @@ public class GuildTabPanelController : MonoBehaviour
                             if (m.entityId == myEntityId)
                             {
                                 myUserRole = m.role;
+                                Debug.Log("[GetGuildInfo] 내가 받은 role=" + m.role);
                                 break;
                             }
                         }

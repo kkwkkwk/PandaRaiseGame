@@ -41,6 +41,8 @@ public class GuildUserPanelItemController : MonoBehaviour
     {
         currentMemberData = memberData;
 
+        Debug.Log($"[GuildUserPanelItemController] SetData() => myUserRole={myUserRole}, rowUserName={memberData.userName}, rowRole={memberData.userClass}");
+
         if (userNameText)   userNameText.text = memberData.userName;
         if (userClassText)  userClassText.text = memberData.userClass;
         if (userPowerText)  userPowerText.text = memberData.userPower.ToString();
@@ -52,15 +54,13 @@ public class GuildUserPanelItemController : MonoBehaviour
         // (1) 기본적으로 아이콘은 안 보이도록
         bool showIcon = false;
 
-        // (2) "길드마스터", "부마스터" 계정만 아이콘 표시
-        //     단, 특별 조건: 길드마스터는 자기 자신은 추방 X
-        //     부마스터는 길드마스터/부마스터는 추방 X
+        // 2) 로직: 
+        //    - 길드마스터: 모든 구성원에게 아이콘 표시 (단, ‘내 자신’을 제외하고 싶다면 entityId 비교로 제외)
+        //    - 부마스터: 일반 길드원만
+        //    - 일반: 표시 X
         if (myUserRole == "길드마스터")
         {
-            // 자기 자신인 경우 (이 로직은 실제론 entityId 비교 권장)
-            // 간단히 "memberData.userName == 내 userName"으로 판단할 수도 있음
-            // 여기서는 "길드마스터"는 자신 or 다른 마스터는 제외
-            // => if (memberData.userClass == "길드마스터") => 숨김
+            Debug.Log($"[GuildUserPanelItemController] I am GuildMaster. rowUserClass={memberData.userClass}");
             if (memberData.userClass == "길드마스터")
                 showIcon = false;
             else
@@ -68,8 +68,7 @@ public class GuildUserPanelItemController : MonoBehaviour
         }
         else if (myUserRole == "부마스터")
         {
-            // 부마스터 => 길드마스터/부마스터는 추방 불가 => 아이콘 숨김
-            // 일반 길드원만 추방 가능 => showIcon = (rowUserClass == "길드원")
+            Debug.Log("[GuildUserPanelItemController] I am SubMaster => 일반 길드원만 추방 가능");
             if (memberData.userClass == "길드원")
                 showIcon = true;
             else
@@ -92,27 +91,20 @@ public class GuildUserPanelItemController : MonoBehaviour
     /// <param name="myUserRole">로그인 유저의 역할</param>
     private void OnClickSettingIcon(string myUserRole)
     {
+        Debug.Log($"[GuildUserPanelItemController] OnClickSettingIcon => myUserRole={myUserRole}, rowUserClass={currentMemberData.userClass}");
         if (myUserRole == "길드마스터")
         {
-            // 길드마스터인 경우,
-            // 만약 해당 행의 멤버가 길드마스터라면 GuildMasterCanvas 기반 팝업 오픈,
-            // 그 외(일반 길드원, 부마스터)는 길드 추방 팝업 오픈
-            if (currentMemberData.userClass == "길드마스터")
-            {
-                // GuildMasterPopupManager 사용
-                GuildMasterPopupManager.Instance.OpenGuildMasterPopup(currentMemberData);
-            }
-            else
-            {
-                // 기존 추방 팝업
-                GuildBanPopupManager.Instance.OpenGuildBanPopup(currentMemberData);
-            }
+            // 어떤 유저를 클릭해도 GuildMasterPopup으로 이동
+            GuildMasterPopupManager.Instance.OpenGuildMasterPopup(currentMemberData);
         }
         else if (myUserRole == "부마스터")
         {
-            // 부마스터는 일반 길드원만 관리 가능하므로,
-            // (아이콘이 표시된 경우, 해당 멤버는 일반 길드원임)
             GuildBanPopupManager.Instance.OpenGuildBanPopup(currentMemberData);
+        }
+        else
+        {
+            // 일반 유저라면 사실 버튼이 안 보이겠지만, 혹시 모르니
+            Debug.LogWarning("[OnClickSettingIcon] 일반 유저는 권한 없음");
         }
     }
 }
