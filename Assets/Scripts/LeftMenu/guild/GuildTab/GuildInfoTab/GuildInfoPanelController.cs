@@ -20,7 +20,10 @@ public class GuildInfoPanelController : MonoBehaviour
 
     [Header("Server Info")]
     // 길드 출석 API
-    public string guildAttendanceURL = "https://your-azure-function-url/GuildAttendance?code=YOUR_KEY";
+    private string guildAttendanceURL = "https://your-azure-function-url/GuildAttendance?code=YOUR_KEY";
+
+    // 길드 탈퇴 API
+    private string guildLeaveURL = "";
 
     // 간단하게, “오늘 출석했는지” 여부를 저장 (실제로는 서버 로직으로 체크하는 게 안전)
     private bool hasAttendedToday = false;
