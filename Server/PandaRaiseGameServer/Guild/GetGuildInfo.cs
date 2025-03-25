@@ -15,6 +15,7 @@ using PlayFab.GroupsModels;
 using PlayFab.ProfilesModels;
 using PlayFab.AuthenticationModels;  // 추가: GetEntityTokenRequest 등
 using CommonLibrary;
+using PlayFab.DataModels;
 
 namespace Guild
 {
@@ -115,7 +116,7 @@ namespace Guild
                 // 첫 번째 그룹만 사용
                 var firstGroup = userGroups[0];
                 string groupId = firstGroup.Group.Id;
-                string groupName = firstGroup.GroupName ?? "(NoName)";
+                string groupName = firstGroup.GroupName;
                 _logger.LogInformation($"[GetGuildInfo] Selected group: groupId = {groupId}, groupName = {groupName}");
 
                 // 6) ListGroupMembers: 그룹 멤버 조회 (클라이언트 토큰 사용)
@@ -159,7 +160,7 @@ namespace Guild
                 }
                 _logger.LogInformation($"[GetGuildInfo] Total unique entity keys: {entityKeySet.Count}");
 
-                // 7) 이제 프로필 API 호출 시 클라이언트 토큰 대신 서버 토큰 사용
+                
                 // 2) 서버 토큰 획득
                 var tokenRequest = new GetEntityTokenRequest();
                 var tokenResult = await PlayFabAuthenticationAPI.GetEntityTokenAsync(tokenRequest);
@@ -297,6 +298,48 @@ namespace Guild
                 }
                 _logger.LogInformation($"[GetGuildInfo] Final member list count: {memberList.Count}");
 
+                // 7) 그룹 Object "GuildInfo" 가져오기
+                _logger.LogInformation("[GetGuildInfo] Retrieving group object (GuildInfo)...");
+                var getObjectsReq = new GetObjectsRequest
+                {
+                    AuthenticationContext = serverAuthContext,
+                    Entity = new PlayFab.DataModels.EntityKey
+                    {
+                        Id = groupId,
+                        Type = "group"
+                    }
+                };
+                var getObjectsRes = await PlayFabDataAPI.GetObjectsAsync(getObjectsReq, serverAuthContext);
+                if (getObjectsRes.Error != null)
+                {
+                    _logger.LogWarning("[GetGuildInfo] GetObjects failed: " + getObjectsRes.Error.GenerateErrorReport());
+                }
+
+                int groupLevel = 0;
+                string? groupDesc = null;
+                if (getObjectsRes?.Result?.Objects != null)
+                {
+                    if (getObjectsRes.Result.Objects.TryGetValue("GuildInfo", out var guildInfoObj))
+                    {
+                        // DataObject는 object 형식
+                        if (guildInfoObj?.DataObject != null)
+                        {
+                            // guildInfoObj.DataObject를 Dictionary나 dynamic으로 파싱 가능
+                            // 예: var gInfoDict = guildInfoObj.DataObject as Dictionary<string, object>;
+                            // 여기서는 JSON 직렬화 → 역직렬화 예시
+                            string rawJson = JsonConvert.SerializeObject(guildInfoObj.DataObject);
+                            _logger.LogInformation("[GetGuildInfo] GuildInfo raw JSON: " + rawJson);
+
+                            var guildInfo = JsonConvert.DeserializeObject<GuildInfoObject>(rawJson);
+                            if (guildInfo != null)
+                            {
+                                groupLevel = guildInfo.guildLevel;
+                                groupDesc = guildInfo.guildIntro;
+                            }
+                        }
+                    }
+                }
+
 
                 // 8) 최종 응답 구성
                 var resp = new GuildInfoResponse
@@ -304,6 +347,8 @@ namespace Guild
                     IsJoined = true, 
                     GroupId = groupId,
                     GroupName = groupName,
+                    GroupLevel = groupLevel,
+                    GroupDesc = groupDesc,
                     MemberList = memberList
                 };
 
@@ -350,6 +395,8 @@ namespace Guild
         public bool IsJoined { get; set; }
         public string? GroupId { get; set; }
         public string? GroupName { get; set; }
+        public int GroupLevel { get; set; }
+        public string? GroupDesc { get; set; }
         public List<GuildMemberData>? MemberList { get; set; }
     }
 
@@ -361,4 +408,13 @@ namespace Guild
         public int Power { get; set; }
         public bool IsOnline { get; set; }
     }
+
+    // 그룹에 저장해둔 GuildInfo 오브젝트 구조
+    public class GuildInfoObject
+    {
+        public int guildLevel { get; set; }
+        public int guildExp { get; set; }
+        public string? guildIntro { get; set; } // 이름을 맞춤
+    }
+
 }

@@ -14,6 +14,7 @@ using PlayFab.ServerModels; // 서버 인증 관련
 using PlayFab.GroupsModels; // 그룹 생성, 업데이트 관련
 using PlayFab.AuthenticationModels; // GetEntityTokenRequest 등
 using CommonLibrary;
+using PlayFab.DataModels;
 
 namespace Guild
 {
@@ -181,7 +182,41 @@ namespace Guild
                     _logger.LogInformation("[CreateGuild] Members role updated to '길드원'.");
                 }
 
-                // 9) 최종 응답
+                // 9) 추가: 그룹 Object 업데이트 - 길드 레벨, 경험치, 소개 정보 저장
+                // 여기서 SetObjects API를 사용 (데이터 서비스)
+                // 예시: "GuildInfo"라는 오브젝트에 JSON 데이터 저장
+                var setRequest = new SetObjectsRequest
+                {
+                    Entity = new PlayFab.DataModels.EntityKey
+                    {
+                        Id = createdGroup.Group.Id,
+                        Type = "group"
+                    },
+                    Objects = new List<SetObject>
+                    {
+                        new SetObject
+                        {
+                            ObjectName = "GuildInfo",
+                            DataObject = new {
+                                guildLevel = 1,
+                                guildExp = 0,
+                                guildIntro = "길드를 소개해주세요"
+                            }
+                        }
+                    }
+                };
+
+                var setObjectsRes = await PlayFabDataAPI.SetObjectsAsync(setRequest, serverAuthContext);
+                if (setObjectsRes.Error != null)
+                {
+                    _logger.LogWarning("[CreateGuild] SetObjects (GuildInfo) failed: " + setObjectsRes.Error.GenerateErrorReport());
+                }
+                else
+                {
+                    _logger.LogInformation("[CreateGuild] Group object (GuildInfo) set successfully.");
+                }
+
+                // 10) 최종 응답
                 var resp = new CreateGuildResponse
                 {
                     guildId = createdGroup.Group.Id,

@@ -408,7 +408,6 @@ public class GuildInfoResponse
     public bool isJoined;
     public string groupId;
     public string groupName;
-
     public int groupLevel;        // 레벨이 int라고 가정
     public string groupDesc;      // 길드 소개
 

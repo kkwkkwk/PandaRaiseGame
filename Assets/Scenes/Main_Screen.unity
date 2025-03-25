@@ -27859,7 +27859,6 @@ GameObject:
   - component: {fileID: 1370554503}
   - component: {fileID: 1370554505}
   - component: {fileID: 1370554504}
-  - component: {fileID: 1370554506}
   m_Layer: 5
   m_Name: GuildInfo_Panel
   m_TagString: Untagged
@@ -27928,25 +27927,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1370554502}
   m_CullTransparentMesh: 1
---- !u!114 &1370554506
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1370554502}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f58b04bfae866b4a976b7fdbe3b4d08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  guildNameText: {fileID: 1419729079}
-  guildLevelText: {fileID: 1586152968}
-  guildDescText: {fileID: 1279838954}
-  attendanceButton: {fileID: 592330448}
-  manageButton: {fileID: 1034454891}
-  leaveButton: {fileID: 664101299}
-  isMasterOrSub: 0
 --- !u!1 &1379502201
 GameObject:
   m_ObjectHideFlags: 0
@@ -30296,6 +30276,7 @@ GameObject:
   - component: {fileID: 1493390913}
   - component: {fileID: 1493390915}
   - component: {fileID: 1493390914}
+  - component: {fileID: 1493390916}
   m_Layer: 5
   m_Name: GuildPopupMainUI_Panel
   m_TagString: Untagged
@@ -30363,6 +30344,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1493390912}
   m_CullTransparentMesh: 1
+--- !u!114 &1493390916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1493390912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f58b04bfae866b4a976b7fdbe3b4d08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guildNameText: {fileID: 1419729079}
+  guildLevelText: {fileID: 1586152968}
+  guildDescText: {fileID: 1279838954}
+  attendanceButton: {fileID: 592330448}
+  manageButton: {fileID: 1034454891}
+  leaveButton: {fileID: 664101299}
+  isMasterOrSub: 0
 --- !u!1 &1498442795
 GameObject:
   m_ObjectHideFlags: 0
