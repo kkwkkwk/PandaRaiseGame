@@ -137,17 +137,11 @@ public class StageManager : MonoBehaviour
         if (bossSpawnerObject != null) bossSpawnerObject.SetActive(true);
     }
 
-    /// <summary>
-    /// 스테이지 정보를 두 줄로 표시:
-    /// 첫 줄: "Stage Info"
-    /// 둘째 줄: "챕터 - 서브스테이지"
-    /// </summary>
     private void UpdateStageInfo()
     {
         if (stageInfoText != null && currentStageData != null)
         {
-            // 줄바꿈(\n) 사용
-            stageInfoText.text = $"Stage Info\n{currentStageData.chapter}-{currentSubStage}";
+            stageInfoText.text = $"Big Stage: {currentStageData.chapter} - Sub Stage: {currentSubStage}/10";
         }
     }
 

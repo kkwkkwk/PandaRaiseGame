@@ -30362,7 +30362,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1407873375}
-  - component: {fileID: 1407873374}
+  - component: {fileID: 1407873376}
   m_Layer: 0
   m_Name: StageManager
   m_TagString: Untagged
@@ -30370,7 +30370,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1407873374
+--- !u!4 &1407873375
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407873373}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 354.46323, y: -229.55626, z: -1.75}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1407873376
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -30398,21 +30413,6 @@ MonoBehaviour:
   stageInfoText: {fileID: 64774108}
   mobSpawnerObject: {fileID: 840412330}
   bossSpawnerObject: {fileID: 154147677}
---- !u!4 &1407873375
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1407873373}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 354.46323, y: -229.55626, z: -1.75}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1412289919
 GameObject:
   m_ObjectHideFlags: 0
@@ -41277,6 +41277,6 @@ SceneRoots:
   - {fileID: 293546671}
   - {fileID: 1604617743}
   - {fileID: 1973082229}
+  - {fileID: 1407873375}
   - {fileID: 269165881}
   - {fileID: 1988075292}
-  - {fileID: 1407873375}
