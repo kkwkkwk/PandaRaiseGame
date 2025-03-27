@@ -20,7 +20,7 @@ public class GuildInfoPanelController : MonoBehaviour
 
     [Header("Server Info")]
     // 길드 출석 API
-    private string guildAttendanceURL = "https://your-azure-function-url/GuildAttendance?code=YOUR_KEY";
+    private string guildAttendanceURL = "https://pandaraisegame-guild.azurewebsites.net/api/GuildAttendance?code=NnCp0kQH4Zfn4LWbhbKDKqIfrFHR258crpu6F4A_K0W1AzFuGjOPtA==";
 
     // 길드 탈퇴 API
     private string guildLeaveURL = "";
@@ -81,10 +81,24 @@ public class GuildInfoPanelController : MonoBehaviour
     /// </summary>
     private IEnumerator CallGuildAttendanceCoroutine()
     {
-        // 서버에 보낼 JSON
-        // 실제로는 playFabId, guildId 등 필요한 정보를 함께 전송
-        string jsonData = $"{{\"playFabId\":\"{GlobalData.playFabId}\"}}";
-        Debug.Log("[GuildInfoPanel] 출석 요청: " + jsonData);
+        // 1) 요청 JSON 구성: playFabId + entityToken
+        var requestJson = new
+        {
+            playFabId = GlobalData.playFabId,
+            entityToken = new
+            {
+                Entity = new
+                {
+                    Id = GlobalData.entityToken.Entity.Id,
+                    Type = GlobalData.entityToken.Entity.Type
+                },
+                EntityToken = GlobalData.entityToken.EntityToken,
+                TokenExpiration = GlobalData.entityToken.TokenExpiration
+            }
+        };
+        string jsonData = JsonConvert.SerializeObject(requestJson);
+
+        Debug.Log("[GuildInfoPanel] 출석 요청 JSON: " + jsonData);
 
         UnityWebRequest request = new UnityWebRequest(guildAttendanceURL, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
@@ -104,15 +118,39 @@ public class GuildInfoPanelController : MonoBehaviour
             string responseJson = request.downloadHandler.text;
             Debug.Log("[GuildInfoPanel] 출석 요청 성공, 응답: " + responseJson);
 
-            // (선택) 서버 응답 파싱해서 success/fail 판단
-            // GuildAttendanceResponse res = JsonConvert.DeserializeObject<GuildAttendanceResponse>(responseJson);
-            // if (res.success) { ... }
+            GuildAttendanceResponse serverResp = null;
+            try
+            {
+                serverResp = JsonConvert.DeserializeObject<GuildAttendanceResponse>(responseJson);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("[GuildInfoPanel] 출석 응답 파싱 오류: " + ex.Message);
+            }
 
-            // 일단은 성공이라고 가정
-            hasAttendedToday = true;
-            ToastManager.Instance.ShowToast("출석이 완료되었습니다!");
+            if (serverResp == null)
+            {
+                ToastManager.Instance.ShowToast("출석 응답을 해석할 수 없습니다.");
+                yield break;
+            }
+
+            if (serverResp.success)
+            {
+                // 출석 성공
+                ToastManager.Instance.ShowToast(serverResp.message);
+                hasAttendedToday = true;
+
+                // 길드 정보 재조회 (경험치 갱신을 UI에 반영)
+                GuildTabPanelController.Instance.RefreshGuildData();
+            }
+            else
+            {
+                // 출석 실패(이미 출석 등)
+                ToastManager.Instance.ShowToast(serverResp.message);
+            }
         }
     }
+
 
     /// <summary>
     /// 길드 관리 버튼 클릭 (길드마스터/부마스터 전용)
@@ -140,4 +178,12 @@ public class GuildInfoPanelController : MonoBehaviour
         // 예: GuildLeavePopupManager.Instance.OpenLeavePopup();
         Debug.Log("[GuildInfoPanel] 길드 탈퇴 팝업 열기");
     }
+
+    [System.Serializable]
+    public class GuildAttendanceResponse
+    {
+        public bool success;
+        public string message;
+    }
+
 }
