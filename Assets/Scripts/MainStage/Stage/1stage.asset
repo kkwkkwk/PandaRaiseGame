@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87672c38fa128de4287c2af9869708dd, type: 3}
+  m_Name: 1stage
+  m_EditorClassIdentifier: 
+  chapter: 1
+  subStageCount: 10
+  playerPrefab: {fileID: 3397015064879827269, guid: 8ed0b8947a53067448d85db607c222fe, type: 3}
+  enemyPrefab: {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+  killGoal: 10
+  bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
