@@ -17,7 +17,7 @@ public class GuildBanPopupManager : MonoBehaviour
     public Button guildBanDisAgreeButton;                   // "아니오" 버튼
 
     // 서버 방출 API
-    private string kickGuildMemberURL = "https://your-azure-function-url/KickGuildMember?code=YOUR_FUNCTION_KEY";
+    private string banGuildMemberURL = "https://pandaraisegame-guild.azurewebsites.net/api/BanGuildMember?code=5OPF7fFPrGlhr_JjJo6ruf0x1DUhUGkIxCinmOQLz2KBAzFuKKOQtQ==";
 
     // 팝업에서 사용될 "현재 선택된" 길드원 정보
     private GuildMemberData currentSelectedMember;
@@ -95,7 +95,7 @@ public class GuildBanPopupManager : MonoBehaviour
         }
 
         // 예: 플레이팹 아이디 + 방출 대상 정보(JSON)로 전송
-        StartCoroutine(CallKickGuildMemberCoroutine(currentSelectedMember));
+        StartCoroutine(CallBanGuildMemberCoroutine(currentSelectedMember));
     }
 
     /// <summary>
@@ -109,12 +109,12 @@ public class GuildBanPopupManager : MonoBehaviour
     /// <summary>
     /// 서버에 길드원 방출 요청을 보내는 코루틴
     /// </summary>
-    private IEnumerator CallKickGuildMemberCoroutine(GuildMemberData memberData)
+    private IEnumerator CallBanGuildMemberCoroutine(GuildMemberData memberData)
     {
         string jsonData = $"{{\"requestorId\":\"{GlobalData.entityToken.Entity.Id}\",\"targetId\":\"{memberData.entityId}\"}}";
-        Debug.Log("[CallKickGuildMemberCoroutine] " + jsonData);
+        Debug.Log("[CallBanGuildMemberCoroutine] " + jsonData);
 
-        UnityWebRequest request = new UnityWebRequest(kickGuildMemberURL, "POST");
+        UnityWebRequest request = new UnityWebRequest(banGuildMemberURL, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
@@ -124,16 +124,16 @@ public class GuildBanPopupManager : MonoBehaviour
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[CallKickGuildMemberCoroutine] 서버 요청 실패: {request.error}");
+            Debug.LogError($"[CallBanGuildMemberCoroutine] 서버 요청 실패: {request.error}");
             // 실패 안내 등
         }
         else
         {
             string responseJson = request.downloadHandler.text;
-            Debug.Log($"[CallKickGuildMemberCoroutine] 방출 요청 성공, 응답: {responseJson}");
+            Debug.Log($"[CallBanGuildMemberCoroutine] 방출 요청 성공, 응답: {responseJson}");
 
             // TODO: 응답 파싱 -> 성공 시
-            // ex: KickGuildMemberResponse res = JsonConvert.DeserializeObject<KickGuildMemberResponse>(responseJson);
+            // ex: BanGuildMemberResponse res = JsonConvert.DeserializeObject<BanGuildMemberResponse>(responseJson);
             // if (res.success) { ... }
 
             // (새 방식) 서버 재조회
@@ -146,7 +146,7 @@ public class GuildBanPopupManager : MonoBehaviour
 
     // (선택) 응답 DTO
     [System.Serializable]
-    public class KickGuildMemberResponse
+    public class BanGuildMemberResponse
     {
         public bool success;
         public string message;
