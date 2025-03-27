@@ -137,7 +137,7 @@ public class GuildInfoPanelController : MonoBehaviour
     private void OnClickLeave()
     {
         // 탈퇴 여부를 묻는 팝업
-        // 예: GuildLeavePopupManager.Instance.OpenLeavePopup();
+        GuildSecedePopupManager.Instance.OpenGuildSecedePopup();
         Debug.Log("[GuildInfoPanel] 길드 탈퇴 팝업 열기");
     }
 }
