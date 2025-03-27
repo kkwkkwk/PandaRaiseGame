@@ -216,7 +216,98 @@ namespace Guild
                     _logger.LogInformation("[CreateGuild] Group object (GuildInfo) set successfully.");
                 }
 
-                // 10) 최종 응답
+                // 10) **TitleData** 업데이트 - guilds 목록에 새 길드 추가
+                //     1) GetTitleData("GuildData") -> 2) JSON 파싱 -> 3) "guilds" 배열에 새 항목 추가 -> 4) SetTitleData
+                var getTitleDataReq = new GetTitleDataRequest
+                {
+                    Keys = new List<string> { "GuildData" }
+                };
+                var getTitleDataRes = await PlayFabServerAPI.GetTitleDataAsync(getTitleDataReq);
+                if (getTitleDataRes.Error != null)
+                {
+                    _logger.LogWarning("[CreateGuild] GetTitleData error: " + getTitleDataRes.Error.GenerateErrorReport());
+                }
+                else
+                {
+                    string? guildDataJson = null;
+                    getTitleDataRes.Result.Data?.TryGetValue("GuildData", out guildDataJson);
+                    // guildDataJson => 예: {"guilds":[{"guildId":"2237..","guildName":"Test"}, ...]}
+
+                    if (!string.IsNullOrEmpty(guildDataJson))
+                    {
+                        try
+                        {
+                            var guildData = JsonConvert.DeserializeObject<GuildListData>(guildDataJson);
+                            if (guildData == null)
+                            {
+                                guildData = new GuildListData { guilds = new List<BasicGuildInfo>() };
+                            }
+
+                            // 새 길드 추가
+                            guildData.guilds?.Add(new BasicGuildInfo
+                            {
+                                guildId = createdGroup.Group.Id,
+                                guildName = createdGroup.GroupName
+                            });
+
+                            // 다시 직렬화
+                            string updatedJson = JsonConvert.SerializeObject(guildData);
+
+                            // SetTitleData
+                            var setTitleDataReq = new SetTitleDataRequest
+                            {
+                                Key = "GuildData",
+                                Value = updatedJson
+                            };
+                            var setTitleDataRes = await PlayFabServerAPI.SetTitleDataAsync(setTitleDataReq);
+                            if (setTitleDataRes.Error != null)
+                            {
+                                _logger.LogWarning("[CreateGuild] SetTitleData error: " + setTitleDataRes.Error.GenerateErrorReport());
+                            }
+                            else
+                            {
+                                _logger.LogInformation("[CreateGuild] TitleData GuildData updated successfully.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError("[CreateGuild] JSON parsing error for GuildData: " + ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        // GuildData가 비어 있으면 새로 생성
+                        var newList = new GuildListData
+                        {
+                            guilds = new List<BasicGuildInfo>
+                            {
+                                new BasicGuildInfo
+                                {
+                                    guildId = createdGroup.Group.Id,
+                                    guildName = createdGroup.GroupName
+                                }
+                            }
+                        };
+                        string updatedJson = JsonConvert.SerializeObject(newList);
+
+                        var setTitleDataReq = new SetTitleDataRequest
+                        {
+                            Key = "GuildData",
+                            Value = updatedJson
+                        };
+                        var setTitleDataRes = await PlayFabServerAPI.SetTitleDataAsync(setTitleDataReq);
+                        if (setTitleDataRes.Error != null)
+                        {
+                            _logger.LogWarning("[CreateGuild] SetTitleData error: " + setTitleDataRes.Error.GenerateErrorReport());
+                        }
+                        else
+                        {
+                            _logger.LogInformation("[CreateGuild] TitleData GuildData created successfully.");
+                        }
+                    }
+                }
+
+                // 11) 최종 응답
                 var resp = new CreateGuildResponse
                 {
                     guildId = createdGroup.Group.Id,
@@ -281,6 +372,17 @@ namespace Guild
     public class CreateGuildRequest
     {
         public string? playFabId { get; set; }
+        public string? guildName { get; set; }
+    }
+
+    public class GuildListData
+    {
+        public List<BasicGuildInfo>? guilds { get; set; }
+    }
+
+    public class BasicGuildInfo
+    {
+        public string? guildId { get; set; }
         public string? guildName { get; set; }
     }
 

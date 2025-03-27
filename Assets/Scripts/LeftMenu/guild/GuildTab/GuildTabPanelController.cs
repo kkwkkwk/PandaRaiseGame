@@ -140,16 +140,19 @@ public class GuildTabPanelController : MonoBehaviour
                     {
                         foreach (var m in serverResponse.memberList)
                         {
-                            var localData = new GuildMemberData
+                            if (m.entityId != "DBDFA")
                             {
-                                entityId = m.entityId,   // ★ 추가
-                                userName = m.displayName,
-                                userClass = m.role,
-                                userPower = m.power,
-                                isOnline = m.isOnline,
-                            };
-                            currentGuildMemberList.Add(localData);
-                            Debug.Log($"[GetGuildInfo] memberList: {m.displayName}, role={m.role}, entityId={m.entityId}");
+                                var localData = new GuildMemberData
+                                {
+                                    entityId = m.entityId,   // ★ 추가
+                                    userName = m.displayName,
+                                    userClass = m.role,
+                                    userPower = m.power,
+                                    isOnline = m.isOnline,
+                                };
+                                currentGuildMemberList.Add(localData);
+                                Debug.Log($"[GetGuildInfo] memberList: {m.displayName}, role={m.role}, entityId={m.entityId}");
+                            }
                         }
                     }
 
