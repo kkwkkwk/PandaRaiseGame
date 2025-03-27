@@ -22,9 +22,6 @@ public class GuildInfoPanelController : MonoBehaviour
     // 길드 출석 API
     private string guildAttendanceURL = "https://pandaraisegame-guild.azurewebsites.net/api/GuildAttendance?code=NnCp0kQH4Zfn4LWbhbKDKqIfrFHR258crpu6F4A_K0W1AzFuGjOPtA==";
 
-    // 길드 탈퇴 API
-    private string guildLeaveURL = "";
-
     // 간단하게, “오늘 출석했는지” 여부를 저장 (실제로는 서버 로직으로 체크하는 게 안전)
     private bool hasAttendedToday = false;
 

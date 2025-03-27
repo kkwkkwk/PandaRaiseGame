@@ -1,13 +1,16 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
 using PlayFab;
+using PlayFab.ServerModels;
 using PlayFab.GroupsModels;
 using PlayFab.AuthenticationModels;
 using CommonLibrary;
@@ -35,76 +38,104 @@ namespace Guild
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 _logger.LogInformation($"[LeaveGuild] Request body: {requestBody}");
 
-                // 2) JSON 파싱: 플레이어의 PlayFabId, 탈퇴할 그룹의 GroupId, 그리고 EntityToken 정보
+                // 2) JSON 파싱
                 var input = JsonConvert.DeserializeObject<LeaveGuildRequest>(requestBody);
-                if (input == null || string.IsNullOrEmpty(input.PlayFabId) || string.IsNullOrEmpty(input.GroupId))
-                {
-                    _logger.LogWarning("[LeaveGuild] PlayFabId or GroupId missing in request.");
-                    return new BadRequestObjectResult("Invalid request: PlayFabId and GroupId are required.");
-                }
-                if (input.EntityToken == null ||
+                if (input == null ||
+                    string.IsNullOrEmpty(input.PlayFabId) ||
+                    input.EntityToken == null ||
                     string.IsNullOrEmpty(input.EntityToken.EntityToken) ||
                     input.EntityToken.Entity == null ||
                     string.IsNullOrEmpty(input.EntityToken.Entity.Id) ||
                     string.IsNullOrEmpty(input.EntityToken.Entity.Type))
                 {
-                    _logger.LogWarning("[LeaveGuild] entityToken is missing or incomplete.");
-                    return new BadRequestObjectResult("Invalid request: entityToken is required.");
+                    _logger.LogWarning("[LeaveGuild] Missing required fields (PlayFabId / entityToken).");
+                    return new BadRequestObjectResult("Invalid request: must provide PlayFabId and entityToken data.");
                 }
 
-                // 3) PlayFab 초기 설정
+                // 3) PlayFab 설정 (SecretKey 등)
                 PlayFabConfig.Configure();
                 _logger.LogInformation("[LeaveGuild] PlayFab configured.");
 
-                // 4) 클라이언트 토큰을 기반으로 AuthenticationContext 준비
-                var clientAuthContext = new PlayFabAuthenticationContext
+                // 4) 서버 토큰(DeveloperSecretKey) 획득
+                var serverTokenReq = new GetEntityTokenRequest();
+                var serverTokenRes = await PlayFabAuthenticationAPI.GetEntityTokenAsync(serverTokenReq);
+                if (serverTokenRes.Error != null)
                 {
-                    EntityId = input.EntityToken.Entity.Id,
-                    EntityType = input.EntityToken.Entity.Type,
-                    EntityToken = input.EntityToken.EntityToken
+                    _logger.LogError("[LeaveGuild] Error fetching server entity token: " + serverTokenRes.Error.GenerateErrorReport());
+                    return new BadRequestObjectResult("Error fetching server entity token");
+                }
+                var serverAuthContext = new PlayFabAuthenticationContext
+                {
+                    EntityId = serverTokenRes.Result.Entity.Id,
+                    EntityType = serverTokenRes.Result.Entity.Type,
+                    EntityToken = serverTokenRes.Result.EntityToken
                 };
 
-                // 5) 탈퇴할 그룹의 EntityKey 준비
-                // 그룹 생성 시 반환된 Group.Id를 그대로 사용합니다.
-                var groupKey = new PlayFab.GroupsModels.EntityKey { Id = input.GroupId };
-
-                // 6) 탈퇴할 멤버의 엔터티 키 준비 (클라이언트가 탈퇴하므로 본인의 엔터티 정보)
-                var memberKey = new PlayFab.GroupsModels.EntityKey
+                // 5) 유저(본인) 그룹 조회: ListMembership
+                //    entity ID = input.EntityToken.Entity.Id
+                //    user might be in multiple groups -> 여기서는 첫 번째 그룹만 사용 (혹은 필요 시 특정 Guild ID 탐색)
+                var listMembershipReq = new ListMembershipRequest
                 {
-                    Id = input.EntityToken.Entity.Id, // 이 값은 본인의 title_player_account ID임
-                    Type = input.EntityToken.Entity.Type
+                    AuthenticationContext = serverAuthContext,
+                    Entity = new PlayFab.GroupsModels.EntityKey
+                    {
+                        Id = input.EntityToken.Entity.Id,
+                        Type = input.EntityToken.Entity.Type
+                    }
                 };
-
-                // 7) RemoveMembers 요청 준비
-                var removeMembersReq = new RemoveMembersRequest
+                var listMembershipRes = await PlayFabGroupsAPI.ListMembershipAsync(listMembershipReq);
+                if (listMembershipRes.Error != null)
                 {
-                    AuthenticationContext = clientAuthContext,
-                    Group = groupKey,
-                    // 본인이 그룹에서 탈퇴하므로, 자기 자신만 포함합니다.
-                    Members = new List<PlayFab.GroupsModels.EntityKey> { memberKey }
-                    // RoleId는 지정하지 않아도 본인은 항상 자신을 제거할 수 있습니다.
-                };
-
-                _logger.LogInformation("[LeaveGuild] Calling RemoveMembersAsync to leave group...");
-
-                var removeMembersRes = await PlayFabGroupsAPI.RemoveMembersAsync(removeMembersReq);
-                if (removeMembersRes.Error != null)
-                {
-                    _logger.LogError("[LeaveGuild] RemoveMembers error: " + removeMembersRes.Error.GenerateErrorReport());
-                    return new BadRequestObjectResult("Failed to leave group: " + removeMembersRes.Error.ErrorMessage);
+                    _logger.LogError("[LeaveGuild] ListMembership error: " + listMembershipRes.Error.GenerateErrorReport());
+                    return new BadRequestObjectResult("Failed to check group membership.");
                 }
 
-                // 8) 최종 응답 구성
-                var resp = new LeaveGuildResponse
+                var groups = listMembershipRes.Result.Groups;
+                if (groups == null || groups.Count == 0)
                 {
-                    groupId = input.GroupId,
-                    message = "Successfully left the group."
+                    // 이미 어떤 길드에도 속해 있지 않음
+                    _logger.LogInformation("[LeaveGuild] No group found for the entity => user is not in a guild");
+                    return new OkObjectResult(new LeaveGuildResponse
+                    {
+                        success = false,
+                        message = "길드에 소속되어 있지 않습니다."
+                    });
+                }
+
+                // 첫 번째 그룹만 사용
+                var firstGroup = groups[0].Group;
+                string groupId = firstGroup.Id;
+                _logger.LogInformation($"[LeaveGuild] Found group: {groupId}");
+
+                // 6) RemoveMembers (RoleId 없이) -> 해당 그룹에서 완전히 제거
+                var removeReq = new RemoveMembersRequest
+                {
+                    AuthenticationContext = serverAuthContext,
+                    Group = new PlayFab.GroupsModels.EntityKey { Id = groupId },
+                    // RoleId 생략 -> 그룹 완전 탈퇴
+                    Members = new System.Collections.Generic.List<PlayFab.GroupsModels.EntityKey>
+                    {
+                        new PlayFab.GroupsModels.EntityKey
+                        {
+                            Id = input.EntityToken.Entity.Id,
+                            Type = input.EntityToken.Entity.Type
+                        }
+                    }
                 };
+                var removeRes = await PlayFabGroupsAPI.RemoveMembersAsync(removeReq);
+                if (removeRes.Error != null)
+                {
+                    _logger.LogError("[LeaveGuild] RemoveMembers error: " + removeRes.Error.GenerateErrorReport());
+                    return new BadRequestObjectResult("Failed to remove user from group: " + removeRes.Error.ErrorMessage);
+                }
 
-                string finalJson = JsonConvert.SerializeObject(resp);
-                _logger.LogInformation("[LeaveGuild] Final response: " + finalJson);
-
-                return new OkObjectResult(resp);
+                // 7) 성공 응답
+                _logger.LogInformation("[LeaveGuild] Successfully left the group.");
+                return new OkObjectResult(new LeaveGuildResponse
+                {
+                    success = true,
+                    message = "길드 탈퇴가 완료되었습니다."
+                });
             }
             catch (Exception ex)
             {
@@ -114,22 +145,17 @@ namespace Guild
         }
     }
 
-    // -----------------------------
     // 요청 DTO
-    // -----------------------------
     public class LeaveGuildRequest
     {
         public string? PlayFabId { get; set; }
-        public string? GroupId { get; set; }
         public EntityTokenData? EntityToken { get; set; }
     }
 
-    // -----------------------------
     // 응답 DTO
-    // -----------------------------
     public class LeaveGuildResponse
     {
-        public string? groupId { get; set; }
+        public bool success { get; set; }
         public string? message { get; set; }
     }
 }
