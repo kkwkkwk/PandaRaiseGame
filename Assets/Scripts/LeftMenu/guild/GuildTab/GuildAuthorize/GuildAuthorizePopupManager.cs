@@ -20,7 +20,7 @@ public class GuildAuthorizePopupManager : MonoBehaviour
     public Button closeButton;                      // 닫기 버튼
 
     // 서버 계급 변경 API (예시 URL)
-    private string changeRoleURL = "https://your-azure-function-url/ChangeGuildRole?code=YOUR_FUNCTION_KEY";
+    private string changeRoleURL = "https://pandaraisegame-guild.azurewebsites.net/api/ChangeGuildRole?code=yDpIB4KgWXwfEdv9Aj3tsNj9bQjA_3QHUFmw14l6hz1AAzFuPCGVdg==";
 
     // 현재 팝업에서 조작 중인 길드원
     private GuildMemberData currentSelectedMember;
