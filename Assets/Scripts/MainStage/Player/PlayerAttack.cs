@@ -15,7 +15,6 @@ public class PlayerAttack : MonoBehaviour
     public float attackInterval = 1f;
 
     // "이번 공격 시도에서 실제로 적에게 데미지를 줬는지" 여부
-    // => PlayerAnimationController가 읽어서 애니메이션 전환
     [HideInInspector] public bool isAttacking = false;
 
     private Coroutine attackLoop;
@@ -40,12 +39,24 @@ public class PlayerAttack : MonoBehaviour
                 // (2) 범위 이내면 데미지
                 if (distance <= attackRange)
                 {
+                    // 먼저 EnemyStats 시도
                     EnemyStats enemyStats = targetEnemy.GetComponent<EnemyStats>();
                     if (enemyStats != null)
                     {
                         enemyStats.TakeDamage(damage);
-                        isAttacking = true; // 이번 사이클엔 데미지를 줬으므로 "공격 중"으로 표시
-                        Debug.Log($"[PlayerAttack] 플레이어가 Enemy에게 {damage} 데미지!");
+                        isAttacking = true;
+                        Debug.Log($"[PlayerAttack] 플레이어가 Enemy에게 {damage} 데미지! (EnemyStats)");
+                    }
+                    else
+                    {
+                        // EnemyStats가 없다면 BossStats 시도
+                        BossStats bossStats = targetEnemy.GetComponent<BossStats>();
+                        if (bossStats != null)
+                        {
+                            bossStats.TakeDamage(damage);
+                            isAttacking = true;
+                            Debug.Log($"[PlayerAttack] 플레이어가 Enemy(보스)에게 {damage} 데미지! (BossStats)");
+                        }
                     }
                 }
             }

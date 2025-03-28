@@ -39,6 +39,13 @@ public class PlayerSpawner : MonoBehaviour
 
     private void SpawnPlayer()
     {
+        // 현재 스테이지 데이터에서 playerPrefab 가져오기
+        if (StageManager.Instance == null)
+        {
+            Debug.LogError("[PlayerSpawner] StageManager.Instance가 존재하지 않습니다!");
+            return;
+        }
+
         StageData currentStage = StageManager.Instance.GetCurrentStageData();
         if (currentStage == null || currentStage.playerPrefab == null)
         {
@@ -46,8 +53,15 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        currentPlayer = Instantiate(currentStage.playerPrefab, spawnPointTransform.position, Quaternion.identity);
-        Debug.Log($"[PlayerSpawner] 플레이어 소환 완료! 위치: {spawnPointTransform.position}");
+        // playerPrefab을 this.transform의 자식으로 생성 (네 번째 인수: 부모 Transform)
+        currentPlayer = Instantiate(
+            currentStage.playerPrefab,
+            spawnPointTransform.position,
+            Quaternion.identity,
+            this.transform
+        );
+
+        Debug.Log($"[PlayerSpawner] 플레이어 소환 완료! 위치: {spawnPointTransform.position}, 부모='{this.name}'");
     }
 
     private void OnDisable()

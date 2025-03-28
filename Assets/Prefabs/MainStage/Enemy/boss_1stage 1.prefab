@@ -76,10 +76,10 @@ PrefabInstance:
       addedObject: {fileID: -7946455576618892729}
     - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: 5bb7f9fcaa6af46448122affe38ae56e, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3516157231769649714}
+      addedObject: {fileID: 1352885937983461586}
     - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: 5bb7f9fcaa6af46448122affe38ae56e, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1352885937983461586}
+      addedObject: {fileID: 3496104756553176241}
   m_SourcePrefab: {fileID: 4843985084834002234, guid: 5bb7f9fcaa6af46448122affe38ae56e, type: 3}
 --- !u!1 &5329313919759252855 stripped
 GameObject:
@@ -119,21 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8d71ac8cd213ba4b89464f57b708f3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
---- !u!114 &3516157231769649714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5329313919759252855}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1efafc45193548840a75526c279b4c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 500
-  currentHealth: 500
+  moveSpeed: 20
 --- !u!114 &1352885937983461586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149,3 +135,17 @@ MonoBehaviour:
   damage: 8
   attackRange: 1.5
   attackInterval: 1
+--- !u!114 &3496104756553176241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5329313919759252855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb24062c82a00cc4da24c07a847462d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 50
+  currentHealth: 50

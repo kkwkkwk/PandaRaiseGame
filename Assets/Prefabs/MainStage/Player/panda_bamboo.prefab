@@ -606,7 +606,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -200, y: -120, z: 0}
-  m_LocalScale: {x: 8, y: 8, z: 1}
+  m_LocalScale: {x: 20, y: 20, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7821012269244777578}
@@ -671,7 +671,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44994a43d0e40ea4d9ae3573ff4aef94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 80
 --- !u!114 &3719162428169869396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -687,6 +686,7 @@ MonoBehaviour:
   damage: 50
   attackRange: 80
   attackInterval: 1
+  isAttacking: 0
 --- !u!1 &5806556140125641778
 GameObject:
   m_ObjectHideFlags: 0

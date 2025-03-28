@@ -12,8 +12,9 @@ public class StageData : ScriptableObject
     public GameObject playerPrefab;
 
     [Header("Enemy Settings")]
-    [Tooltip("이 스테이지에서 사용할 일반 몹 프리팹 (1~9 스테이지)")]
-    public GameObject enemyPrefab;
+    [Tooltip("이 스테이지에서 사용할 여러 종류의 일반 몹 프리팹 (1~9 스테이지)")]
+    public GameObject[] enemyPrefabs; // 배열로 변경, Inspector에 'Size'만 뜨도록
+
     [Tooltip("일반 몹 처치 목표 (예: 9마리)")]
     public int killGoal;
 

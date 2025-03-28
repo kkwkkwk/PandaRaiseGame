@@ -66,8 +66,10 @@ public class BossSpawner : MonoBehaviour
         }
 
         Vector3 spawnPos = spawnPointTransform.position;
-        currentBoss = Instantiate(currentBossPrefab, spawnPos, Quaternion.identity);
-        Debug.Log($"[BossSpawner] 보스 소환 완료! 위치: {spawnPos}");
+        // Instantiate에 BossSpawner의 transform을 부모로 지정
+        currentBoss = Instantiate(currentBossPrefab, spawnPos, Quaternion.identity, this.transform);
+
+        Debug.Log($"[BossSpawner] 보스 소환 완료! 위치: {spawnPos}, 부모='{this.name}'");
     }
 
     private void OnDisable()
@@ -76,6 +78,24 @@ public class BossSpawner : MonoBehaviour
         {
             StopCoroutine(spawnLoop);
             Debug.Log("[BossSpawner] OnDisable() - 보스 스폰 코루틴 중지");
+        }
+    }
+
+    /// <summary>
+    /// 보스 승리(플레이어가 보스를 처치) 시, StageManager에 다음 스테이지로 진행하도록 알림.
+    /// 외부(보스 Stats 등)에서 이 함수를 호출하면 StageManager.OnBossVictory()가 실행됨.
+    /// </summary>
+    public void OnBossVictory()
+    {
+        Debug.Log("[BossSpawner] OnBossVictory() 호출됨. 다음 스테이지로 이동합니다.");
+
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnBossVictory();
+        }
+        else
+        {
+            Debug.LogWarning("[BossSpawner] StageManager.Instance가 null입니다. 보스 승리 처리를 수행할 수 없습니다!");
         }
     }
 }

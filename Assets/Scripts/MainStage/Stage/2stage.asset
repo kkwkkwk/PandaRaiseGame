@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87672c38fa128de4287c2af9869708dd, type: 3}
-  m_Name: 1stage
+  m_Name: 2stage
   m_EditorClassIdentifier: 
-  chapter: 1
-  subStageCount: 100
+  chapter: 2
+  subStageCount: 10
   playerPrefab: {fileID: 3397015064879827269, guid: 8ed0b8947a53067448d85db607c222fe, type: 3}
   enemyPrefabs:
-  - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
-  killGoal: 1
-  bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+  - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
+  - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
+  killGoal: 15
+  bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}

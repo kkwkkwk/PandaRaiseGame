@@ -27,10 +27,17 @@ public class EnemyStats : MonoBehaviour
     {
         Debug.Log("몬스터 사망!");
 
-        // 몬스터 사망 이벤트 실행 → `EnemySpawner`가 감지
+        // (1) StageManager에 몹 처치 알림
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnEnemyKilled();
+        }
+
+        // (2) 몬스터 사망 이벤트 (필요하면 유지)
         OnEnemyDeath?.Invoke();
 
-        // 즉시 오브젝트 제거 (스폰 시스템이 알아서 새로운 몬스터를 생성)
+        // (3) 오브젝트 제거
         Destroy(gameObject);
     }
+
 }
