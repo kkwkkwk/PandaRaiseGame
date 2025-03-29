@@ -415,7 +415,7 @@ public class GuildInfoResponse
     public string groupId;
     public string groupName;
     public int groupLevel;        // 레벨이 int라고 가정
-    public string groupDesc;      // 길드 소개
+    public string groupDesc;      // 길드 공지
 
     public List<ServerGuildMember> memberList;
 }

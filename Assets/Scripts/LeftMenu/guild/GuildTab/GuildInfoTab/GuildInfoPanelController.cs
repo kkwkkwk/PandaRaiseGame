@@ -161,8 +161,12 @@ public class GuildInfoPanelController : MonoBehaviour
             return;
         }
 
-        // 권한이 있다면 “길드 관리” 팝업 등 새 창을 열 수 있음
-        // 예: GuildManagePopupManager.Instance.OpenManagePopup();
+        // 길드 공지 문자열 가져오기
+        // GuildInfoPanelController는 이미 guildDescText 등에 공지를 표시 중
+        string currentNotice = guildDescText != null ? guildDescText.text : "";
+
+        // 팝업 열 때 인자로 넘김
+        GuildManagerPopupManager.Instance.OpenGuildManagerPopup(currentNotice);
         Debug.Log("[GuildInfoPanel] 길드 관리 창 열기");
     }
 
