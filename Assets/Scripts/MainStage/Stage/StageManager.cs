@@ -17,6 +17,8 @@ public class StageManager : MonoBehaviour
     private int currentSubStage = 1;
     private int killCount = 0;
 
+    private int maxStage = 50;
+
     [Header("UI Panels")]
     public GameObject idleModePanel;   // 방치형(Idle) 모드 패널
     public GameObject bossModePanel;   // 보스 모드 패널
@@ -80,9 +82,9 @@ public class StageManager : MonoBehaviour
             killCount = 0;
             currentSubStage++;
 
-            if (currentSubStage > 100)
+            if (currentSubStage > maxStage)
             {
-                // 1~100 전부 끝
+                // 1 ~ maxStage 전부 끝
                 Debug.Log("[StageManager] 모든 스테이지 클리어! (subStage=101)");
                 // ───────── [추가된 부분] ─────────
                 // 다음 큰 스테이지(챕터)로 이동
@@ -117,7 +119,7 @@ public class StageManager : MonoBehaviour
         currentSubStage++;
         killCount = 0;
 
-        if (currentSubStage > 100)
+        if (currentSubStage > maxStage)
         {
             Debug.Log("[StageManager] 모든 스테이지 클리어! (subStage=101)");
             // ───────── [추가된 부분] ─────────
