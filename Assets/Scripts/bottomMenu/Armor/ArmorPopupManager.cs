@@ -11,25 +11,15 @@ public class ArmorPopupManager : MonoBehaviour
 
     public GameObject ArmorPopupCanvas;     // 팝업 canvas
 
-    public GameObject WeaponPanel;          // 무기 패널
-    public GameObject ArmorPanel;           // 방어구 패널
-    public GameObject SkillPanel;           // 스킬 패널
-    public GameObject DungeonPanel;         // 던전 패널
-
     public void OpenArmorPanel()
     {   // 팝업 활성화 
         if (ArmorPopupCanvas != null)
         {
             ArmorPopupCanvas.SetActive(true);
         }
-
-        // 필요한 Panel만 true
-        ArmorPanel.SetActive(true);
-
-        // 나머지 panel은 false
-        WeaponPanel.SetActive(false);
-        DungeonPanel.SetActive(false);
-        SkillPanel.SetActive(false);
+        WeaponPopupManager.Instance.CloseWeaponPanel();
+        SkillPopupManager.Instance.CloseSkillPanel();
+        DungeonPopupManager.Instance.CloseDungeonPanel();
 
         ChatPopupManager.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거

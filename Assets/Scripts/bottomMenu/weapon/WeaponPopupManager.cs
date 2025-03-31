@@ -11,11 +11,6 @@ public class WeaponPopupManager : MonoBehaviour
 
     public GameObject WeaponPopupCanvas;     // 팝업 canvas
 
-    public GameObject WeaponPanel;          // 무기 패널
-    public GameObject ArmorPanel;           // 방어구 패널
-    public GameObject SkillPanel;           // 스킬 패널
-    public GameObject DungeonPanel;         // 던전 패널
-
     public void OpenWeaponPanel()
     {   // 팝업 활성화 
         UnityEngine.Debug.Log($"[WeaponPopupManager] OpenWeaponPanel 실행");
@@ -24,13 +19,9 @@ public class WeaponPopupManager : MonoBehaviour
             WeaponPopupCanvas.SetActive(true);
             UnityEngine.Debug.Log($"[WeaponPopupManager] Canvas 활성화 실행");
         }
-        // 필요한 Panel만 true
-        WeaponPanel.SetActive(true);
-
-        // 나머지 panel은 false
-        ArmorPanel.SetActive(false);
-        DungeonPanel.SetActive(false);
-        SkillPanel.SetActive(false);
+        ArmorPopupManager.Instance.CloseArmorPanel();
+        SkillPopupManager.Instance.CloseSkillPanel();
+        DungeonPopupManager.Instance.CloseDungeonPanel();
 
         ChatPopupManager.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
@@ -42,6 +33,8 @@ public class WeaponPopupManager : MonoBehaviour
         {
             WeaponPopupCanvas.SetActive(false);
         }
+
+
         ChatPopupManager.Instance.CloseMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.OpenBottomChatPreview();   // 하단에 채팅 미리보기 ui 생성
         ChatPopupManager.Instance.middlePreview = false;

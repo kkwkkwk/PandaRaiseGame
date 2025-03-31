@@ -10,25 +10,15 @@ public class SkillPopupManager : MonoBehaviour
 
     public GameObject SkillPopupCanvas;     // 팝업 canvas
 
-    public GameObject WeaponPanel;          // 무기 패널
-    public GameObject ArmorPanel;           // 방어구 패널
-    public GameObject SkillPanel;           // 스킬 패널
-    public GameObject DungeonPanel;         // 던전 패널
-
     public void OpenSkillPanel()
     {   // 팝업 활성화 
         if (SkillPopupCanvas != null)
         {
             SkillPopupCanvas.SetActive(true);
         }
-        // 필요한 Panel만 true
-        SkillPanel.SetActive(true);
-
-        // 나머지 panel은 false
-        WeaponPanel.SetActive(false);
-        ArmorPanel.SetActive(false);
-        DungeonPanel.SetActive(false);
-        
+        WeaponPopupManager.Instance.CloseWeaponPanel();
+        ArmorPopupManager.Instance.CloseArmorPanel();
+        DungeonPopupManager.Instance.CloseDungeonPanel();
 
         ChatPopupManager.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
