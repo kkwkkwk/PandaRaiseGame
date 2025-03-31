@@ -31,7 +31,7 @@ public class ChatPopupManager : MonoBehaviour
     public TextMeshProUGUI ChatPreviewText;
 
     public bool middlePreview;      // 중앙 채팅 오픈 여부
-    public bool isFullScreenActive; // 전체 채팅 화면 on/off 여부
+    public bool isFullScreenActive = false; // 전체 채팅 화면 on/off 여부
 
     // --------------------------
     // ChatManager 참조

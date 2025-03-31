@@ -9,7 +9,7 @@ public class CloseSkillPopup : MonoBehaviour
     {
         if (SkillPopupManager.Instance != null)
         {
-            SkillPopupManager.Instance.ClosePanel(); // 팝업 비활성화
+            SkillPopupManager.Instance.CloseSkillPanel(); // 팝업 비활성화
         }
         else
         {

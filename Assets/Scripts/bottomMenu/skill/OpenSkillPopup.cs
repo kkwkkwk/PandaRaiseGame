@@ -11,6 +11,6 @@ public class OpenSkillPopup : MonoBehaviour
         {
             ChatPopupManager.Instance.CloseChat();
         }
-        SkillPopupManager.Instance.OpenPanel();
+        SkillPopupManager.Instance.OpenSkillPanel();
     }
 }

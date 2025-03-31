@@ -8,23 +8,37 @@ public class SkillPopupManager : MonoBehaviour
     // 딴 스크립트에서 SkillPopupManager.Instance.OpenSkillPanel(); 로 함수 호출 가능
     public static SkillPopupManager Instance { get; private set; }
 
-    public GameObject PopupCanvas;     // 팝업 canvas
+    public GameObject SkillPopupCanvas;     // 팝업 canvas
 
-    public void OpenPanel()
+    public GameObject WeaponPanel;          // 무기 패널
+    public GameObject ArmorPanel;           // 방어구 패널
+    public GameObject SkillPanel;           // 스킬 패널
+    public GameObject DungeonPanel;         // 던전 패널
+
+    public void OpenSkillPanel()
     {   // 팝업 활성화 
-        if (PopupCanvas != null)
+        if (SkillPopupCanvas != null)
         {
-            PopupCanvas.SetActive(true);
+            SkillPopupCanvas.SetActive(true);
         }
+        // 필요한 Panel만 true
+        SkillPanel.SetActive(true);
+
+        // 나머지 panel은 false
+        WeaponPanel.SetActive(false);
+        ArmorPanel.SetActive(false);
+        DungeonPanel.SetActive(false);
+        
+
         ChatPopupManager.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.middlePreview = true;
     }
-    public void ClosePanel()
+    public void CloseSkillPanel()
     {  // 팝업 비활성화
-        if (PopupCanvas != null)
+        if (SkillPopupCanvas != null)
         {
-            PopupCanvas.SetActive(false);
+            SkillPopupCanvas.SetActive(false);
         }
         ChatPopupManager.Instance.CloseMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.OpenBottomChatPreview();   // 하단에 채팅 미리보기 ui 생성
@@ -47,7 +61,10 @@ public class SkillPopupManager : MonoBehaviour
 
     void Start()
     {
-        
+        if (SkillPopupCanvas != null)
+        {
+            SkillPopupCanvas.SetActive(false);
+        }
     }
 
 }

@@ -9,7 +9,7 @@ public class CloseDungeonPopup : MonoBehaviour, IPointerClickHandler
     {
         if (DungeonPopupManager.Instance != null)
         {
-            DungeonPopupManager.Instance.ClosePanel(); // 팝업 비활성화
+            DungeonPopupManager.Instance.CloseDungeonPanel(); // 팝업 비활성화
         }
         else
         {

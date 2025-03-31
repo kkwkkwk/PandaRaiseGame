@@ -9,23 +9,35 @@ public class DungeonPopupManager : MonoBehaviour
     public static DungeonPopupManager Instance { get; private set; }
 
 
-    public GameObject PopupCanvas;     // 팝업 canvas
+    public GameObject DungeonPopupCanvas;     // 팝업 canvas
 
-    public void OpenPanel()
+    public GameObject WeaponPanel;          // 무기 패널
+    public GameObject ArmorPanel;           // 방어구 패널
+    public GameObject SkillPanel;           // 스킬 패널
+    public GameObject DungeonPanel;         // 던전 패널
+    public void OpenDungeonPanel()
     {   // 팝업 활성화 
-        if (PopupCanvas != null)
+        if (DungeonPopupCanvas != null)
         {
-            PopupCanvas.SetActive(true);
+            DungeonPopupCanvas.SetActive(true);
         }
+        // 필요한 Panel만 true
+        DungeonPanel.SetActive(true);
+
+        // 나머지 panel은 false
+        WeaponPanel.SetActive(false);
+        SkillPanel.SetActive(false);
+        ArmorPanel.SetActive(false);
+
         ChatPopupManager.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.middlePreview = true;
     }
-    public void ClosePanel()
+    public void CloseDungeonPanel()
     {  // 팝업 비활성화
-        if (PopupCanvas != null)
+        if (DungeonPopupCanvas != null)
         {
-            PopupCanvas.SetActive(false);
+            DungeonPopupCanvas.SetActive(false);
         }
         ChatPopupManager.Instance.CloseMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.OpenBottomChatPreview();   // 하단에 채팅 미리보기 ui 생성
@@ -47,8 +59,11 @@ public class DungeonPopupManager : MonoBehaviour
     }
 
     void Start()
-    { 
-
+    {
+        if (DungeonPopupCanvas != null)
+        {
+            DungeonPopupCanvas.SetActive(false);
+        }
     }
 
 }

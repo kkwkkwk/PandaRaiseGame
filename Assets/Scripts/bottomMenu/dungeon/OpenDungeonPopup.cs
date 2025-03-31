@@ -11,7 +11,7 @@ public class OpenDungeonPopup : MonoBehaviour
         {
             ChatPopupManager.Instance.CloseChat();
         }
-        DungeonPopupManager.Instance.OpenPanel();
+        DungeonPopupManager.Instance.OpenDungeonPanel();
     }
 }
 
