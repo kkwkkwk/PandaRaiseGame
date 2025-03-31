@@ -166,6 +166,7 @@ public class GuildTabPanelController : MonoBehaviour
                             serverResponse.groupLevel,
                             serverResponse.groupDesc
                         );
+                        
                     }
 
                     // 내 계급 찾기
@@ -185,6 +186,10 @@ public class GuildTabPanelController : MonoBehaviour
                             }
                         }
                     }
+
+                    // 내가 '길드마스터' 혹은 '부마스터'이면 관리 버튼 사용 가능
+                    bool managerFlag = (myUserRole == "길드마스터" || myUserRole == "부마스터");
+                    infoPanelCtrl.SetMasterOrSub(managerFlag);
 
                     Debug.Log($"[GetGuildInfo] 내 계급: {myUserRole}");
                 }

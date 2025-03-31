@@ -27,7 +27,7 @@ public class GuildInfoPanelController : MonoBehaviour
 
     // 길드마스터/부마스터인지 여부 (GuildTabPanelController 등에서 받아오거나, 로그인 시점에 저장)
     // 실제로는 userClass(“길드마스터” / “부마스터” / “길드원”) 등을 받아서 판단할 수도 있음.
-    private bool isMasterOrSub = true;
+    private bool isMasterOrSub;
 
     private void Start()
     {
@@ -40,6 +40,11 @@ public class GuildInfoPanelController : MonoBehaviour
 
         if (leaveButton != null)
             leaveButton.onClick.AddListener(OnClickLeave);
+    }
+
+    public void SetMasterOrSub(bool value)
+    {
+        isMasterOrSub = value;
     }
 
     /// <summary>
@@ -157,6 +162,7 @@ public class GuildInfoPanelController : MonoBehaviour
         // 권한 체크
         if (!isMasterOrSub)
         {
+            Debug.Log("[GuildInfoPanel] 길드 관리 창 열기 실패");
             ToastManager.Instance.ShowToast("길드 관리 권한이 없습니다!");
             return;
         }
