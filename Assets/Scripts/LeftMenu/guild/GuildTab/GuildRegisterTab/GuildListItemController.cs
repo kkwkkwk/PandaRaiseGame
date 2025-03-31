@@ -19,7 +19,7 @@ public class GuildListItemController : MonoBehaviour
     public int incrementPerLevel = 2;
 
     // 실제 길드 가입(요청) API 주소 & key로 교체
-    private string joinGuildURL = "https://your-azure-function-url/JoinGuild?code=YOUR_FUNCTION_KEY";
+    private string joinGuildURL = "https://pandaraisegame-guild.azurewebsites.net/api/JoinGuild?code=Lj1P0F-ktTP-bS_VaOKOj43lxnRKBYRY-s3estRhuBq_AzFuM3JVTQ==";
 
     // 이미 가입 신청을 눌렀는지 표시하기 위한 플래그
     private bool isRequesting = false;

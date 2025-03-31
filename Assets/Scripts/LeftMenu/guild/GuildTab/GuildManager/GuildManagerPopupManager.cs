@@ -26,10 +26,10 @@ public class GuildManagerPopupManager : MonoBehaviour
     public Button closeButton;  // 닫기 버튼
 
     // 실제 서버 API 주소 (예시 URL)
-    private string updateNoticeURL = "https://example.com/UpdateGuildNotice";
-    private string getJoinRequestsURL = "https://example.com/GetJoinRequests";
-    private string approveJoinURL = "https://example.com/ApproveJoinRequest";
-    private string declineJoinURL = "https://example.com/DeclineJoinRequest";
+    private string updateNoticeURL = "https://pandaraisegame-guild.azurewebsites.net/api/UpdateGuildNotice?code=oSgeJokM8vdVnoYRo5Zw3xlIvapQvLQXP6YJAO9pNvhQAzFuzWS-8g==";
+    private string getJoinRequestsURL = "https://pandaraisegame-guild.azurewebsites.net/api/GetJoinRequests?code=Ii7wwTWQli_O9pwCUGUlj-XbMbAdvYtkV4nTou__t3OVAzFu28Murg==";
+    private string approveJoinURL = "https://pandaraisegame-guild.azurewebsites.net/api/ApproveJoinRequest?code=izR636z2fw2TDWVdDoB191qlhshXQhCLt8eJa7SJQsq3AzFuuY9wSg==";
+    private string declineJoinURL = "https://pandaraisegame-guild.azurewebsites.net/api/DeclineJoinRequest?code=mjfUGoWAYz6fb6IGNX3_0WbhIyVZ0OBIHQYqc7ubBdneAzFuEYHvzw==";
 
     // 가입 신청 목록
     private List<GuildManagerData> joinRequests = new List<GuildManagerData>();
