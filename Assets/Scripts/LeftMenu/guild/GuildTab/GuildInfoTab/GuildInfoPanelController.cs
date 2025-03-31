@@ -27,7 +27,7 @@ public class GuildInfoPanelController : MonoBehaviour
 
     // 길드마스터/부마스터인지 여부 (GuildTabPanelController 등에서 받아오거나, 로그인 시점에 저장)
     // 실제로는 userClass(“길드마스터” / “부마스터” / “길드원”) 등을 받아서 판단할 수도 있음.
-    public bool isMasterOrSub = false;
+    private bool isMasterOrSub = true;
 
     private void Start()
     {

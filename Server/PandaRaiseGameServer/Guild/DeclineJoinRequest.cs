@@ -161,11 +161,11 @@ namespace Guild
 
         public class GuildApplicationItem
         {
-            public string? applicantId;
-            public string? applicantEntityId;
-            public string? applicantName;
-            public int applicantPower;
-            public string? applyTime;
+            public string? applicantId { get; set; }
+            public string? applicantEntityId { get; set; }
+            public string? applicantName { get; set; }
+            public int applicantPower { get; set; }
+            public string? applyTime { get; set; }
         }
 
         // Convert
