@@ -29,14 +29,13 @@ public class StageManager : MonoBehaviour
     [Header("Boss Button")]
     public GameObject bossButton;
 
-    // ─────────────────────────────────────────────
-    // ↓↓↓ 디버그용 필드 ↓↓↓
-    // ─────────────────────────────────────────────
     [Header("Debug (인스펙터에서만 사용)")]
-    [Tooltip("예: \"1,5\" 입력 후 아래 체크박스를 켜면, 1-5로 이동")]
-    public string debugStageString = "1,1";   // "챕터,서브스테이지" 형식
-    [Tooltip("이 토글을 켜면, OnValidate()에서 debugStageString을 해석해 DebugSetStage를 실행")]
+    public string debugStageString = "1,1";
     public bool debugApplyStage = false;
+
+    [Header("Gold")]
+    [Tooltip("현재 누적된 골드")]
+    public int gold = 0;
 
     private void Awake()
     {
@@ -54,41 +53,30 @@ public class StageManager : MonoBehaviour
         LoadChapter(0);
     }
 
-    // ─────────────────────────────────────────────
-    // ↓↓↓ 디버그용 OnValidate() ↓↓↓
-    // ─────────────────────────────────────────────
     private void OnValidate()
     {
-        // 유니티 에디터에서 Inspector 값이 변경될 때마다 호출됩니다.
-        // Play Mode가 아닐 때 DebugSetStage를 호출해봐야 씬 플레이 상태가 아니므로 의미가 없지만,
-        // "Play Mode 중"에도 Inspector 값을 바꾸면 OnValidate()가 호출되므로 사용할 수 있습니다.
         if (debugApplyStage)
         {
-            debugApplyStage = false; // 다시 꺼줌
-
+            debugApplyStage = false;
             if (!Application.isPlaying)
             {
-                Debug.LogWarning("[StageManager] DebugSetStage는 Play Mode에서만 동작합니다!");
+                Debug.LogWarning("[StageManager] DebugSetStage는 Play Mode에서만 동작!");
                 return;
             }
-
-            // "1,5" 같은 문자열을 파싱
             if (string.IsNullOrEmpty(debugStageString))
             {
-                Debug.LogWarning("[StageManager] debugStageString이 비어있습니다.");
+                Debug.LogWarning("[StageManager] debugStageString이 비어있음.");
                 return;
             }
-
             string[] parts = debugStageString.Split(',');
             if (parts.Length != 2)
             {
-                Debug.LogError($"[StageManager] debugStageString='{debugStageString}' 형식이 잘못되었습니다. 예: \"1,5\"");
+                Debug.LogError($"[StageManager] debugStageString='{debugStageString}' 형식이 잘못됨. 예: \"1,5\"");
                 return;
             }
-
             if (int.TryParse(parts[0], out int ch) && int.TryParse(parts[1], out int subSt))
             {
-                Debug.Log($"[StageManager] OnValidate → DebugSetStage({ch}, {subSt}) 호출");
+                Debug.Log($"[StageManager] OnValidate → DebugSetStage({ch}, {subSt})");
                 DebugSetStage(ch, subSt);
             }
             else
@@ -97,15 +85,7 @@ public class StageManager : MonoBehaviour
             }
         }
     }
-    // ─────────────────────────────────────────────
 
-    // ─────────────────────────────────────────────
-    // ↓↓↓ DebugSetStage 함수 ↓↓↓
-    // ─────────────────────────────────────────────
-    /// <summary>
-    /// 디버그용: 지정한 챕터와 서브스테이지부터 시작하도록 설정합니다.
-    /// 예: DebugSetStage(1, 5) -> 1-5부터 시작.
-    /// </summary>
     public void DebugSetStage(int chapter, int subStage)
     {
         if (chapter < 1 || chapter > stageDatas.Length)
@@ -113,47 +93,30 @@ public class StageManager : MonoBehaviour
             Debug.LogError("[StageManager] DebugSetStage: 유효하지 않은 챕터 번호");
             return;
         }
-
         currentChapterIndex = chapter - 1;
         currentStageData = stageDatas[currentChapterIndex];
-
         if (subStage < 1 || subStage > currentStageData.totalSubStages)
         {
             Debug.LogError("[StageManager] DebugSetStage: 유효하지 않은 서브스테이지 번호");
             return;
         }
-
         currentSubStage = subStage;
         killCount = 0;
-
         UpdateCurrentBlock();
         UpdateStageInfo();
-
-        // 현재 스테이지가 보스 스테이지라면 보스 모드, 아니라면 일반 모드
-        if (IsBossStage(currentSubStage))
-        {
-            GoBossMode();
-        }
-        else
-        {
-            GoIdleMode();
-        }
-
+        if (IsBossStage(currentSubStage)) GoBossMode();
+        else GoIdleMode();
         Debug.Log($"[StageManager] DebugSetStage({chapter},{subStage}) 완료. 현재 스테이지 = {currentStageData.chapter}-{currentSubStage}");
     }
-    // ─────────────────────────────────────────────
 
     private void LoadChapter(int index)
     {
         currentChapterIndex = index;
         currentStageData = stageDatas[index];
-
         currentSubStage = 1;
         killCount = 0;
-
         UpdateCurrentBlock();
         UpdateStageInfo();
-
         if (bossButton != null) bossButton.SetActive(false);
         GoIdleMode();
     }
@@ -162,21 +125,22 @@ public class StageManager : MonoBehaviour
     {
         if (IsBossStage(currentSubStage)) return;
 
+        // 몹 처치 시 골드 추가 (currentBlock.enemyGoldReward)
+        gold += currentBlock.enemyGoldReward;
+        Debug.Log($"[StageManager] 몹 처치! +{currentBlock.enemyGoldReward} 골드 → 총 골드: {gold}");
+
         killCount++;
-        Debug.Log($"[StageManager] OnEnemyKilled: {killCount}/{currentBlock.killGoal} " +
-                  $"(SubStage {currentSubStage}/{currentStageData.totalSubStages})");
+        Debug.Log($"[StageManager] OnEnemyKilled: {killCount}/{currentBlock.killGoal} (SubStage {currentSubStage}/{currentStageData.totalSubStages})");
 
         if (killCount >= currentBlock.killGoal)
         {
             killCount = 0;
             currentSubStage++;
-
             if (currentSubStage > currentStageData.totalSubStages)
             {
                 GoNextChapter();
                 return;
             }
-
             if (IsBossStage(currentSubStage))
             {
                 if (bossButton != null) bossButton.SetActive(false);
@@ -186,7 +150,6 @@ public class StageManager : MonoBehaviour
             {
                 GoIdleMode();
             }
-
             UpdateCurrentBlock();
             UpdateStageInfo();
         }
@@ -196,30 +159,31 @@ public class StageManager : MonoBehaviour
     {
         Debug.Log("[StageManager] OnBossVictory() - 보스 처치 성공!");
 
+        // 보스 처치 시 골드 추가 (currentBlock.bossGoldReward)
+        gold += currentBlock.bossGoldReward;
+        Debug.Log($"[StageManager] 보스 처치! +{currentBlock.bossGoldReward} 골드 → 총 골드: {gold}");
+
         currentSubStage++;
         if (currentSubStage > currentStageData.totalSubStages)
         {
             GoNextChapter();
             return;
         }
-
         killCount = 0;
         UpdateCurrentBlock();
         UpdateStageInfo();
-
         if (bossButton != null) bossButton.SetActive(false);
         GoIdleMode();
     }
 
     public void OnBossDefeat()
     {
-        Debug.Log("[StageManager] OnBossDefeat() - 보스 전투 실패, 해당 블록의 처음 서브스테이지로 리셋합니다.");
+        Debug.Log("[StageManager] OnBossDefeat() - 보스 전투 실패, 해당 블록의 처음 서브스테이지로 리셋");
         int blockIndex = (currentSubStage - 1) / 10;
         currentSubStage = blockIndex * 10 + 1;
         killCount = 0;
         UpdateCurrentBlock();
         UpdateStageInfo();
-
         if (bossButton != null) bossButton.SetActive(true);
         GoIdleMode();
     }
@@ -232,8 +196,7 @@ public class StageManager : MonoBehaviour
         {
             mobSpawner.SetActive(true);
             EnemySpawner es = mobSpawner.GetComponent<EnemySpawner>();
-            if (es != null)
-                es.ClearEnemies();
+            if (es != null) es.ClearEnemies();
         }
         UpdateStageInfo();
         GoIdleMode();
@@ -284,7 +247,6 @@ public class StageManager : MonoBehaviour
             if (es != null) es.ClearEnemies();
         }
         if (bossSpawner) bossSpawner.SetActive(true);
-
         if (bossButton != null) bossButton.SetActive(false);
     }
 
@@ -316,9 +278,7 @@ public class StageManager : MonoBehaviour
     private void UpdateStageInfo()
     {
         if (stageInfoText)
-        {
             stageInfoText.text = $"{currentStageData.chapter}-{currentSubStage}";
-        }
     }
 
     public GameObject GetEnemyPrefab()

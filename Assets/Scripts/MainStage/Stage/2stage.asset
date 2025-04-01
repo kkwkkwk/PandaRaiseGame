@@ -30,48 +30,68 @@ MonoBehaviour:
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 60
+    bossGoldReward: 120
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 65
+    bossGoldReward: 130
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 70
+    bossGoldReward: 140
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 75
+    bossGoldReward: 150
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 80
+    bossGoldReward: 160
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 85
+    bossGoldReward: 170
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 90
+    bossGoldReward: 180
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 95
+    bossGoldReward: 190
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 100
+    bossGoldReward: 200
   - enemyPrefabs:
     - {fileID: 2038781784666275147, guid: 4c0399684b101b447a4b17a50a45a538, type: 3}
     - {fileID: 7889522325414895818, guid: 5bd8094e16958de4db8a9aa56c7512ce, type: 3}
     bossPrefab: {fileID: 1131415742425978608, guid: a6d4a6db05a8f7d498eb06517d72990d, type: 3}
     killGoal: 2
+    enemyGoldReward: 105
+    bossGoldReward: 210

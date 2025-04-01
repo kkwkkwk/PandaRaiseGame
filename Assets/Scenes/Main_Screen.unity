@@ -32976,6 +32976,7 @@ MonoBehaviour:
   bossButton: {fileID: 2071374253}
   debugStageString: 1,10
   debugApplyStage: 0
+  gold: 0
 --- !u!1 &1412289919
 GameObject:
   m_ObjectHideFlags: 0
