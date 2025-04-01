@@ -32974,7 +32974,7 @@ MonoBehaviour:
   mobSpawner: {fileID: 840412330}
   bossSpawner: {fileID: 154147677}
   bossButton: {fileID: 2071374253}
-  debugStageString: 2,1
+  debugStageString: 1,10
   debugApplyStage: 0
 --- !u!1 &1412289919
 GameObject:

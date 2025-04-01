@@ -9,7 +9,7 @@ public class BossSpawner : MonoBehaviour
 
     private GameObject currentBoss;
     private Coroutine spawnLoop;
-    // 순서대로 사용할 보스 스폰 위치 인덱스
+    // StageData의 bossSpawnPositions 배열을 순서대로 사용할 인덱스
     private int currentSpawnIndex = 0;
 
     private void OnEnable()
@@ -37,26 +37,18 @@ public class BossSpawner : MonoBehaviour
 
     private void SpawnBoss()
     {
-        if (StageManager.Instance == null) return;
+        if (StageManager.Instance == null)
+            return;
         GameObject bossPrefab = StageManager.Instance.GetBossPrefab();
         if (bossPrefab == null)
-        {
-            Debug.LogWarning("[BossSpawner] bossPrefab is null!");
             return;
-        }
 
         StageData data = StageManager.Instance.GetCurrentStageData();
         if (data == null)
-        {
-            Debug.LogWarning("[BossSpawner] StageData is null!");
             return;
-        }
         Vector3[] spawnPositions = data.bossSpawnPositions;
         if (spawnPositions == null || spawnPositions.Length == 0)
-        {
-            Debug.LogWarning("[BossSpawner] bossSpawnPositions 배열이 비어있습니다!");
             return;
-        }
 
         Vector3 spawnPos = spawnPositions[currentSpawnIndex];
         currentSpawnIndex = (currentSpawnIndex + 1) % spawnPositions.Length;
