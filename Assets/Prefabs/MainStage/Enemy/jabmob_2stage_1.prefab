@@ -18,11 +18,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 74f1921118e21b647947d1590bd02829, type: 3}
       propertyPath: m_LocalScale.x
-      value: 13
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 74f1921118e21b647947d1590bd02829, type: 3}
       propertyPath: m_LocalScale.y
-      value: 13
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 74f1921118e21b647947d1590bd02829, type: 3}
       propertyPath: m_LocalPosition.x
@@ -73,7 +73,7 @@ PrefabInstance:
       addedObject: {fileID: 1844452292651541729}
     - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: 74f1921118e21b647947d1590bd02829, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -7555059640163248260}
+      addedObject: {fileID: -3302968101343338672}
     - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: 74f1921118e21b647947d1590bd02829, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4661548397649425809}
@@ -107,7 +107,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &-7555059640163248260
+--- !u!114 &-3302968101343338672
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,10 +116,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2038781784666275147}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5c70e439d4d5f4469c8577aa0db9b80, type: 3}
+  m_Script: {fileID: 11500000, guid: b8d71ac8cd213ba4b89464f57b708f3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 40
+  moveSpeed: 70
 --- !u!114 &4661548397649425809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,8 +132,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1efafc45193548840a75526c279b4c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 200
-  currentHealth: 200
+  maxHealth: 10
+  currentHealth: 10
 --- !u!114 &763865820154106183
 MonoBehaviour:
   m_ObjectHideFlags: 0

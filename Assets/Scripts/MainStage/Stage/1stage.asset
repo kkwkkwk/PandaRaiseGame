@@ -13,9 +13,55 @@ MonoBehaviour:
   m_Name: 1stage
   m_EditorClassIdentifier: 
   chapter: 1
-  subStageCount: 100
+  totalSubStages: 100
   playerPrefab: {fileID: 3397015064879827269, guid: 8ed0b8947a53067448d85db607c222fe, type: 3}
-  enemyPrefabs:
-  - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
-  killGoal: 1
-  bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+  playerSpawnPositions:
+  - {x: 350, y: -350, z: 0}
+  enemySpawnPositions:
+  - {x: 600, y: -342, z: 0}
+  - {x: 670, y: -342, z: 0}
+  - {x: 650, y: -342, z: 0}
+  - {x: 670, y: -342, z: 0}
+  bossSpawnPositions:
+  - {x: 600, y: -345, z: 0}
+  subStageBlocks:
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1
+  - enemyPrefabs:
+    - {fileID: 1069197646301572770, guid: 8804ebe996da0594894c67854e747672, type: 3}
+    bossPrefab: {fileID: 5329313919759252855, guid: 45cadbfc3569f4640b78dc05ee2f0783, type: 3}
+    killGoal: 1

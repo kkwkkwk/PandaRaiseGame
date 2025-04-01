@@ -7,8 +7,8 @@ public class BossButtonController : MonoBehaviour
     {
         if (StageManager.Instance != null)
         {
-            Debug.Log("[BossButtonController] 보스 버튼 클릭 - 보스 모드로 전환합니다.");
-            StageManager.Instance.GoToBossMode();
+            Debug.Log("[BossButtonController] 보스 버튼 클릭 - 보스 서브스테이지로 전환합니다.");
+            StageManager.Instance.ReEnterBossMode();
         }
         else
         {

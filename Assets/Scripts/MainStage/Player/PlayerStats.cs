@@ -10,20 +10,17 @@ public class PlayerStats : MonoBehaviour
 
     private void Start()
     {
-        // 게임 시작 시 체력을 최대치로 설정
         currentHealth = maxHealth;
     }
 
     /// <summary>
-    /// 외부(적 공격 등)에서 피해를 입을 때 호출
+    /// 외부에서 피해를 입을 때 호출
     /// </summary>
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-
         Debug.Log($"[PlayerStats] 플레이어가 {damage} 피해를 입음! 남은 체력: {currentHealth}");
 
-        // 체력이 0 이하로 떨어지면 0으로 고정 후 사망 처리
         if (currentHealth <= 0)
         {
             currentHealth = 0;
@@ -32,16 +29,20 @@ public class PlayerStats : MonoBehaviour
     }
 
     /// <summary>
-    /// 플레이어 사망 처리
+    /// 플레이어 사망 처리: StageManager에 알림
     /// </summary>
     private void Die()
     {
         Debug.Log("플레이어 사망!");
 
-        // 여기서 게임 오버나 다음 스테이지 이동 등 원하는 로직 구현
-        // 예) StageManager.Instance.OnPlayerDead(); 등을 호출할 수도 있음
+        // StageManager의 OnPlayerDefeat()를 호출하여,
+        // 보스 스테이지에서 사망한 경우 OnBossDefeat()가 실행되도록 합니다.
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnPlayerDefeat();
+        }
 
-        // 플레이어 오브젝트 파괴가 필요하다면 Destroy(gameObject) 호출 가능
+        // 필요하다면 플레이어 오브젝트를 제거하거나 비활성화합니다.
         // Destroy(gameObject);
     }
 }

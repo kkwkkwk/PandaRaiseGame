@@ -132,8 +132,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7320ac3b77ff9419ad116bdc265574, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 8
-  attackRange: 1.5
+  damage: 50
+  attackRange: 10
   attackInterval: 1
 --- !u!114 &3496104756553176241
 MonoBehaviour:
@@ -147,5 +147,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb24062c82a00cc4da24c07a847462d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 50
-  currentHealth: 50
+  maxHealth: 200
+  currentHealth: 200

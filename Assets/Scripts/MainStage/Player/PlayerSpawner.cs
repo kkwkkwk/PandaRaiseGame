@@ -1,28 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerSpawner : MonoBehaviour
 {
-    [Tooltip("플레이어가 소환될 위치 (씬의 빈 오브젝트를 드래그)")]
-    public Transform spawnPointTransform;
-
-    [Tooltip("플레이어 존재 여부를 체크할 간격 (초)")]
-    public float spawnCheckInterval = 2f;
+    [Tooltip("플레이어 체크 간격 (초)")]
+    public float checkInterval = 2f;
 
     private GameObject currentPlayer;
     private Coroutine spawnLoop;
+    // 순서대로 사용할 플레이어 스폰 위치 인덱스
+    private int currentSpawnIndex = 0;
 
     private void Start()
     {
-        if (spawnPointTransform == null)
-        {
-            Debug.LogError("[PlayerSpawner] spawnPointTransform이 할당되지 않았습니다!");
-            return;
-        }
-
         spawnLoop = StartCoroutine(SpawnLoop());
-        Debug.Log("[PlayerSpawner] Start() - 플레이어 스폰 검사 코루틴 시작");
     }
 
     private IEnumerator SpawnLoop()
@@ -33,43 +24,38 @@ public class PlayerSpawner : MonoBehaviour
             {
                 SpawnPlayer();
             }
-            yield return new WaitForSeconds(spawnCheckInterval);
+            yield return new WaitForSeconds(checkInterval);
         }
     }
 
     private void SpawnPlayer()
     {
-        // 현재 스테이지 데이터에서 playerPrefab 가져오기
-        if (StageManager.Instance == null)
+        if (StageManager.Instance == null) return;
+
+        StageData data = StageManager.Instance.GetCurrentStageData();
+        if (data == null || data.playerPrefab == null)
         {
-            Debug.LogError("[PlayerSpawner] StageManager.Instance가 존재하지 않습니다!");
+            Debug.LogWarning("[PlayerSpawner] playerPrefab is null in current StageData!");
             return;
         }
 
-        StageData currentStage = StageManager.Instance.GetCurrentStageData();
-        if (currentStage == null || currentStage.playerPrefab == null)
+        Vector3[] spawnPositions = data.playerSpawnPositions;
+        if (spawnPositions == null || spawnPositions.Length == 0)
         {
-            Debug.LogError("[PlayerSpawner] 현재 스테이지의 playerPrefab이 설정되지 않았습니다!");
+            Debug.LogWarning("[PlayerSpawner] playerSpawnPositions 배열이 비어있습니다!");
             return;
         }
 
-        // playerPrefab을 this.transform의 자식으로 생성 (네 번째 인수: 부모 Transform)
-        currentPlayer = Instantiate(
-            currentStage.playerPrefab,
-            spawnPointTransform.position,
-            Quaternion.identity,
-            this.transform
-        );
+        Vector3 spawnPos = spawnPositions[currentSpawnIndex];
+        currentSpawnIndex = (currentSpawnIndex + 1) % spawnPositions.Length;
 
-        Debug.Log($"[PlayerSpawner] 플레이어 소환 완료! 위치: {spawnPointTransform.position}, 부모='{this.name}'");
+        currentPlayer = Instantiate(data.playerPrefab, spawnPos, Quaternion.identity, transform);
+        Debug.Log("[PlayerSpawner] Player Spawned");
     }
 
     private void OnDisable()
     {
         if (spawnLoop != null)
-        {
             StopCoroutine(spawnLoop);
-            Debug.Log("[PlayerSpawner] OnDisable() - 플레이어 스폰 검사 코루틴 중지");
-        }
     }
 }

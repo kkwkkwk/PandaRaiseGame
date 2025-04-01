@@ -3,22 +3,31 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewStageData", menuName = "Stage/Stage Data")]
 public class StageData : ScriptableObject
 {
-    [Header("Stage Info")]
-    public int chapter;       // 큰 스테이지 번호 (예: 1 ~ 10)
-    public int subStageCount; // 서브 스테이지 수 (보통 10; 1~9: 일반, 10: 보스)
+    [Header("Chapter Info")]
+    [Tooltip("챕터 번호 (예: 1이면 1-1~1-100, 2이면 2-1~2-100)")]
+    public int chapter;
+
+    [Header("Total SubStages")]
+    [Tooltip("이 챕터 안에서 진행할 서브스테이지 수 (기본 100)")]
+    public int totalSubStages = 100;
 
     [Header("Player Settings")]
-    [Tooltip("이 스테이지에서 사용할 플레이어 프리팹")]
+    [Tooltip("이 챕터에서 사용할 플레이어 프리팹")]
     public GameObject playerPrefab;
 
-    [Header("Enemy Settings")]
-    [Tooltip("이 스테이지에서 사용할 여러 종류의 일반 몹 프리팹 (1~9 스테이지)")]
-    public GameObject[] enemyPrefabs; // 배열로 변경, Inspector에 'Size'만 뜨도록
+    [Header("Player Spawn Positions")]
+    [Tooltip("이 챕터에서 사용할 플레이어 스폰 위치들 (월드 좌표)")]
+    public Vector3[] playerSpawnPositions;
 
-    [Tooltip("일반 몹 처치 목표 (예: 9마리)")]
-    public int killGoal;
+    [Header("Enemy Spawn Positions")]
+    [Tooltip("이 챕터에서 사용할 에너미 스폰 위치들 (월드 좌표)")]
+    public Vector3[] enemySpawnPositions;
 
-    [Header("Boss Settings")]
-    [Tooltip("이 스테이지에서 사용할 보스 프리팹 (10 스테이지)")]
-    public GameObject bossPrefab;
+    [Header("Boss Spawn Positions")]
+    [Tooltip("이 챕터에서 사용할 보스 스폰 위치들 (월드 좌표)")]
+    public Vector3[] bossSpawnPositions;
+
+    [Header("10단위 블록 설정 (배열 길이=10)")]
+    [Tooltip("각 블록이 10스테이지를 담당. 예: 0번=1~10, 1번=11~20, ... 9번=91~100")]
+    public SubStageBlock[] subStageBlocks = new SubStageBlock[10];
 }

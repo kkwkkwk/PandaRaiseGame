@@ -1,102 +1,87 @@
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Tooltip("소환 위치 기준 Transform (씬의 빈 오브젝트를 드래그)")]
-    public Transform spawnPointTransform;
-
     [Header("Spawn Settings")]
-    public int maxEnemyCount = 3;
-    public float spawnCheckInterval = 2f;
-    public float xOffsetRange = 20f;
+    [Tooltip("소환 체크 주기 (초)")]
+    public float spawnInterval = 1f; // 1초 간격
 
+    [Tooltip("소환 위치에 적용할 X 방향 랜덤 오프셋")]
+    public float xOffsetRange = 2f;
+
+    // 소환된 몹들을 추적 (필요 시 전체 제거할 때 사용)
     private List<GameObject> spawnedEnemies = new List<GameObject>();
     private Coroutine spawnLoop;
 
-    // 여러 몹 프리팹(배열) 중에서 골라 소환
-    private GameObject[] currentEnemyPrefabs;
+    // 순서대로 사용할 스폰 위치의 현재 인덱스 (StageData의 enemySpawnPositions 배열 사용)
+    private int currentSpawnPositionIndex = 0;
 
-    private void Start()
+    private void OnEnable()
     {
-        // StageManager에서 현재 스테이지 가져옴
-        if (StageManager.Instance == null)
-        {
-            Debug.LogError("[EnemySpawner] StageManager.Instance가 존재하지 않습니다!");
-            return;
-        }
-
-        // StageData에서 enemyPrefabs 배열을 가져옴
-        StageData currentStage = StageManager.Instance.GetCurrentStageData();
-        if (currentStage == null || currentStage.enemyPrefabs == null || currentStage.enemyPrefabs.Length == 0)
-        {
-            Debug.LogError("[EnemySpawner] 현재 스테이지의 enemyPrefabs가 설정되지 않았거나 비어 있습니다!");
-            return;
-        }
-        currentEnemyPrefabs = currentStage.enemyPrefabs;
-
-        if (spawnPointTransform == null)
-        {
-            Debug.LogError("[EnemySpawner] spawnPointTransform이 할당되지 않았습니다!");
-            return;
-        }
-
-        // 스폰 코루틴 시작
-        spawnLoop = StartCoroutine(SpawnLoop());
-        Debug.Log("[EnemySpawner] Start() - 스폰 코루틴 시작");
-    }
-
-    private IEnumerator SpawnLoop()
-    {
-        while (true)
-        {
-            // 이미 파괴된(null) 오브젝트 제거
-            spawnedEnemies.RemoveAll(e => e == null);
-
-            Debug.Log($"[EnemySpawner] SpawnLoop 실행. 현재 소환된 적 수 = {spawnedEnemies.Count}");
-
-            // 부족하면 새로 스폰
-            while (spawnedEnemies.Count < maxEnemyCount)
-            {
-                SpawnEnemy();
-            }
-
-            yield return new WaitForSeconds(spawnCheckInterval);
-        }
-    }
-
-    private void SpawnEnemy()
-    {
-        if (currentEnemyPrefabs == null || currentEnemyPrefabs.Length == 0 || spawnPointTransform == null)
-        {
-            Debug.LogError("[EnemySpawner] SpawnEnemy() 실패: currentEnemyPrefabs가 없거나 spawnPointTransform이 null입니다!");
-            return;
-        }
-
-        // 위치 계산
-        Vector3 basePos = spawnPointTransform.position;
-        float randomXOffset = Random.Range(-xOffsetRange, xOffsetRange);
-        Vector3 spawnPos = new Vector3(basePos.x + randomXOffset, basePos.y, basePos.z);
-
-        // 무작위 인덱스 선택
-        int randomIndex = Random.Range(0, currentEnemyPrefabs.Length);
-        GameObject chosenPrefab = currentEnemyPrefabs[randomIndex];
-
-        // 소환. 네 번째 매개변수로 this.transform 지정 → EnemySpawner 아래 자식으로 생성
-        GameObject newEnemy = Instantiate(chosenPrefab, spawnPos, Quaternion.identity, this.transform);
-
-        spawnedEnemies.Add(newEnemy);
-
-        Debug.Log($"[EnemySpawner] '{chosenPrefab.name}' 몹 소환 완료(부모={this.name}). 위치={spawnPos}, 현재 소환된 적 수={spawnedEnemies.Count}");
+        spawnLoop = StartCoroutine(SpawnRoutine());
     }
 
     private void OnDisable()
     {
         if (spawnLoop != null)
-        {
             StopCoroutine(spawnLoop);
-            Debug.Log("[EnemySpawner] OnDisable() - 스폰 코루틴 중지");
+    }
+
+    private IEnumerator SpawnRoutine()
+    {
+        while (true)
+        {
+            SpawnOneEnemy();
+            yield return new WaitForSeconds(spawnInterval);
         }
+    }
+
+    private void SpawnOneEnemy()
+    {
+        if (StageManager.Instance == null)
+            return;
+
+        GameObject enemyPrefab = StageManager.Instance.GetEnemyPrefab();
+        if (enemyPrefab == null)
+        {
+            Debug.LogWarning("[EnemySpawner] enemyPrefab is null!");
+            return;
+        }
+
+        // StageData에서 지정한 에너미 스폰 위치 배열을 사용합니다.
+        Vector3[] spawnPositions = StageManager.Instance.GetCurrentStageData().enemySpawnPositions;
+        if (spawnPositions == null || spawnPositions.Length == 0)
+        {
+            Debug.LogWarning("[EnemySpawner] enemySpawnPositions 배열이 비어있습니다!");
+            return;
+        }
+
+        // 순서대로 스폰 위치를 선택합니다.
+        Vector3 basePos = spawnPositions[currentSpawnPositionIndex];
+        currentSpawnPositionIndex = (currentSpawnPositionIndex + 1) % spawnPositions.Length;
+
+        // X 방향 랜덤 오프셋 적용
+        float randomX = Random.Range(-xOffsetRange, xOffsetRange);
+        Vector3 spawnPos = new Vector3(basePos.x + randomX, basePos.y, basePos.z);
+
+        GameObject newEnemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity, transform);
+        spawnedEnemies.Add(newEnemy);
+
+        Debug.Log($"[EnemySpawner] Spawned Enemy: {newEnemy.name}, total spawned count = {spawnedEnemies.Count}");
+    }
+
+    /// <summary>
+    /// 기존에 소환된 모든 몹을 제거합니다.
+    /// </summary>
+    public void ClearEnemies()
+    {
+        foreach (GameObject enemy in spawnedEnemies)
+        {
+            if (enemy != null)
+                Destroy(enemy);
+        }
+        spawnedEnemies.Clear();
     }
 }
