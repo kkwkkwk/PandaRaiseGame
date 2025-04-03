@@ -33,13 +33,9 @@ public class ProfilePopupManager : MonoBehaviour
 
     void Start()
     {
-        if (ProfileCanvas != null)
-        {
-            StartCoroutine(StartSequence());
-            Debug.Log("[ProfilePopupManager] Start() - 초기 상태: ProfileCanvas 비활성화");
-        }
+
     }
-    private IEnumerator StartSequence()
+    public IEnumerator StartSequence()
     {
         // 1) 먼저 프로필 조회
         yield return StartCoroutine(CallGetProfile());

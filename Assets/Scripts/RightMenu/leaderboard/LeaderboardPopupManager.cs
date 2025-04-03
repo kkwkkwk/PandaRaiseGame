@@ -41,14 +41,10 @@ public class LeaderboardPopupManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (LeaderboardCanvas != null)
-        {
-            // 별도의 래퍼 코루틴을 통해 순서를 제어
-            StartCoroutine(StartSequence());
-        }
+
     }
 
-    private IEnumerator StartSequence()
+    public IEnumerator StartSequence()
     {
         // 1) 먼저 리더보드를 조회
         yield return StartCoroutine(CallGetLeaderboard());

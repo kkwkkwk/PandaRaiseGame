@@ -66,6 +66,9 @@ TagManager:
   - name: Toast
     uniqueID: 3074230297
     locked: 0
+  - name: Loading
+    uniqueID: 356816897
+    locked: 0
   - name: Test
     uniqueID: 2449007683
     locked: 0

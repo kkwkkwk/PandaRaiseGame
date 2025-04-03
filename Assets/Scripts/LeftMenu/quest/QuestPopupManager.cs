@@ -52,13 +52,9 @@ public class QuestPopupManager : MonoBehaviour
 
     void Start()
     {
-        if (QuestCanvas != null)
-        {
-            // 별도의 래퍼 코루틴을 통해 순서를 제어
-            StartCoroutine(StartSequence());
-        }
+
     }
-    private IEnumerator StartSequence()
+    public IEnumerator StartSequence()
     {
         // 1) 먼저 퀘스트 조회
         yield return StartCoroutine(CallGetQuestData());

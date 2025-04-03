@@ -44,13 +44,10 @@ public class GuildPopupManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    { // 처음에 팝업 패널 비활성화 
-        if (GuildCanvas != null)
-        {
-            StartCoroutine(StartSequence());
-        }
+    {
+
     }
-    private IEnumerator StartSequence()
+    public IEnumerator StartSequence()
     {
         // 1) 길드 팝업 열기
         if (GuildCanvas != null)
