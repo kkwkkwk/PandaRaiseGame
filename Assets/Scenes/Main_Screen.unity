@@ -43196,7 +43196,7 @@ GameObject:
   - component: {fileID: 1964857641}
   - component: {fileID: 1964857643}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Spinner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
