@@ -40,12 +40,24 @@ public class LeaderboardPopupManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    { // 처음에 팝업 패널 비활성화 
+    {
         if (LeaderboardCanvas != null)
         {
-            LeaderboardCanvas.SetActive(false);
+            // 별도의 래퍼 코루틴을 통해 순서를 제어
+            StartCoroutine(StartSequence());
         }
     }
+
+    private IEnumerator StartSequence()
+    {
+        // 1) 먼저 리더보드를 조회
+        yield return StartCoroutine(CallGetLeaderboard());
+
+        // 2) 코루틴 완료 후 비활성화
+        LeaderboardCanvas.SetActive(false);
+        Debug.Log("[LeaderboardPopupManager] StartSequence() 완료 후 Canvas 비활성화");
+    }
+
 
     public void OpenLeaderboardPopup()
     {   // 팝업 활성화 
@@ -64,6 +76,11 @@ public class LeaderboardPopupManager : MonoBehaviour
             LeaderboardCanvas.SetActive(false);
             UnityEngine.Debug.Log("리더보드 닫기");
         }
+    }
+    public void RefreshLeaderboardData()
+    {
+        Debug.Log("[LeaderboardPopupManager] RefreshLeaderboardData() - 다시 GetLeaderboard 호출합니다.");
+        StartCoroutine(CallGetLeaderboard());
     }
 
     /// <summary>

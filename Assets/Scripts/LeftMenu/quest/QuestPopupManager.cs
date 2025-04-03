@@ -53,7 +53,19 @@ public class QuestPopupManager : MonoBehaviour
     void Start()
     {
         if (QuestCanvas != null)
-            QuestCanvas.SetActive(false);
+        {
+            // 별도의 래퍼 코루틴을 통해 순서를 제어
+            StartCoroutine(StartSequence());
+        }
+    }
+    private IEnumerator StartSequence()
+    {
+        // 1) 먼저 퀘스트 조회
+        yield return StartCoroutine(CallGetQuestData());
+
+        // 2) 코루틴 완료 후 비활성화
+        QuestCanvas.SetActive(false);
+        Debug.Log("[LeaderboardPopupManager] StartSequence() 완료 후 Canvas 비활성화");
     }
 
     public void OpenQuestPopup()
@@ -73,6 +85,12 @@ public class QuestPopupManager : MonoBehaviour
             QuestCanvas.SetActive(false);
             Debug.Log("퀘스트 팝업 닫기");
         }
+    }
+
+    public void RefreshQuestData()
+    {
+        Debug.Log("[QuestPopupManager] RefreshQuestData() - 다시 GetQuest 호출합니다.");
+        StartCoroutine(CallGetQuestData());
     }
 
     /// <summary>

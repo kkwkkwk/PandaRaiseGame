@@ -67,6 +67,13 @@ public class GuildTabPanelController : MonoBehaviour
         StartCoroutine(GetGuildInfoCoroutine());
     }
 
+    public IEnumerator GetGuildInfoAndMission()
+    {
+        yield return StartCoroutine(GetGuildInfoCoroutine());
+        yield return StartCoroutine(GetGuildMissionCoroutine());
+    }
+
+
     /// <summary>
     /// 서버로부터 길드 가입 정보 + 길드원 목록 등을 받아오는 코루틴
     /// </summary>
@@ -307,6 +314,7 @@ public class GuildTabPanelController : MonoBehaviour
     {
         Debug.Log("[GuildTabPanelController] RefreshGuildData() 호출 -> 길드 정보 재조회");
         StartCoroutine(GetGuildInfoCoroutine());
+        StartCoroutine(GetGuildMissionCoroutine());
     }
 
     /// <summary>

@@ -47,7 +47,36 @@ public class GuildPopupManager : MonoBehaviour
     { // 처음에 팝업 패널 비활성화 
         if (GuildCanvas != null)
         {
+            StartCoroutine(StartSequence());
+        }
+    }
+    private IEnumerator StartSequence()
+    {
+        // 1) 길드 팝업 열기
+        if (GuildCanvas != null)
+        {
+            GuildCanvas.SetActive(true);
+            Debug.Log("GuildCanvas 활성화");
+        }
+
+        // 2) 길드 정보 로드 (GuildTabPanelController 코루틴 호출)
+        if (GuildTabPanelController.Instance != null)
+        {
+            // 여기서 RefreshGuildData() 안에 있는 코루틴을 직접 호출하거나
+            // 래퍼 코루틴이 있다면, 그걸 yield return 해주면 됩니다.
+            yield return StartCoroutine(GuildTabPanelController.Instance.GetGuildInfoAndMission());
+            Debug.Log("길드 정보 및 미션 로드 완료");
+        }
+        else
+        {
+            Debug.LogWarning("GuildTabPanelController 인스턴스가 없습니다.");
+        }
+
+        // 3) 팝업 닫기
+        if (GuildCanvas != null)
+        {
             GuildCanvas.SetActive(false);
+            Debug.Log("GuildCanvas 비활성화");
         }
     }
 }
