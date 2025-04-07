@@ -43,10 +43,10 @@ public class WeaponPopupManager : MonoBehaviour
         ChatPopupManager.Instance.middlePreview = true;
 
         // server
-        //StartCoroutine(FetchWeaponDataCoroutine());
+        StartCoroutine(FetchWeaponDataCoroutine());
 
         // test
-        PopulateWeaponItems(testWeaponDatas);
+        //PopulateWeaponItems(testWeaponDatas);
     }
     public void CloseWeaponPanel()
     {  // 팝업 비활성화
@@ -67,10 +67,6 @@ public class WeaponPopupManager : MonoBehaviour
         else Destroy(gameObject);
 
         UnityEngine.Debug.Log($"[WeaponPopupManager] Awake on {gameObject.name}");
-    }
-
-    void Start() {
-
     }
 
     public IEnumerator StartSequence()
