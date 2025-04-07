@@ -361,6 +361,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 4384172377818701641}
   testWeaponSprite: {fileID: 21300000, guid: 1b94f066a8151ae4bb302c51808ae07a, type: 3}
+  testArmorSprite: {fileID: 21300000, guid: 011657c1a16de464f9ea82a691b11fbd, type: 3}
+  testSkillSprite: {fileID: 21300000, guid: 136404e6f03b64d45ad76130243ca025, type: 3}
   enchantText: {fileID: 738362275398374655}
   levelText: {fileID: 3264135994769438736}
   classText: {fileID: 1847005248810417769}
