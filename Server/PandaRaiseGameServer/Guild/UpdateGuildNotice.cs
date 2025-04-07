@@ -114,7 +114,9 @@ namespace Guild
                 }
 
                 // guildIntro(또는 notice) 업데이트
+                #pragma warning disable CS8602
                 guildInfo.guildIntro = input.newNotice;
+                #pragma warning restore CS8602
 
                 // 5) SetObjects
                 var setReq = new SetObjectsRequest

@@ -109,10 +109,10 @@ namespace Guild
                 }
 
                 // 찾고 제거
-                var foundItem = currentApps.applications.FirstOrDefault(a => a.applicantId == input.applicantId);
+                var foundItem = currentApps?.applications?.FirstOrDefault(a => a.applicantId == input.applicantId);
                 if (foundItem != null)
                 {
-                    currentApps.applications.Remove(foundItem);
+                    currentApps?.applications?.Remove(foundItem);
                 }
 
                 // 5) AddMembers -> 이 applicant을 해당 groupId에 멤버로 추가

@@ -21,7 +21,7 @@ public class WeaponPopupManager : MonoBehaviour
     public GameObject equipmentImagePrefab;
 
     // ★ (예시) 무기 데이터 조회 API URL
-    private string getWeaponDataURL = "https://my-azurefunc-url/GetWeaponData?code=YOUR_FUNCTION_KEY";
+    private string getWeaponDataURL = "https://pandaraisegame-equipment.azurewebsites.net/api/FetchWeaponData?code=hTkMAN2m4CZFtDLT6wrt0N8R6Fd3gpW--pOM0nqsgi9KAzFu-yMktQ==";
 
     [Header("(옵션) 테스트용 무기 데이터")]
     public List<WeaponData> testWeaponDatas; // 임시로 몇 개 넣어둘 무기 데이터 리스트
@@ -43,10 +43,7 @@ public class WeaponPopupManager : MonoBehaviour
         ChatPopupManager.Instance.middlePreview = true;
 
         // server
-        //StartCoroutine(FetchWeaponDataCoroutine());
-
-        // test
-        PopulateWeaponItems(testWeaponDatas);
+        StartCoroutine(FetchWeaponDataCoroutine());
     }
     public void CloseWeaponPanel()
     {  // 팝업 비활성화
@@ -80,7 +77,7 @@ public class WeaponPopupManager : MonoBehaviour
 
         // 2) 코루틴 완료 후 비활성화
         WeaponPopupCanvas.SetActive(false);
-        Debug.Log("[LeaderboardPopupManager] StartSequence() 완료 후 Canvas 비활성화");
+        Debug.Log("[WeaponPopupManager] StartSequence() 완료 후 Canvas 비활성화");
     }
 
     /// <summary>

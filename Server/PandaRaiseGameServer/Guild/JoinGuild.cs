@@ -186,6 +186,7 @@ namespace Guild
                 }
 
                 // 8) 중복 신청 방지
+                #pragma warning disable CS8604
                 if (currentApps.applications.Any(a => a.applicantEntityId == input.entityToken.Entity.Id))
                 {
                     var respDup = new JoinGuildResponse
@@ -195,6 +196,7 @@ namespace Guild
                     };
                     return new OkObjectResult(respDup);
                 }
+                #pragma warning restore CS8604
 
                 // 9) 새 신청 항목 추가 (ID, 닉네임, 전투력)
                 currentApps.applications.Add(new GuildApplicationItem

@@ -99,10 +99,10 @@ namespace Guild
                     }
                 }
 
-                var found = currentApps.applications.FirstOrDefault(a => a.applicantId == input.applicantId);
+                var found = currentApps?.applications?.FirstOrDefault(a => a.applicantId == input.applicantId);
                 if (found != null)
                 {
-                    currentApps.applications.Remove(found);
+                    currentApps?.applications?.Remove(found);
                 }
 
                 // 4) SetObjects

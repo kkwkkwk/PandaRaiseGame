@@ -61,7 +61,7 @@ public class QuestPopupManager : MonoBehaviour
 
         // 2) 코루틴 완료 후 비활성화
         QuestCanvas.SetActive(false);
-        Debug.Log("[LeaderboardPopupManager] StartSequence() 완료 후 Canvas 비활성화");
+        Debug.Log("[QuestPopupManager] StartSequence() 완료 후 Canvas 비활성화");
     }
 
     public void OpenQuestPopup()
