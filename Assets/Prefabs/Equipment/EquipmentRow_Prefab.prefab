@@ -313,6 +313,8 @@ GameObject:
   - component: {fileID: 2774355759217382763}
   - component: {fileID: 3177710497189569285}
   - component: {fileID: 4586657570606952256}
+  - component: {fileID: 8202870350114660861}
+  - component: {fileID: 881245670602321017}
   m_Layer: 5
   m_Name: EquipmentRow_Prefab
   m_TagString: Untagged
@@ -416,6 +418,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a93c6f74e5c8a9408229bd1aa160443, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equipmentImageParents:
+  - {fileID: 1277704896004613698}
+  - {fileID: 4140161085469889259}
+  - {fileID: 7151194146745953712}
+  - {fileID: 1591321176598994188}
+  - {fileID: 2227223590380313087}
+--- !u!114 &8202870350114660861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7245301493575126021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69cfd440f7350014da0b156f63d550d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equipmentImageParents:
+  - {fileID: 1277704896004613698}
+  - {fileID: 4140161085469889259}
+  - {fileID: 7151194146745953712}
+  - {fileID: 1591321176598994188}
+  - {fileID: 2227223590380313087}
+--- !u!114 &881245670602321017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7245301493575126021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef05de9abdcdae245b24bd3e1d69b3c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   equipmentImageParents:

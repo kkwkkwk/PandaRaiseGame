@@ -66,10 +66,6 @@ public class WeaponPopupManager : MonoBehaviour
         UnityEngine.Debug.Log($"[WeaponPopupManager] Awake on {gameObject.name}");
     }
 
-    void Start() {
-
-    }
-
     public IEnumerator StartSequence()
     {
         // 1) 먼저 퀘스트 조회

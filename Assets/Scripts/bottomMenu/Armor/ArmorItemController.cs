@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponItemController : MonoBehaviour
+public class ArmorItemController : MonoBehaviour
 {
     [SerializeField] private Transform[] equipmentImageParents; // Size = 5
 
     /// <summary>
-    /// 이 Row_Panel에서 표시해야 할 무기 데이터 목록(최대 5개)
+    /// 이 Row_Panel에서 표시해야 할 방어구 데이터 목록(최대 5개)
     /// </summary>
-    /// <param name="rowData">한 줄에 표시할 무기들 (최대 5개)</param>
+    /// <param name="rowData">한 줄에 표시할 방어구들 (최대 5개)</param>
     /// <param name="equipmentImagePrefab">단일 이미지 Prefab</param>
-    public void SetData(List<WeaponData> rowData, GameObject equipmentImagePrefab)
+    public void SetData(List<ArmorData> rowData, GameObject equipmentImagePrefab)
     {
         // 1) 모든 슬롯에 기존 자식(이미지)가 있다면 제거
         for (int i = 0; i < equipmentImageParents.Length; i++)
@@ -25,7 +25,7 @@ public class WeaponItemController : MonoBehaviour
         // 2) rowData의 개수만큼 (최대 5) 슬롯에 이미지 프리팹을 Instantiate
         for (int i = 0; i < rowData.Count && i < equipmentImageParents.Length; i++)
         {
-            var weaponData = rowData[i];
+            var armorData = rowData[i];
 
             // equipmentImagePrefab을 현재 슬롯(equipmentImageParents[i])에 자식으로 생성
             GameObject clone = Instantiate(equipmentImagePrefab, equipmentImageParents[i]);
@@ -53,7 +53,7 @@ public class WeaponItemController : MonoBehaviour
             var imgController = clone.GetComponent<EquipmentImageController>();
             if (imgController != null)
             {
-                imgController.WeaponSetData(weaponData);
+                imgController.ArmorSetData(armorData);
             }
         }
     }
