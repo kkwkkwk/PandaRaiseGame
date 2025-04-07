@@ -20,8 +20,8 @@ public class ArmorPopupManager : MonoBehaviour
     public Transform armorContentParent;    // ScrollView의 Content
     public GameObject equipmentImagePrefab;
 
-    // ★ (예시) 무기 데이터 조회 API URL
-    private string getArmorDataURL = "https://my-azurefunc-url/GetArmorData?code=YOUR_FUNCTION_KEY";
+    // ★ (예시) 방어구 데이터 조회 API URL
+    private string getArmorDataURL = "https://pandaraisegame-equipment.azurewebsites.net/api/FetchArmorData?code=wzSWxU1xLWBs5n2plo6UbvwPPrjiLYusnyg-EV7KecE0AzFujLxIkQ==";
 
     [Header("(옵션) 테스트용 무기 데이터")]
     public List<ArmorData> testArmorDatas; // 임시로 몇 개 넣어둘 무기 데이터 리스트
@@ -32,7 +32,7 @@ public class ArmorPopupManager : MonoBehaviour
         {
             ArmorPopupCanvas.SetActive(true);
         }
-        ArmorPopupManager.Instance.CloseArmorPanel();
+        WeaponPopupManager.Instance.CloseWeaponPanel();
         SkillPopupManager.Instance.CloseSkillPanel();
         DungeonPopupManager.Instance.CloseDungeonPanel();
 

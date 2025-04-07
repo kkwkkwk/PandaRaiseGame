@@ -123,15 +123,15 @@ public class QuestTabPanelListCreator : MonoBehaviour
 [System.Serializable]
 public class QuestDataCollection
 {
-    [JsonProperty("dailyQuestList")]
+    [JsonProperty("DailyQuestList")]
     public List<QuestData> DailyQuestList { get; set; }
 
-    [JsonProperty("weeklyQuestList")]
+    [JsonProperty("WeeklyQuestList")]
     public List<QuestData> WeeklyQuestList { get; set; }
 
-    [JsonProperty("repeatQuestList")]
+    [JsonProperty("RepeatQuestList")]
     public List<QuestData> RepeatQuestList { get; set; }
 
-    [JsonProperty("achievementQuestList")]
+    [JsonProperty("AchievementQuestList")]
     public List<QuestData> AchievementQuestList { get; set; }
 }

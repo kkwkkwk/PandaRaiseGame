@@ -20,8 +20,8 @@ public class SkillPopupManager : MonoBehaviour
     public Transform skillContentParent;    // ScrollView의 Content
     public GameObject equipmentImagePrefab;
 
-    // ★ (예시) 무기 데이터 조회 API URL
-    private string getSkillDataURL = "https://my-azurefunc-url/GetSkillData?code=YOUR_FUNCTION_KEY";
+    // ★ (예시) 스킬 데이터 조회 API URL
+    private string getSkillDataURL = "https://pandaraisegame-equipment.azurewebsites.net/api/FetchSkillData?code=IgYNcr7iN3ayfNU5QDTT5Feb5LoJOQa2WoUYtyYt5MimAzFu5wLDzA==";
 
     [Header("(옵션) 테스트용 무기 데이터")]
     public List<SkillData> testSkillDatas; // 임시로 몇 개 넣어둘 무기 데이터 리스트
@@ -32,8 +32,8 @@ public class SkillPopupManager : MonoBehaviour
         {
             SkillPopupCanvas.SetActive(true);
         }
-        SkillPopupManager.Instance.CloseSkillPanel();
-        SkillPopupManager.Instance.CloseSkillPanel();
+        WeaponPopupManager.Instance.CloseWeaponPanel();
+        ArmorPopupManager.Instance.CloseArmorPanel();
         DungeonPopupManager.Instance.CloseDungeonPanel();
 
         ChatPopupManager.Instance.OpenMiddleChatPreview();  // 중앙에 채팅 미리보기 ui 생성
