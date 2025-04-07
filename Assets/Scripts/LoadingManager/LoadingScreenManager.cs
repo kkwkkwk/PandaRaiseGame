@@ -50,6 +50,7 @@ public class LoadingScreenManager : MonoBehaviour
         bool profileDone = false;
         bool leaderboardDone = false;
         bool guildDone = false;
+        bool weaponDone = false;
 
         // 퀘스트
         if (QuestPopupManager.Instance != null)
@@ -100,9 +101,21 @@ public class LoadingScreenManager : MonoBehaviour
         {
             guildDone = true;
         }
+        // 무기
+        if (WeaponPopupManager.Instance != null)
+        {
+            StartCoroutine(ParallelHelper(
+                WeaponPopupManager.Instance.StartSequence(),
+                () => weaponDone = true
+            ));
+        }
+        else
+        {
+            weaponDone = true;
+        }
 
         // 모든 로드가 끝날 때까지 대기
-        while (!questDone || !profileDone || !leaderboardDone || !guildDone)
+        while (!questDone || !profileDone || !leaderboardDone || !guildDone || !weaponDone)
         {
             yield return null;
         }

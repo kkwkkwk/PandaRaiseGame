@@ -69,15 +69,24 @@ public class WeaponPopupManager : MonoBehaviour
         UnityEngine.Debug.Log($"[WeaponPopupManager] Awake on {gameObject.name}");
     }
 
-    void Start() { // 처음에 팝업 패널 비활성화 
-        if (WeaponPopupCanvas != null)
-            WeaponPopupCanvas.SetActive(false);
+    void Start() {
+
+    }
+
+    public IEnumerator StartSequence()
+    {
+        // 1) 먼저 퀘스트 조회
+        yield return StartCoroutine(FetchWeaponDataCoroutine());
+
+        // 2) 코루틴 완료 후 비활성화
+        WeaponPopupCanvas.SetActive(false);
+        Debug.Log("[LeaderboardPopupManager] StartSequence() 완료 후 Canvas 비활성화");
     }
 
     /// <summary>
     /// 서버(PlayFab+AzureFunction)에서 무기 데이터 목록을 받아오는 코루틴
     /// </summary>
-    /*private IEnumerator FetchWeaponDataCoroutine()
+    private IEnumerator FetchWeaponDataCoroutine()
     {
         Debug.Log("[WeaponPopupManager] FetchWeaponDataCoroutine 시작");
 
@@ -136,7 +145,7 @@ public class WeaponPopupManager : MonoBehaviour
             }
         }
     }
-    */
+    
     // -----------------------[Prefab 생성 & 데이터 적용 메서드 추가]-----------------------
     /// <summary>
     /// ScrollView Content를 비우고, weaponDataList에 있는 데이터만큼 무기 아이템 Prefab을 생성해 배치합니다.
