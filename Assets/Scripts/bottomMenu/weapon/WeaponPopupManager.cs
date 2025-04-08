@@ -28,11 +28,11 @@ public class WeaponPopupManager : MonoBehaviour
 
     public void OpenWeaponPanel()
     {   // 팝업 활성화 
-        UnityEngine.Debug.Log($"[WeaponPopupManager] OpenWeaponPanel 실행");
+        Debug.Log($"[WeaponPopupManager] OpenWeaponPanel 실행");
         if (WeaponPopupCanvas != null)
         {
             WeaponPopupCanvas.SetActive(true);
-            UnityEngine.Debug.Log($"[WeaponPopupManager] Canvas 활성화 실행");
+            Debug.Log($"[WeaponPopupManager] Canvas 활성화 실행");
         }
         ArmorPopupManager.Instance.CloseArmorPanel();
         SkillPopupManager.Instance.CloseSkillPanel();
@@ -63,7 +63,7 @@ public class WeaponPopupManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        UnityEngine.Debug.Log($"[WeaponPopupManager] Awake on {gameObject.name}");
+        Debug.Log($"[WeaponPopupManager] Awake on {gameObject.name}");
     }
 
     public IEnumerator StartSequence()

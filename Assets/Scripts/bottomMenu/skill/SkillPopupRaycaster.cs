@@ -10,5 +10,4 @@ public class SkillPopupRaycaster : MonoBehaviour, IPointerClickHandler
         // 클릭 이벤트를 부모 패널에 전달되지 않도록 함
         eventData.Use();
     }
-
 }

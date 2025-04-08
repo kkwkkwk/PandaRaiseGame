@@ -197,6 +197,8 @@ public class EquipmentPopupManager : MonoBehaviour
         if (equipmentImagePrefab == null || middleParent == null) return;
 
         currentMiddleObj = Instantiate(equipmentImagePrefab, middleParent);
+        SetPrefabSize();
+        DisableButtonsInCurrentPrefab();
         var imgController = currentMiddleObj.GetComponent<EquipmentImageController>();
         if (imgController != null)
         {
@@ -209,6 +211,8 @@ public class EquipmentPopupManager : MonoBehaviour
         if (equipmentImagePrefab == null || middleParent == null) return;
 
         currentMiddleObj = Instantiate(equipmentImagePrefab, middleParent);
+        SetPrefabSize();
+        DisableButtonsInCurrentPrefab();
         var imgController = currentMiddleObj.GetComponent<EquipmentImageController>();
         if (imgController != null)
         {
@@ -221,6 +225,8 @@ public class EquipmentPopupManager : MonoBehaviour
         if (equipmentImagePrefab == null || middleParent == null) return;
 
         currentMiddleObj = Instantiate(equipmentImagePrefab, middleParent);
+        SetPrefabSize();
+        DisableButtonsInCurrentPrefab();
         var imgController = currentMiddleObj.GetComponent<EquipmentImageController>();
         if (imgController != null)
         {
@@ -229,6 +235,38 @@ public class EquipmentPopupManager : MonoBehaviour
         }
     }
 
+    private void SetPrefabSize()
+    {
+        RectTransform childRect = currentMiddleObj.GetComponent<RectTransform>();
+        if (childRect != null)
+        {
+            // 2) 부모도 RectTransform이어야 함
+            //    만약 parent가 일반 Transform이면, UI 레이아웃이 정상 동작하지 않습니다.
+            //    (대부분은 Canvas 안의 Panel/빈오브젝트 등일 것이므로 RectTransform일 겁니다)
+
+            // 위치/스케일 초기화
+            currentMiddleObj.transform.localScale = Vector3.one;
+
+            // Anchor를 (0,0)~(1,1)로 설정 → 부모와 똑같은 크기로 확장
+            childRect.anchorMin = Vector2.zero;
+            childRect.anchorMax = Vector2.one;
+            childRect.offsetMin = Vector2.zero;
+            childRect.offsetMax = Vector2.zero;
+            childRect.anchoredPosition = Vector2.zero;
+        }
+    }
+    private void DisableButtonsInCurrentPrefab()
+    {
+        if (currentMiddleObj == null) return;
+
+        // GetComponentsInChildren<Button>(true)는 자식(비활성화 포함)까지 Button 컴포넌트를 전부 찾음
+        Button[] buttons = currentMiddleObj.GetComponentsInChildren<Button>(true);
+        foreach (var btn in buttons)
+        {
+            btn.interactable = false;
+        }
+    }
+    #region 레벨업 - 서버
     /// <summary>
     /// 서버에서 레벨업 정보 조회 (GetLevelUpInfo)
     /// </summary>
@@ -269,7 +307,7 @@ public class EquipmentPopupManager : MonoBehaviour
                 var info = JsonConvert.DeserializeObject<LevelUpInfoResult>(resp);
                 if (info != null && info.success)
                 {
-                    // 1) 서버가 보정한 현재 레벨을 적용
+                    //  서버가 보정한 현재 레벨을 적용
                     //    무기, 방어구, 스킬 중 무엇이 세팅되어 있는지 확인
                     if (currentWeapon != null)
                     {
@@ -284,11 +322,31 @@ public class EquipmentPopupManager : MonoBehaviour
                         currentSkill.level = info.currentLevel;
                     }
 
-                    // 2) UI 표시: levelMaterialText = "보유강화석/필요강화석"
+                    //  UI 표시: levelMaterialText = "보유강화석/필요강화석"
                     if (levelMaterialText != null)
                         levelMaterialText.text = $"{info.userStoneCount}/{info.requiredStones}";
 
-                    // 3) 버튼 활성화 결정
+                    if (currentMiddleObj != null)
+                    {
+                        var imgController = currentMiddleObj.GetComponent<EquipmentImageController>();
+                        if (imgController != null)
+                        {
+                            if (currentWeapon != null)
+                            {
+                                imgController.WeaponSetData(currentWeapon);
+                            }
+                            else if (currentArmor != null)
+                            {
+                                imgController.ArmorSetData(currentArmor);
+                            }
+                            else if (currentSkill != null)
+                            {
+                                imgController.SkillSetData(currentSkill);
+                            }
+                        }
+                    }
+
+                    //  버튼 활성화 결정
                     bool canLevelUp = true;
                     // 예: 만렙이면 불가 (만렙 상황에 따라)
                     int currentLevel = info.currentLevel;
@@ -326,7 +384,7 @@ public class EquipmentPopupManager : MonoBehaviour
             yield break;
         }
 
-        // 1) JSON 바디 생성
+        //  JSON 바디 생성
         var payload = new
         {
             playFabId = GlobalData.playFabId,
@@ -334,7 +392,7 @@ public class EquipmentPopupManager : MonoBehaviour
         };
         string jsonData = JsonConvert.SerializeObject(payload);
 
-        // 2) POST 요청
+        //  POST 요청
         using (UnityWebRequest req = new UnityWebRequest(performLevelUpURL, "POST"))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
@@ -342,7 +400,7 @@ public class EquipmentPopupManager : MonoBehaviour
             req.downloadHandler = new DownloadHandlerBuffer();
             req.SetRequestHeader("Content-Type", "application/json");
 
-            // 3) 요청 전송
+            //  요청 전송
             yield return req.SendWebRequest();
 
             if (req.result != UnityWebRequest.Result.Success)
@@ -351,7 +409,7 @@ public class EquipmentPopupManager : MonoBehaviour
             }
             else
             {
-                // 4) 응답 파싱
+                //  응답 파싱
                 string resp = req.downloadHandler.text;
                 Debug.Log("[EquipmentPopupManager] PerformLevelUp 응답: " + resp);
 
@@ -381,7 +439,8 @@ public class EquipmentPopupManager : MonoBehaviour
             }
         }
     }
-
+    #endregion
+    #region 강화 - 서버
     /// <summary>
     /// 서버에 강화 정보 조회 (GetEnhancementInfo)
     /// </summary>
@@ -428,6 +487,25 @@ public class EquipmentPopupManager : MonoBehaviour
                 else
                 {
                     Debug.LogWarning("[EquipmentPopupManager] 강화 정보 조회 실패 or success = false");
+                }
+                if (currentMiddleObj != null)
+                {
+                    var imgController = currentMiddleObj.GetComponent<EquipmentImageController>();
+                    if (imgController != null)
+                    {
+                        if (currentWeapon != null)
+                        {
+                            imgController.WeaponSetData(currentWeapon);
+                        }
+                        else if (currentArmor != null)
+                        {
+                            imgController.ArmorSetData(currentArmor);
+                        }
+                        else if (currentSkill != null)
+                        {
+                            imgController.SkillSetData(currentSkill);
+                        }
+                    }
                 }
             }
         }
@@ -506,29 +584,47 @@ public class EquipmentPopupManager : MonoBehaviour
     /// </summary>
     private void UpdateEnhancementUI(EnhancementInfoResult info)
     {
+        // UI 텍스트 설정
         if (EnchantMaterialGoldText != null)
-            EnchantMaterialGoldText.text = $"{info.goldCost}";
-
+            EnchantMaterialGoldText.text = $"{info.userGold}/{info.goldCost}";
+        if (EnchantMaterialText != null)
+            EnchantMaterialText.text = $"{info.sameItemCount} / {info.requiredItemCount}";
         if (EnchantProbabilityText != null)
         {
             int percent = Mathf.RoundToInt(info.successRate * 100f);
             EnchantProbabilityText.text = $"{percent}%";
         }
-        if (EnchantMaterialText != null)
-            EnchantMaterialText.text = $"{info.requiredItemCount}";
 
-        // +10강 넘으면 비활성
+        // 버튼 활성화/비활성 로직
         bool canEnchant = true;
-        if (currentWeapon != null && currentWeapon.enhancement >= MaxEnchantLevel)
-            canEnchant = false;
-        else if (currentArmor != null && currentArmor.enhancement >= MaxEnchantLevel)
-            canEnchant = false;
-        else if (currentSkill != null && currentSkill.enhancement >= MaxEnchantLevel)
-            canEnchant = false;
 
+        //  현재 장비가 이미 +최대치이면 불가
+        int currentEnhance = 0;
+        if (currentWeapon != null) currentEnhance = currentWeapon.enhancement;
+        else if (currentArmor != null) currentEnhance = currentArmor.enhancement;
+        else if (currentSkill != null) currentEnhance = currentSkill.enhancement;
+        if (currentEnhance >= MaxEnchantLevel)
+        {
+            canEnchant = false;
+        }
+
+        //  골드 부족하면 불가
+        if (info.userGold < info.goldCost)
+        {
+            canEnchant = false;
+        }
+
+        //  중복 아이템 부족하면 불가
+        if (info.sameItemCount < info.requiredItemCount)
+        {
+            canEnchant = false;
+        }
+
+        // 결정
         if (enchantBtn != null)
             enchantBtn.interactable = canEnchant;
     }
+    #endregion
 
     #region 하단 버튼 클릭 이벤트
     /// <summary>
@@ -583,7 +679,7 @@ public class EquipmentPopupManager : MonoBehaviour
     }
     #endregion
 
-    // 서버 응답 구조
+    #region 서버 응답 구조
     [System.Serializable]
     public class EnhancementInfoResult
     {
@@ -626,4 +722,5 @@ public class EquipmentPopupManager : MonoBehaviour
         public int newLevel;
         public int stoneUsed;
     }
+    #endregion
 }
