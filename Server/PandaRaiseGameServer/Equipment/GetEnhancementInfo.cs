@@ -83,8 +83,10 @@ namespace Equipment
 
             // ── 보유 골드 & 같은 ItemId 개수 ────────────────────────────
             int userGold = inv.Result.VirtualCurrency?.GetValueOrDefault("GC") ?? 0;
-            int sameItemCount = inv.Result.Inventory.Count(i =>
-                i.ItemId == target.ItemId && i.ItemInstanceId != target.ItemInstanceId);
+            // Stackable + Consumable 이므로 ‘중복 수량’은
+            // targetItem.RemainingUses(또는 ItemCount) – 1(본 장비) 로 간주
+            int stackUses = target.RemainingUses ?? 1;
+            int sameItemCount = Math.Max(0, stackUses - 1);
 
             return new OkObjectResult(new
             {

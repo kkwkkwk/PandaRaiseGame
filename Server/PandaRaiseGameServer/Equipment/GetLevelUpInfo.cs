@@ -87,7 +87,7 @@ namespace Equipment
 
             // ── 비용 / 확률 / 필요 아이템 수 계산 ────────────────────────
             int needStone = LevelUpCostTable.GetRequiredStones(rank, level);
-            int userStone = inv.Result.VirtualCurrency?.GetValueOrDefault("RS") ?? 0;
+            int userStone = inv.Result.VirtualCurrency?.GetValueOrDefault("ES") ?? 0;
 
             return new OkObjectResult(new
             {
