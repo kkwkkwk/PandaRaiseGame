@@ -118,6 +118,7 @@ namespace Skills
 
                 var skillData = new SkillData
                 {
+                    itemInstanceId = item.ItemInstanceId,
                     skillName = catInfo.displayName,
                     rank = catInfo.rank,
                     level = level,
@@ -135,6 +136,7 @@ namespace Skills
     /// </summary>
     public class SkillData
     {
+        public string? itemInstanceId { get; set; }
         public string? skillName { get; set; }
         public string? rank { get; set; }
         public int level { get; set; }

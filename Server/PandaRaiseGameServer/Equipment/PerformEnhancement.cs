@@ -136,8 +136,8 @@ namespace Enhancement
             // 6) 골드 보유량 확인
             var userVC = invRes.Result.VirtualCurrency;
             int userGold = 0;
-            if (userVC != null && userVC.ContainsKey("GD"))
-                userGold = userVC["GD"];
+            if (userVC != null && userVC.ContainsKey("GC"))
+                userGold = userVC["GC"];
 
             if (userGold < goldCost)
             {
@@ -170,7 +170,7 @@ namespace Enhancement
             var subVCReq = new SubtractUserVirtualCurrencyRequest
             {
                 PlayFabId = playFabId,
-                VirtualCurrency = "GD",
+                VirtualCurrency = "GC",
                 Amount = goldCost
             };
             var subVCRes = await PlayFabServerAPI.SubtractUserVirtualCurrencyAsync(subVCReq);

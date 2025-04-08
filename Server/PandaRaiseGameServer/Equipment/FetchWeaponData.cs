@@ -128,6 +128,7 @@ namespace Weapons
 
                 var weaponData = new WeaponData
                 {
+                    itemInstanceId = item.ItemInstanceId,
                     weaponName = catInfo.displayName, // 카탈로그 DisplayName
                     rank = catInfo.rank,              // 카탈로그 등급
                     level = level,                    // 아이템 인스턴스의 레벨
@@ -145,6 +146,7 @@ namespace Weapons
     /// </summary>
     public class WeaponData
     {
+        public string? itemInstanceId { get; set; }
         public string? weaponName { get; set; }
         public string? rank { get; set; }
         public int level { get; set; }

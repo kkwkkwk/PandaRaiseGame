@@ -68,7 +68,7 @@ public class WeaponPopupManager : MonoBehaviour
 
     public IEnumerator StartSequence()
     {
-        // 1) 먼저 퀘스트 조회
+        // 1) 먼저 무기 조회
         yield return StartCoroutine(FetchWeaponDataCoroutine());
 
         // 2) 코루틴 완료 후 비활성화

@@ -45,13 +45,13 @@ public class EquipmentPopupManager : MonoBehaviour
     // ----------------- [서버 API URL들] -----------------
     [Header("Server API URLs")]
     [Tooltip("서버에서 강화 정보(비용, 확률 등)를 조회하는 API")]
-    public string getEnhancementInfoURL = "https://.../GetEnhancementInfo?code=...";
+    private string getEnhancementInfoURL = "https://pandaraisegame-equipment.azurewebsites.net/api/GetEnhancementInfo?code=Gv5bmxhOajuDS1TDx2dC2diskqmdOp1xq91Hep0VzLaAAzFuHxxFaw==";
     [Tooltip("서버에서 실제 강화 처리 API")]
-    public string performEnhancementURL = "https://.../PerformEnhancement?code=...";
+    private string performEnhancementURL = "https://pandaraisegame-equipment.azurewebsites.net/api/PerformEnhancement?code=3QXxQX7s8GAhX9_DOPaNUQdY5QzB7OLMvK2EXXJCX9w6AzFusIZ7vg==";
     [Tooltip("서버에서 레벨업에 필요한 강화석 수를 조회하는 API")]
-    public string getLevelUpInfoURL = "https://<YOUR_AZURE>/GetLevelUpInfo?code=...";
+    private string getLevelUpInfoURL = "https://pandaraisegame-equipment.azurewebsites.net/api/GetLevelUpInfo?code=5Y7RQsoGbuPUPfxVeLIaSBFX0OkDXcGC8Xfl61lPgwjTAzFucq4bfA==";
     [Tooltip("서버에서 실제 레벨업을 처리하는 API")]
-    public string performLevelUpURL = "https://<YOUR_AZURE>/PerformLevelUp?code=...";
+    private string performLevelUpURL = "https://pandaraisegame-equipment.azurewebsites.net/api/PerformLevelUp?code=PCluh6Jp0U4MogG-velVQUqm1Tm2W51YeJ78SrXXXPgNAzFu0FLEfQ==";
 
     // 현재 아이템이 플레이어 인벤토리 상에서 어떤 InstanceId를 갖는지 (서버 통신용)
     private string currentItemInstanceId;

@@ -118,6 +118,7 @@ namespace Armor
 
                 var armorData = new ArmorData
                 {
+                    itemInstanceId = item.ItemInstanceId,
                     armorName = catInfo.displayName,
                     rank = catInfo.rank,
                     level = level,
@@ -135,6 +136,7 @@ namespace Armor
     /// </summary>
     public class ArmorData
     {
+        public string? itemInstanceId { get; set; }
         public string? armorName { get; set; }
         public string? rank { get; set; }
         public int level { get; set; }
