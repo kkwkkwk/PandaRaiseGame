@@ -187,4 +187,11 @@ public class SkillPopupManager : MonoBehaviour
             Destroy(skillContentParent.GetChild(i).gameObject);
         }
     }
+    public void OnSkillImageClicked(SkillData clickedSkill)
+    {
+        Debug.Log($"[SkillPopupManager] 스킬 이미지 클릭됨 - {clickedSkill.skillName}, 레벨:{clickedSkill.level}, 등급:{clickedSkill.rank}");
+
+        // => 장비 팝업 열기 (해당 장비 정보 전달)
+        EquipmentPopupManager.Instance.OpenEquipmentPopup(clickedSkill);
+    }
 }

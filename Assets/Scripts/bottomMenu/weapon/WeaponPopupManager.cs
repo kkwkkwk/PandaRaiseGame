@@ -192,4 +192,11 @@ public class WeaponPopupManager : MonoBehaviour
             Destroy(weaponContentParent.GetChild(i).gameObject);
         }
     }
+    public void OnWeaponImageClicked(WeaponData clickedWeapon)
+    {
+        Debug.Log($"[WeaponPopupManager] 무기 이미지 클릭됨 - {clickedWeapon.weaponName}, 레벨:{clickedWeapon.level}, 등급:{clickedWeapon.rank}");
+
+        // => 장비 팝업 열기 (해당 장비 정보 전달)
+        EquipmentPopupManager.Instance.OpenEquipmentPopup(clickedWeapon);
+    }
 }

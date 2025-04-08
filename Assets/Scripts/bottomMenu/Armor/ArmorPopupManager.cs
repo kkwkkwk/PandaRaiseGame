@@ -187,4 +187,11 @@ public class ArmorPopupManager : MonoBehaviour
             Destroy(armorContentParent.GetChild(i).gameObject);
         }
     }
+    public void OnArmorImageClicked(ArmorData clickedArmor)
+    {
+        Debug.Log($"[ArmorPopupManager] 방어구 이미지 클릭됨 - {clickedArmor.armorName}, 레벨:{clickedArmor.level}, 등급:{clickedArmor.rank}");
+
+        // => 장비 팝업 열기 (해당 장비 정보 전달)
+        EquipmentPopupManager.Instance.OpenEquipmentPopup(clickedArmor);
+    }
 }

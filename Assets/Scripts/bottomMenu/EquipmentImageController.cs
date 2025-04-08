@@ -6,21 +6,27 @@ public class EquipmentImageController : MonoBehaviour
 {
     public Image icon;
 
-    [Header("Weapon Sprites")]
+    [Header("Sprites")]
     public Sprite testWeaponSprite; // test 용 무기 이미지
     public Sprite testArmorSprite;
     public Sprite testSkillSprite;
+    public Button imageButton; // 이미지 버튼
 
     // 단일 이미지 Prefab(EquipmentImagePrefab)에 있는 텍스트 3개
     public TextMeshProUGUI enchantText;  // 강화 수치
     public TextMeshProUGUI levelText;    // 레벨
     public TextMeshProUGUI classText;    // 등급
 
+    private WeaponData currentWeapon;
+    private ArmorData currentArmor;
+    private SkillData currentSkill;
+
     /// <summary>
     /// WeaponData의 강화, 레벨, 등급을 받아서 3개 Text에 표시
     /// </summary>
     public void WeaponSetData(WeaponData weaponData)
     {
+        currentWeapon = weaponData;
         if (enchantText != null)
             enchantText.text = $"+{weaponData.enhancement}";  // ex) +5
 
@@ -33,6 +39,12 @@ public class EquipmentImageController : MonoBehaviour
         if (icon != null)
             icon.sprite = testWeaponSprite;
 
+        // 클릭 리스너 등록
+        if (imageButton != null)
+        {
+            imageButton.onClick.RemoveAllListeners();
+            imageButton.onClick.AddListener(() => OnClickImage(0));
+        }
         Debug.Log($"[EquipmentImageController] 무기데이터 적용됨: 강화(+{weaponData.enhancement}), 레벨({weaponData.level}), 등급({weaponData.rank})");
     }
     /// <summary>
@@ -40,6 +52,7 @@ public class EquipmentImageController : MonoBehaviour
     /// </summary>
     public void ArmorSetData(ArmorData armorData)
     {
+        currentArmor = armorData;
         if (enchantText != null)
             enchantText.text = $"+{armorData.enhancement}";  // ex) +5
 
@@ -52,6 +65,12 @@ public class EquipmentImageController : MonoBehaviour
         if (icon != null)
             icon.sprite = testArmorSprite;
 
+        // 클릭 리스너 등록
+        if (imageButton != null)
+        {
+            imageButton.onClick.RemoveAllListeners();
+            imageButton.onClick.AddListener(() => OnClickImage(1));
+        }
         Debug.Log($"[EquipmentImageController] 방어구데이터 적용됨: 강화(+{armorData.enhancement}), 레벨({armorData.level}), 등급({armorData.rank})");
     }
     /// <summary>
@@ -59,6 +78,7 @@ public class EquipmentImageController : MonoBehaviour
     /// </summary>
     public void SkillSetData(SkillData skillData)
     {
+        currentSkill = skillData;
         if (enchantText != null)
             enchantText.text = $"+{skillData.enhancement}";  // ex) +5
 
@@ -71,6 +91,12 @@ public class EquipmentImageController : MonoBehaviour
         if (icon != null)
             icon.sprite = testSkillSprite;
 
+        // 클릭 리스너 등록
+        if (imageButton != null)
+        {
+            imageButton.onClick.RemoveAllListeners();
+            imageButton.onClick.AddListener(() => OnClickImage(2));
+        }
         Debug.Log($"[EquipmentImageController] 스킬데이터 적용됨: 강화(+{skillData.enhancement}), 레벨({skillData.level}), 등급({skillData.rank})");
     }
     private void Awake()
@@ -87,5 +113,22 @@ public class EquipmentImageController : MonoBehaviour
         testSkillSprite = Resources.Load<Sprite>("Sprites/Skill/skill_icon");
         if (testSkillSprite == null)
             Debug.LogError("testSkill sprite 로드 실패");
+    }
+    private void OnClickImage(int num)
+    {
+        switch (num)
+        {
+            case 0:
+                WeaponPopupManager.Instance.OnWeaponImageClicked(currentWeapon);
+                break;
+            case 1:
+                ArmorPopupManager.Instance.OnArmorImageClicked(currentArmor);
+                break;
+            case 2:
+                SkillPopupManager.Instance.OnSkillImageClicked(currentSkill);
+                break; 
+            default:
+                break;
+        }
     }
 }
