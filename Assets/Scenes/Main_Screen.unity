@@ -20052,7 +20052,6 @@ GameObject:
   - component: {fileID: 749483674}
   - component: {fileID: 749483673}
   - component: {fileID: 749483672}
-  - component: {fileID: 749483675}
   m_Layer: 5
   m_Name: ArmorPopupScreen_Panel
   m_TagString: Untagged
@@ -20130,18 +20129,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 749483670}
   m_CullTransparentMesh: 1
---- !u!114 &749483675
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 749483670}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f58fc135d9713c4bbb92cbee2104971, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &755612123
 GameObject:
   m_ObjectHideFlags: 0
@@ -32573,7 +32560,6 @@ GameObject:
   - component: {fileID: 1236650377}
   - component: {fileID: 1236650376}
   - component: {fileID: 1236650378}
-  - component: {fileID: 1236650379}
   m_Layer: 5
   m_Name: WeaponPopupScreen_Panel
   m_TagString: Untagged
@@ -32651,18 +32637,6 @@ SortingGroup:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_SortAtRoot: 0
---- !u!114 &1236650379
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1236650374}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f13b06c15feb1f643a11edb1662f04f2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1255456966
 GameObject:
   m_ObjectHideFlags: 0
@@ -49193,7 +49167,6 @@ GameObject:
   - component: {fileID: 2002149530}
   - component: {fileID: 2002149529}
   - component: {fileID: 2002149528}
-  - component: {fileID: 2002149531}
   m_Layer: 5
   m_Name: SkillPopupScreen_Panel
   m_TagString: Untagged
@@ -49271,18 +49244,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2002149526}
   m_CullTransparentMesh: 1
---- !u!114 &2002149531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2002149526}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 119682dca6ae8f4478dfd964802c4e0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2008874304
 GameObject:
   m_ObjectHideFlags: 0
