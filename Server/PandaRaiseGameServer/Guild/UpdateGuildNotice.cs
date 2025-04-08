@@ -102,21 +102,19 @@ namespace Guild
                     });
                 }
 
-                GuildInfo? guildInfo = new GuildInfo();
+                GuildInfo guildInfo = new GuildInfo();
                 if (getObjRes.Result.Objects != null && getObjRes.Result.Objects.ContainsKey("GuildInfo"))
                 {
                     var raw = getObjRes.Result.Objects["GuildInfo"].DataObject;
                     if (raw != null)
                     {
                         var rawJson = JsonConvert.SerializeObject(raw);
-                        guildInfo = JsonConvert.DeserializeObject<GuildInfo>(rawJson);
+                        guildInfo = JsonConvert.DeserializeObject<GuildInfo>(rawJson)!;
                     }
                 }
 
                 // guildIntro(또는 notice) 업데이트
-                #pragma warning disable CS8602
                 guildInfo.guildIntro = input.newNotice;
-                #pragma warning restore CS8602
 
                 // 5) SetObjects
                 var setReq = new SetObjectsRequest

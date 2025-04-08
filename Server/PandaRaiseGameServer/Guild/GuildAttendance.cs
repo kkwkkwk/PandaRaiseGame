@@ -181,10 +181,8 @@ namespace Guild
                         var rawJson = JsonConvert.SerializeObject(infoObj.DataObject);
                         _logger.LogInformation("[GuildAttendance] GuildInfo raw: " + rawJson);
 
-                        var guildInfo = JsonConvert.DeserializeObject<GuildInfoObject>(rawJson);
-                        #pragma warning disable CS8602
+                        var guildInfo = JsonConvert.DeserializeObject<GuildInfoObject>(rawJson)!;
                         newExp = guildInfo.guildExp + 100;
-                        #pragma warning restore CS8602
                         guildInfo.guildExp = newExp;
 
                         // SetObjects -> guildExp 업데이트

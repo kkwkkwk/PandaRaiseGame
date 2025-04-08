@@ -10,9 +10,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
-using CommonLibrary; // 예: PlayFabConfig.Configure()가 들어 있는 라이브러리
+using CommonLibrary;
 
-namespace Equipment
+namespace Weapons
 {
     public class FetchWeaponData
     {
@@ -29,7 +29,7 @@ namespace Equipment
         {
             _logger.LogInformation("FetchWeaponData 함수가 호출되었습니다.");
 
-            // 1) HTTP 요청 바디에서 JSON 파싱 (예: { "playFabId": "xxx" })
+            // 1) 요청 JSON 파싱 ( { "playFabId": "..." } )
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             _logger.LogInformation($"요청 바디: {requestBody}");
 
@@ -38,164 +38,116 @@ namespace Equipment
 
             if (string.IsNullOrEmpty(playFabId))
             {
-                _logger.LogWarning("요청 본문에 playFabId가 포함되어 있지 않습니다.");
                 return new BadRequestObjectResult("PlayFabId가 누락되었습니다.");
             }
 
-            // 2) PlayFab 설정 (TitleId, SecretKey 등)
+            // 2) PlayFab 설정
             PlayFabConfig.Configure();
 
-            // -------------------------------------------------------------------
-            // 3) 먼저 "Weapon" 카탈로그 아이템들을 불러와 (GetCatalogItems)
-            //    각 ItemId => (level, rank 등) 정보를 딕셔너리에 저장
-            // -------------------------------------------------------------------
-            _logger.LogInformation("Weapon 카탈로그 아이템 조회 중...");
+            // 3) 카탈로그(Weapon) 조회 -> rank(등급) 정보
             var getCatalogReq = new GetCatalogItemsRequest
             {
                 CatalogVersion = "Weapon"
             };
-
             var getCatalogRes = await PlayFabServerAPI.GetCatalogItemsAsync(getCatalogReq);
             if (getCatalogRes.Error != null)
             {
-                _logger.LogError("GetCatalogItems 실패: " + getCatalogRes.Error.GenerateErrorReport());
                 return new BadRequestObjectResult("GetCatalogItems 오류: " + getCatalogRes.Error.GenerateErrorReport());
             }
 
             // CatalogItem 목록
             var catalogItems = getCatalogRes.Result.Catalog;
-            _logger.LogInformation($"Weapon 카탈로그 아이템 개수: {catalogItems.Count}");
-
-            // itemId -> (level, rank, etc.) 매핑 테이블
-            // CatalogItem.CustomData는 string 이므로, JSON deserialize 과정을 거침
-            var catalogDataDict = new Dictionary<string, (int level, string rank, string displayName)>();
+            // itemId => (rank, displayName) 저장 (레벨은 이제 카탈로그에서 안 가져옴)
+            var catalogDataDict = new Dictionary<string, (string rank, string displayName)>();
 
             foreach (var catItem in catalogItems)
             {
-                // 예: catItem.ItemId = "Sword_01"
-                //     catItem.CustomData = "{\"level\":10,\"rank\":\"Rare\"}" (JSON 형태의 문자열)
-                int catLevel = 0;
-                string catRank = "Common";
-
-                // catalog DisplayName (게임 내 표시용 이름)
+                // rank를 Catalog CustomData에서 가져온다고 가정
+                string rank = "common";
                 string catDisplayName = catItem.DisplayName ?? catItem.ItemId;
 
                 if (!string.IsNullOrEmpty(catItem.CustomData))
                 {
                     try
                     {
-                        var catCustomData = JsonConvert.DeserializeObject<Dictionary<string, object>>(catItem.CustomData);
-
-                        if (catCustomData != null)
+                        var catData = JsonConvert.DeserializeObject<Dictionary<string, object>>(catItem.CustomData);
+                        if (catData != null && catData.ContainsKey("rank"))
                         {
-                            // level, rank 키가 있으면 파싱
-                            if (catCustomData.ContainsKey("level"))
-                            {
-                                // level 값이 보통 숫자이므로 int로 parse
-                                catLevel = Convert.ToInt32(catCustomData["level"]);
-                            }
-                            if (catCustomData.ContainsKey("rank"))
-                            {
-#pragma warning disable CS8600
-                                catRank = catCustomData["rank"].ToString();
-#pragma warning restore CS8600
-                            }
+                            // 1) "rank" 키가 있는지, 그 값이 null이 아닌지를 검사.
+                            // 2) 값이 있다면 object?.ToString(), 없다면 "common" 사용
+                            rank = catData.ContainsKey("rank")
+                                ? catData["rank"]?.ToString() ?? "common"
+                                : "common";
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        _logger.LogError($"카탈로그 아이템 {catItem.ItemId} CustomData 파싱 오류: {ex.Message}");
+                        // 파싱 오류는 무시하거나 로깅
                     }
                 }
-
-                // 딕셔너리에 저장
-#pragma warning disable CS8619
-                catalogDataDict[catItem.ItemId] = (catLevel, catRank, catDisplayName);
-#pragma warning restore CS8619
+                catalogDataDict[catItem.ItemId] = (rank, catDisplayName);
             }
 
-            // -------------------------------------------------------------------
-            // 4) 유저 인벤토리 조회(GetUserInventory)
-            //    -> Item Instance CustomData에서 enhancement 추출
-            // -------------------------------------------------------------------
-            _logger.LogInformation($"플레이어 {playFabId} 인벤토리 조회 중...");
-
-            var getInvRequest = new GetUserInventoryRequest
+            // 4) 유저 인벤토리 조회 (CatalogVersion == "Weapon")
+            var getInvReq = new GetUserInventoryRequest
             {
                 PlayFabId = playFabId
             };
-            var getInvResult = await PlayFabServerAPI.GetUserInventoryAsync(getInvRequest);
-            if (getInvResult.Error != null)
+            var getInvRes = await PlayFabServerAPI.GetUserInventoryAsync(getInvReq);
+            if (getInvRes.Error != null)
             {
-                _logger.LogError("GetUserInventory 실패: " + getInvResult.Error.GenerateErrorReport());
-                return new BadRequestObjectResult("GetUserInventory 오류: " + getInvResult.Error.GenerateErrorReport());
+                return new BadRequestObjectResult("GetUserInventory 오류: " + getInvRes.Error.GenerateErrorReport());
             }
 
-            // 전체 아이템 중, CatalogVersion == "Weapon" 인 것만 필터링
-            var allItems = getInvResult.Result.Inventory;
-            var weaponItems = allItems.Where(item => item.CatalogVersion == "Weapon").ToList();
+            var allItems = getInvRes.Result.Inventory;
+            var weaponItems = allItems.Where(i => i.CatalogVersion == "Weapon").ToList();
 
-            // -------------------------------------------------------------------
-            // 5) 최종 WeaponData 리스트 구성
-            //    - 레벨, 랭크는 카탈로그에서( catalogDataDict )
-            //    - 강화 수치(enhancement)는 Item Instance CustomData에서
-            // -------------------------------------------------------------------
+            // 5) 무기 데이터 리스트 구성
             var weaponDataList = new List<WeaponData>();
-
             foreach (var item in weaponItems)
             {
-                // ItemId에 해당하는 카탈로그 데이터 찾기
+                // 카탈로그에서 rank, displayName 가져오기
                 if (!catalogDataDict.TryGetValue(item.ItemId, out var catInfo))
-                {
-                    // 해당 ItemId가 카탈로그에 없다면 스킵하거나 기본값 처리
-                    _logger.LogWarning($"인벤토리 아이템 {item.ItemId}에 해당하는 카탈로그 정보를 찾을 수 없습니다.");
-                    continue;
-                }
+                    continue; // 존재하지 않으면 스킵
 
-                // 카탈로그에서 가져온 값
-                int catLevel = catInfo.level;
-                string catRank = catInfo.rank;
-                string catDisplayName = catInfo.displayName;
-
-                // enhancement는 인스턴스 CustomData에서 가져온다
+                // 인스턴스 CustomData에서 level, enhancement 추출
+                int level = 1;
                 int enhancement = 0;
-                if (item.CustomData != null && item.CustomData.ContainsKey("enhancement"))
+
+                if (item.CustomData != null)
                 {
-                    int.TryParse(item.CustomData["enhancement"], out enhancement);
+                    if (item.CustomData.ContainsKey("level"))
+                    {
+                        int.TryParse(item.CustomData["level"], out level);
+                    }
+                    if (item.CustomData.ContainsKey("enhancement"))
+                    {
+                        int.TryParse(item.CustomData["enhancement"], out enhancement);
+                    }
                 }
 
-                // weaponName은 "카탈로그 DisplayName"을 우선 사용 (or item.DisplayName, etc.)
-                var weaponName = catDisplayName;
-
-                // WeaponData 생성
                 var weaponData = new WeaponData
                 {
-                    weaponName = weaponName,
-                    level = catLevel,           // 카탈로그 정보
-                    rank = catRank,             // 카탈로그 정보
-                    enhancement = enhancement   // 사용자별 강화 수치 (Item Instance)
+                    weaponName = catInfo.displayName, // 카탈로그 DisplayName
+                    rank = catInfo.rank,              // 카탈로그 등급
+                    level = level,                    // 아이템 인스턴스의 레벨
+                    enhancement = enhancement         // 아이템 인스턴스의 강화 수치
                 };
                 weaponDataList.Add(weaponData);
             }
 
-            _logger.LogInformation($"최종 무기 개수: {weaponDataList.Count}");
-
-            // -------------------------------------------------------------------
-            // 6) 결과 반환
-            // -------------------------------------------------------------------
-            // 프론트엔드(WeaponPopupManager.cs)에서 List<WeaponData>로 역직렬화 가능
             return new OkObjectResult(weaponDataList);
         }
     }
 
     /// <summary>
-    /// 프론트엔드(WeaponPopupManager.cs)에서 쓰이는 것과 동일한 구조
+    /// 무기 아이템 DTO
     /// </summary>
     public class WeaponData
     {
-        public string? weaponName { get; set; }   // 무기 이름 (카탈로그 DisplayName)
-        public int level { get; set; }          // 카탈로그에 정의된 레벨
-        public string? rank { get; set; }        // 카탈로그에 정의된 랭크 (Common/Rare/Epic 등)
-        public int enhancement { get; set; }    // 유저별 강화 수치 (Item Instance CustomData)
+        public string? weaponName { get; set; }
+        public string? rank { get; set; }
+        public int level { get; set; }
+        public int enhancement { get; set; }
     }
 }

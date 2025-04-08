@@ -186,27 +186,31 @@ namespace Guild
                 }
 
                 // 8) 중복 신청 방지
-                #pragma warning disable CS8604
-                if (currentApps.applications.Any(a => a.applicantEntityId == input.entityToken.Entity.Id))
+                if (currentApps.applications != null)
                 {
-                    var respDup = new JoinGuildResponse
+                    if (currentApps.applications.Any(a => a.applicantEntityId == input.entityToken.Entity.Id))
                     {
-                        success = false,
-                        message = "이미 가입 신청을 하였습니다. 마스터 승인 대기 중."
-                    };
-                    return new OkObjectResult(respDup);
+                        var respDup = new JoinGuildResponse
+                        {
+                            success = false,
+                            message = "이미 가입 신청을 하였습니다. 마스터 승인 대기 중."
+                        };
+                        return new OkObjectResult(respDup);
+                    }
                 }
-                #pragma warning restore CS8604
 
                 // 9) 새 신청 항목 추가 (ID, 닉네임, 전투력)
-                currentApps.applications.Add(new GuildApplicationItem
+                if (currentApps.applications != null)
                 {
-                    applicantId = input.playFabId,            // Title Player Account ID (PlayFabId)
-                    applicantEntityId = input.entityToken.Entity.Id, // entityId
-                    applicantName = applicantName,            // DisplayName
-                    applicantPower = applicantPower,          // 전투력
-                    applyTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
-                });
+                    currentApps.applications.Add(new GuildApplicationItem
+                    {
+                        applicantId = input.playFabId,            // Title Player Account ID (PlayFabId)
+                        applicantEntityId = input.entityToken.Entity.Id, // entityId
+                        applicantName = applicantName,            // DisplayName
+                        applicantPower = applicantPower,          // 전투력
+                        applyTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
 
                 // 10) SetObjects -> "GuildApplications"
                 var setReq = new SetObjectsRequest
