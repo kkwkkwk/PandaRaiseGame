@@ -149,19 +149,20 @@ namespace Enhancement
                 });
             }
 
-            // 7) 같은 ItemId의 “추가” 아이템 수 확인 (강화 대상 그 자체 제외)
-            //    (Stackable이면 별도 로직 필요. 여기선 Instance 1:1로 가정)
+            // 7) 같은 ItemId 재료 수량 확인  (Stack 방식)
             var sameIdItems = inventory
                 .Where(i => i.ItemId == targetItem.ItemId && i.ItemInstanceId != targetItem.ItemInstanceId)
                 .ToList();
 
-            if (sameIdItems.Count < itemCost)
+            int stackUses = targetItem.RemainingUses ?? 1; // 총 수량
+            int materialCount = stackUses - 1;   // 장비 1개를 남겨둔 중복 수량
+            
+            if (materialCount < itemCost)
             {
-                // 필요 개수(itemCost)만큼 보유하지 않음
                 return new OkObjectResult(new
                 {
                     success = false,
-                    message = $"같은 아이템이 부족합니다. 필요: {itemCost}, 보유: {sameIdItems.Count}",
+                    message = $"같은 아이템이 부족합니다. 필요: {itemCost}, 보유: {materialCount}",
                     currentEnhancement = enhancement
                 });
             }
@@ -181,24 +182,15 @@ namespace Enhancement
 
             // 9) 같은 ItemId 아이템 N개 소모(삭제) - (RevokeInventoryItems)
             //    N개(=itemCost)만큼 RevokeInventoryItem 배열을 만들어 보냄
-            var itemsToRevoke = sameIdItems
-                .Take(itemCost)
-                .Select(x => new RevokeInventoryItem
-                {
-                    PlayFabId = playFabId,
-                    ItemInstanceId = x.ItemInstanceId
-                })
-                .ToList();
-
-            var revokeReq = new RevokeInventoryItemsRequest
+            var modifyReq = new ModifyItemUsesRequest
             {
-                Items = itemsToRevoke
+                PlayFabId = playFabId,
+                ItemInstanceId = targetItem.ItemInstanceId,
+                UsesToAdd = -itemCost          // 음수 → 차감
             };
-            var revokeRes = await PlayFabServerAPI.RevokeInventoryItemsAsync(revokeReq);
-            if (revokeRes.Error != null)
-            {
-                return new BadRequestObjectResult("아이템 소모(Revoke) 실패: " + revokeRes.Error.GenerateErrorReport());
-            }
+            var modifyRes = await PlayFabServerAPI.ModifyItemUsesAsync(modifyReq);
+            if (modifyRes.Error != null)
+                return new BadRequestObjectResult("재료 차감 실패: " + modifyRes.Error.GenerateErrorReport());
 
             // 10) 강화 성공 여부 판정
             bool isSuccess = false;
