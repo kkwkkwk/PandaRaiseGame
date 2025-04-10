@@ -54,6 +54,9 @@ TagManager:
   - name: Chat
     uniqueID: 3771247967
     locked: 0
+  - name: Growth&Shop
+    uniqueID: 1061976253
+    locked: 0
   - name: Event
     uniqueID: 961516045
     locked: 0
