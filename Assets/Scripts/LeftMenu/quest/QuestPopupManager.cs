@@ -50,10 +50,6 @@ public class QuestPopupManager : MonoBehaviour
             Destroy(gameObject);
     }
 
-    void Start()
-    {
-
-    }
     public IEnumerator StartSequence()
     {
         // 1) 먼저 퀘스트 조회
