@@ -21,6 +21,9 @@ public class GrowthPopupManager : MonoBehaviour
     public GameObject levelStatPanel;               // 레벨 스탯 패널
     public GameObject goldGrowthPanel;              // 성장 패널
 
+    [Header("Gold Info Panel (CloseBtn 옆)")]
+    public GameObject goldInfoPanel;
+
     public void OpenGrowthPanel()
     {   // 팝업 활성화 
         if (GrowthPopupCanvas != null)
@@ -36,6 +39,9 @@ public class GrowthPopupManager : MonoBehaviour
     {  // 팝업 비활성화
         if (GrowthPopupCanvas != null)
             GrowthPopupCanvas.SetActive(false);
+        // 현재 골드 표시 패널도 끔
+        if (goldInfoPanel != null)
+            goldInfoPanel.SetActive(false);
         ChatPopupManager.Instance.ChatCanvas.SetActive(true);
     }
 
@@ -51,7 +57,7 @@ public class GrowthPopupManager : MonoBehaviour
 
     void Start()
     {
-        // 버튼 연결
+        // 닫기 버튼 연결
         if (closeBtn != null)
             closeBtn.onClick.AddListener(CloseGrowthPanel);
         // 탭 버튼 클릭 리스너 추가
@@ -61,6 +67,10 @@ public class GrowthPopupManager : MonoBehaviour
             LevelStatBtn.onClick.AddListener(() => OnClickTab(1));
         if (goldGrowthBtn != null)
             goldGrowthBtn.onClick.AddListener(() => OnClickTab(2));
+
+        // 현재 골드 표시 패널은 처음에 숨긴 상태
+        if (goldInfoPanel != null)
+            goldInfoPanel.SetActive(false);
 
         if (GrowthPopupCanvas != null)
         {
@@ -82,20 +92,24 @@ public class GrowthPopupManager : MonoBehaviour
         if (goldGrowthPanel != null)
             goldGrowthPanel.SetActive(false);
 
+        // 골드 정보 패널도 off
+        if (goldInfoPanel != null)
+            goldInfoPanel.SetActive(false);
+
         // 선택된 탭에 해당하는 패널 활성화
         switch (tabIndex)
         {
             case 0:
-                if (levelUpPanel != null)
-                    levelUpPanel.SetActive(true);
+                levelUpPanel.SetActive(true);
                 break;
             case 1:
-                if (levelStatPanel != null)
                     levelStatPanel.SetActive(true);
                 break;
             case 2:
-                if (goldGrowthPanel != null)
                     goldGrowthPanel.SetActive(true);
+                // 골드 성장 탭에서만 goldInfoPanel 활성화
+                if (goldInfoPanel != null)
+                    goldInfoPanel.SetActive(true);
                 break;
             default:
                 Debug.LogWarning("[GrowthPopupManager] 알 수 없는 탭 인덱스: " + tabIndex);

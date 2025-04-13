@@ -737,6 +737,7 @@ GameObject:
   - component: {fileID: 4180951364476437098}
   - component: {fileID: 400231368467936931}
   - component: {fileID: 3901646425730151612}
+  - component: {fileID: -3721425802978571607}
   m_Layer: 5
   m_Name: GrowthLevelStat_Prefab
   m_TagString: Untagged
@@ -804,6 +805,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &-3721425802978571607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4562016258036490389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb135a9a22a01a544a658f30298ecb81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelstat_ability_text: {fileID: 699929407471334214}
+  current_levelstat_text: {fileID: 8395097777984263748}
+  abilityLevelText: {fileID: 3082394104999153173}
+  increaseButton: {fileID: 6139518692562944019}
+  resetButton: {fileID: 5383233538134506476}
 --- !u!1 &5527514788278187110
 GameObject:
   m_ObjectHideFlags: 0

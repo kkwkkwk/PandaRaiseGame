@@ -73,7 +73,6 @@ public class EquipmentPopupManager : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
-
     }
 
     private void Start()

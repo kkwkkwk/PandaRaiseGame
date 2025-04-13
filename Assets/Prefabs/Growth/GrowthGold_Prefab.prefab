@@ -494,6 +494,7 @@ GameObject:
   - component: {fileID: 2673264784855457852}
   - component: {fileID: 9166956063507189415}
   - component: {fileID: 8305302958340938845}
+  - component: {fileID: 1049974620957087698}
   m_Layer: 5
   m_Name: GrowthGold_Prefab
   m_TagString: Untagged
@@ -561,6 +562,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1049974620957087698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4753457370517561624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aff4381a40c6b643bf8757aebe92d0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  abilityNameText: {fileID: 6518404686848165328}
+  currentStatText: {fileID: 3137061769183816521}
+  abilityLevelText: {fileID: 4014954644085402115}
+  costGoldText: {fileID: 2576160817398706148}
+  enhanceButton: {fileID: 5387323068272259676}
 --- !u!1 &4905094037593279386
 GameObject:
   m_ObjectHideFlags: 0
