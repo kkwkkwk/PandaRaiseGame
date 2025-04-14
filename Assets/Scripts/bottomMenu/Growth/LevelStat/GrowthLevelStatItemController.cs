@@ -69,10 +69,10 @@ public class GrowthLevelStatItemController : MonoBehaviour
         // "기존 스탯" = BaseValue%
         // "업글 후 스탯" = BaseValue + (currentLevel * incrementValue)
         int currentValue = _statData.BaseValue + (_statData.CurrentLevel * _statData.IncrementValue);
-
+        int upgradedValue = _statData.BaseValue + (_statData.CurrentLevel + 1) * _statData.IncrementValue;
         if (current_levelstat_text != null)
         {
-            current_levelstat_text.text = $"{_statData.BaseValue}% -> {currentValue}%";
+            current_levelstat_text.text = $"{currentValue}% -> {upgradedValue}%";
         }
 
         if (abilityLevelText != null)

@@ -8,11 +8,10 @@ using Newtonsoft.Json;
 
 public class LevelStatPanelListCreator : MonoBehaviour
 {
-    [Header("URL")]
     // 1) 전체 스탯 조회 URL
-    [SerializeField] private string getLevelStatURL = "https://example.com/api/GetLevelStatData";
+    private string getLevelStatURL = "https://pandaraisegame-growth.azurewebsites.net/api/GetLevelStatData?code=rV9YNN3_Y1LyUphSv2k9oUyhNbQEjlnZOiIBTekeBkAOAzFuPB1WIQ==";
     // 2) 능력치 변경(증가/초기화) URL
-    [SerializeField] private string postLevelStatChangeURL = "https://example.com/api/PostLevelStatChange";
+    private string postLevelStatChangeURL = "https://pandaraisegame-growth.azurewebsites.net/api/PostLevelStatChange?code=050C-UYUYXCpni0YdnYOju_IWRtzbf6PxDXHKTYCvJdaAzFusegQDQ==";
 
     [Header("UI References")]
     public Transform contentParent;          // ScrollView의 Content

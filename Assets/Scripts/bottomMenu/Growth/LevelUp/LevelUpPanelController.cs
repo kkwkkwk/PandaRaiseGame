@@ -7,17 +7,11 @@ using Newtonsoft.Json;
 
 public class LevelUpPanelController : MonoBehaviour
 {
-    [Header("AzureFunction URLs")]
-    // 실제 서버(함수) 주소로 교체하세요.
     // (예시) 플레이어 정보 조회용
-    [SerializeField]
-    private string getPlayerLevelDataURL
-        = "https://YOUR_AZURE_FUNCTION_URL/api/GetPlayerLevelData?code=YOUR_CODE_HERE";
+    private string getPlayerLevelDataURL = "https://pandaraisegame-growth.azurewebsites.net/api/GetPlayerLevelData?code=49zXxdVpa1K-LlnSPqHbYvaLVdgqtT1Um0m30uq3dyD_AzFuMdn7cw==";
 
     // (예시) 레벨 업 요청용
-    [SerializeField]
-    private string postPlayerLevelUpURL
-        = "https://YOUR_AZURE_FUNCTION_URL/api/PostPlayerLevelUp?code=YOUR_CODE_HERE";
+    private string postPlayerLevelUpURL = "https://pandaraisegame-growth.azurewebsites.net/api/PostPlayerLevelUp?code=xHxqs-xYf_G0D1UP7l79o0oxiLBtYEuhlKes76yQ840oAzFuY9_oYA==";
 
     [Header("UI References")]
     public TextMeshProUGUI levelText;  // 플레이어 레벨 표시

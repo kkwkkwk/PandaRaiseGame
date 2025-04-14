@@ -8,9 +8,8 @@ using Newtonsoft.Json;
 
 public class GoldGrowthPanelListCreator : MonoBehaviour
 {
-    [Header("Server URL")]
-    [SerializeField] private string getGoldGrowthURL = "https://example.com/api/GetGoldGrowthData";
-    [SerializeField] private string postGoldGrowthChangeURL = "https://example.com/api/PostGoldGrowthChange";
+    private string getGoldGrowthURL = "https://pandaraisegame-growth.azurewebsites.net/api/GetGoldGrowthData?code=GXgBu_JBlSCXFBa_VoMde1-abBC5TLbA96hE8vdvNQyTAzFuhdAH4Q==";
+    private string postGoldGrowthChangeURL = "https://pandaraisegame-growth.azurewebsites.net/api/PostGoldGrowthChange?code=Zap-_-wFxh3Tv-7Gqjxlzob12njD9uWs3UN1e5HVKCt9AzFuTve2Lw==";
 
     [Header("UI References")]
     public Transform contentParent;            // ScrollView의 Content
