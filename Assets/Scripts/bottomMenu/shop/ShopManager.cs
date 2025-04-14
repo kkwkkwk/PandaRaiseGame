@@ -1,71 +1,52 @@
 using UnityEngine;
+using System.Collections; // 코루틴
+using UnityEngine.Networking; // UnityWebRequest
+// using Newtonsoft.Json; // 만약 JsonUtility 대신 Newtonsoft를 쓴다면
 
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance { get; private set; }
 
     [Header("Shop Popup Panel")]
-    [Tooltip("상점 팝업 전체 패널 오브젝트 (초기엔 비활성화 상태)")]
     public GameObject shopPopupPanel;
 
     [Header("Content Panels (ShopMain_Panel 내)")]
-    [Tooltip("스페셜 탭 콘텐츠 패널 (기본 탭)")]
     public GameObject specialPanel;
-    [Tooltip("재화 탭 콘텐츠 패널")]
     public GameObject currencyPanel;
-    [Tooltip("뽑기 탭 콘텐츠 패널")]
     public GameObject gachaPanel;
-    [Tooltip("VIP 탭 콘텐츠 패널")]
     public GameObject vipPanel;
 
     private bool isShopOpen = false;
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Start(): 게임 실행 시 shopPopupPanel 비활성화
-    // ─────────────────────────────────────────────────────────────────────
-    private void Start()
-    {
-        if (shopPopupPanel != null)
-        {
-            shopPopupPanel.SetActive(false);
-            Debug.Log("[ShopManager] Start(): 상점 팝업 패널을 비활성화했습니다.");
-        }
-    }
+    // ─────────────────────────────────────────
+    // ToggleShop, OpenShop, CloseShop,
+    // ShowSpecialPanel, ShowCurrencyPanel, etc.
+    // ─────────────────────────────────────────
 
-    /// <summary>
-    /// 상점 팝업을 열거나 닫는 토글 함수 (상점 버튼에서 호출)
-    /// </summary>
+    #region 기존함수예시(참고)
     public void ToggleShop()
     {
-        if (isShopOpen)
-        {
-            CloseShop();
-        }
-        else
-        {
-            OpenShop();
-        }
+        if (isShopOpen) CloseShop();
+        else OpenShop();
     }
 
-    /// <summary>
-    /// 상점 팝업을 열며 기본으로 스페셜 패널을 표시
-    /// </summary>
     public void OpenShop()
     {
         if (shopPopupPanel != null)
         {
             shopPopupPanel.SetActive(true);
             isShopOpen = true;
-            ShowSpecialPanel(); // 기본 탭: 스페셜
+            ShowSpecialPanel();
             Debug.Log("Shop Popup Opened");
+
+            // 상점 열 때 서버에서 최신 데이터 받아오고 싶다면
+            StartCoroutine(CallGetShopData());
         }
         else
         {
@@ -73,9 +54,6 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 상점 팝업을 닫음
-    /// </summary>
     public void CloseShop()
     {
         if (shopPopupPanel != null)
@@ -86,25 +64,7 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────
-    // 탭 전환 기능
-    // ─────────────────────────────
-
-    /// <summary>
-    /// 모든 콘텐츠 패널을 숨김
-    /// </summary>
-    private void HideAllContentPanels()
-    {
-        if (specialPanel != null) specialPanel.SetActive(false);
-        if (currencyPanel != null) currencyPanel.SetActive(false);
-        if (gachaPanel != null) gachaPanel.SetActive(false);
-        if (vipPanel != null) vipPanel.SetActive(false);
-    }
-
-    /// <summary>
-    /// 스페셜 탭 패널을 활성화 (기본 탭)
-    /// </summary>
-    public void ShowSpecialPanel()
+    private void ShowSpecialPanel()
     {
         HideAllContentPanels();
         if (specialPanel != null)
@@ -114,42 +74,97 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 재화 탭 패널을 활성화
-    /// </summary>
-    public void ShowCurrencyPanel()
+    private void HideAllContentPanels()
     {
-        HideAllContentPanels();
-        if (currencyPanel != null)
+        if (specialPanel) specialPanel.SetActive(false);
+        if (currencyPanel) currencyPanel.SetActive(false);
+        if (gachaPanel) gachaPanel.SetActive(false);
+        if (vipPanel) vipPanel.SetActive(false);
+    }
+    #endregion
+
+    // ─────────────────────────────────────────
+    // 서버 연동을 위한 필드와 코루틴
+    // ─────────────────────────────────────────
+
+    // 1) 서버 URL (백엔드에서 넘겨준 HTTP endpoint)
+    [Header("Server Settings")]
+    [Tooltip("상점 데이터를 가져올 API URL")]
+    [SerializeField]
+    private string getShopUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetShopData"; // 건우오빠한테 받은 url이 없어서 임시로 넣어놨어용
+
+    // 2) 서버에서 받아온 DTO를 저장할 변수
+    private ShopServerData shopData;
+
+    /// <summary>
+    /// 서버에서 상점 데이터를 받아오는 코루틴 함수
+    /// </summary>
+    private IEnumerator CallGetShopData()
+    {
+        Debug.Log("[ShopManager] CallGetShopData() 코루틴 시작");
+
+        // (1) 요청에 보낼 JSON 객체 (PlayFabID 필요시 GlobalData.playFabId 등)
+        var requestObj = new
         {
-            currencyPanel.SetActive(true);
-            Debug.Log("Currency Panel Opened");
+            // 예) playFabId = GlobalData.playFabId,
+            //     otherParam = "something"
+        };
+        string jsonBody = JsonUtility.ToJson(requestObj); // 또는 Newtonsoft.Json 사용
+
+        // (2) UnityWebRequest (POST)
+        using (UnityWebRequest request = new UnityWebRequest(getShopUrl, "POST"))
+        {
+            // (3) 업로드/다운로드 핸들러
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+
+            // (4) 헤더 설정
+            request.SetRequestHeader("Content-Type", "application/json");
+            Debug.Log("[ShopManager] 서버에 GetShopData 요청 전송 중...");
+
+            // (5) 요청 전송
+            yield return request.SendWebRequest();
+
+            // (6) 결과 확인
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"[ShopManager] CallGetShopData() 실패: {request.error}");
+            }
+            else
+            {
+                string responseJson = request.downloadHandler.text;
+                Debug.Log($"[ShopManager] 서버 응답 수신: {responseJson}");
+
+                // (7) JSON -> ShopServerData 파싱
+                shopData = JsonUtility.FromJson<ShopServerData>(responseJson);
+
+                if (shopData == null)
+                {
+                    Debug.LogError("[ShopManager] shopData가 null입니다. JSON 형식을 확인하세요.");
+                }
+                else
+                {
+                    // (8) UI 반영
+                    Debug.Log("[ShopManager] ShopServerData 파싱 완료, UI 업데이트 로직 실행 예정...");
+                    // 예) 다이아 표시 텍스트, 상품 목록 세팅 등
+                    // UpdateShopUI();
+                }
+            }
         }
+
+        Debug.Log("[ShopManager] CallGetShopData() 코루틴 종료");
     }
 
     /// <summary>
-    /// 뽑기 탭 패널을 활성화
+    /// 예: 코루틴 완료 후 UI에 반영하는 함수 (추가로 작성 가능)
     /// </summary>
-    public void ShowGachaPanel()
+    private void UpdateShopUI()
     {
-        HideAllContentPanels();
-        if (gachaPanel != null)
-        {
-            gachaPanel.SetActive(true);
-            Debug.Log("Gacha Panel Opened");
-        }
-    }
+        if (shopData == null) return;
 
-    /// <summary>
-    /// VIP 탭 패널을 활성화
-    /// </summary>
-    public void ShowVIPPanel()
-    {
-        HideAllContentPanels();
-        if (vipPanel != null)
-        {
-            vipPanel.SetActive(true);
-            Debug.Log("VIP Panel Opened");
-        }
+        // shopData.diamond, shopData.products 등으로 텍스트/UI 갱신
+        // e.g. diamondText.text = shopData.diamond.ToString();
+        // Instantiate item cards for shopData.products ...
     }
 }
