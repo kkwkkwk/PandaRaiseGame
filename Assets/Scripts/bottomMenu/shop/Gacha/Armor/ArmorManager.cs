@@ -11,7 +11,7 @@ public class ArmorManager : MonoBehaviour
     public GameObject armorPopupCanvas;  // 방어구 메뉴 전체 패널
 
     // (옵션) 서버 API URL
-    private string fetchArmorUrl = "https://YOUR_SERVER/api/GetArmorData?code=YOUR_CODE_HERE";
+    private string fetchArmorUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetArmorData?code=rVEg0yCEPtmpFsurmIsfPfjpOxOfcYr9gZJTxbUqNpOfAzFuEXJiwQ==";
 
     // 방어구 아이템 리스트
     private List<ArmorItemData> armorItems;
