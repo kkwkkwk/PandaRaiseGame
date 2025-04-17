@@ -19,7 +19,7 @@ public class JaphaManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private string fetchJaphaUrl = "https://YOUR_SERVER/api/GetJaphaData";
+    private string fetchJaphaUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetJaphwaShopData?code=Qjq_KGQpLvoZjJKDCR76iOJE9EjQHoO2PvucK7Ea92-EAzFu8w6Mtg==";
     private List<JaphaItemData> japhaItems;
 
     private void Awake()

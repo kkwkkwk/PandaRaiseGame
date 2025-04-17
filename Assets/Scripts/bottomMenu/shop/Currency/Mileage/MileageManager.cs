@@ -19,7 +19,7 @@ public class MileageManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private string fetchMileageUrl = "https://YOUR_SERVER/api/GetMileageData";
+    private string fetchMileageUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetMileageShopData?code=7FEp57GIrRLmJG0-E3k5IuuksDTzUgpcSkJiNRzVM3H2AzFuWLTgiw==";
     private List<MileageItemData> mileageItems;
 
     private void Awake()

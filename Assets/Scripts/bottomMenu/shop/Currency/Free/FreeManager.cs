@@ -19,7 +19,7 @@ public class FreeManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;           
 
-    private string fetchFreeUrl = "https://YOUR_SERVER/api/GetFreeData";
+    private string fetchFreeUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetFreeShopData?code=RSjJW7s3xyKlU3iJzYog0Fd50ylVsuIp-PdqRpG807e4AzFu0MBECg==";
     private List<FreeItemData> freeItems;
 
     private void Awake()

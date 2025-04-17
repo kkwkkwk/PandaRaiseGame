@@ -19,7 +19,7 @@ public class DiamondManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private string fetchDiamondUrl = "https://YOUR_SERVER/api/GetDiamondData";
+    private string fetchDiamondUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetDiamondShopData?code=NFo5vc5QTYyNUxJBokgDiMDi5F_NgRP6JuvKWpz4R6RBAzFuKOBC_A==";
     private List<DiamondItemData> diamondItems;
 
     private void Awake()

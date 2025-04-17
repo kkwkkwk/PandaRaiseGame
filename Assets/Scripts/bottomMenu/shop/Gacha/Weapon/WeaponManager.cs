@@ -22,7 +22,7 @@ public class WeaponManager : MonoBehaviour
     public GameObject itemPrefab;      // SmallItemController 가 붙어 있는 프리팹
 
     // 서버 API URL (직접 코드에서 관리)
-    private const string fetchWeaponUrl = "https://YOUR_SERVER/api/GetWeaponData?code=YOUR_CODE_HERE";
+    private const string fetchWeaponUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetWeaponGachaData?code=LbwpDyYAz2G1OE94wg-oUgI5VHYlmOY54oFUWFTUiJ7PAzFuafMI_g==";
 
     private List<WeaponItemData> weaponItems;
 

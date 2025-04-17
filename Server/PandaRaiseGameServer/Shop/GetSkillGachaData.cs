@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
+using CommonLibrary;
 
 namespace Shop
 {
@@ -20,7 +21,7 @@ namespace Shop
             _logger = logger;
         }
 
-        [Function("GetSkillData")]
+        [Function("GetSkillGachaData")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]
             HttpRequest req)
@@ -28,10 +29,7 @@ namespace Shop
             _logger.LogInformation("[GetSkillData] Function invoked");
 
             // 1. PlayFab 설정 (환경 변수 사용)
-            PlayFabSettings.staticSettings.TitleId =
-                Environment.GetEnvironmentVariable("PLAYFAB_TITLE_ID");
-            PlayFabSettings.staticSettings.DeveloperSecretKey =
-                Environment.GetEnvironmentVariable("PLAYFAB_SECRET_KEY");
+            PlayFabConfig.Configure();
 
             // 2. TitleData (SkillGachaShop) 조회
             var tdReq = new GetTitleDataRequest

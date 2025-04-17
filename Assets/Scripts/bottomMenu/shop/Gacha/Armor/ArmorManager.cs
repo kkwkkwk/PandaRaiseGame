@@ -24,7 +24,7 @@ public class ArmorManager : MonoBehaviour
     [Header("단일 아이템 프리팹")]
     public GameObject itemPrefab;
 
-    private const string fetchArmorUrl = "https://YOUR_SERVER/api/GetArmorData?code=YOUR_CODE_HERE";
+    private const string fetchArmorUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetArmorGachaData?code=oRjQ3RDt8YXXaItejzasxC8IpWXG9VY5nxWfjTqy3xB6AzFugcy0Ww==";
 
     private List<ArmorItemData> armorItems;
 

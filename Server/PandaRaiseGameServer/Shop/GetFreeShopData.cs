@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
+using CommonLibrary;
 
 namespace Shop
 {
@@ -24,10 +25,7 @@ namespace Shop
             _logger.LogInformation("[GetFreeShopData] invoked");
 
             // PlayFab 설정
-            PlayFabSettings.staticSettings.TitleId =
-                Environment.GetEnvironmentVariable("PLAYFAB_TITLE_ID");
-            PlayFabSettings.staticSettings.DeveloperSecretKey =
-                Environment.GetEnvironmentVariable("PLAYFAB_SECRET_KEY");
+            PlayFabConfig.Configure();
 
             // TitleData 조회
             var tdReq = new GetTitleDataRequest { Keys = new List<string> { "FreeShop" } };

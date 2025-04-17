@@ -24,7 +24,7 @@ public class SkillManager : MonoBehaviour
     [Header("단일 아이템 프리팹")]
     public GameObject itemPrefab;
 
-    private const string fetchSkillUrl = "https://YOUR_SERVER/api/GetSkillData?code=YOUR_CODE_HERE";
+    private const string fetchSkillUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetSkillGachaData?code=5TkJ9Ck9okV81RdtuQA8jUEEEUDm37fq5owAnfIE-hBPAzFurDM8bA==";
 
     private List<SkillItemData> skillItems;
 
