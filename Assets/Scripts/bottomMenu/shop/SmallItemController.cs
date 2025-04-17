@@ -5,22 +5,17 @@ using TMPro;
 public class SmallItemController : MonoBehaviour
 {
     [Header("UI References")]
-    public TextMeshProUGUI itemNameText;    // 아이템명
-    public Image itemImage;                 // 아이템 이미지
-    public Image currencyIconImage;         // 결제 수단 아이콘
-    public TextMeshProUGUI priceText;       // 가격
+    public TextMeshProUGUI itemNameText;          // 아이템명
+    public Image itemImage;                       // 아이템 이미지
+    public Image currencyIconImage;               // 결제 수단 아이콘
+    public TextMeshProUGUI priceText;             // 일반 결제용 텍스트
+    public TextMeshProUGUI wonPriceText;          // 현금 결제용 텍스트 (₩)
 
     [Header("Sprites (Currency Icons)")]
     public Sprite diamondIcon;
     public Sprite goldIcon;
     public Sprite mileageIcon;
     public Sprite freeIcon;
-    public Sprite wonIcon;                  // 현금(Won) 아이콘
-
-    [Header("Icon Layout Settings")]
-    public Vector2 iconSize = new Vector2(32, 32);
-    public Vector2 iconOffset = Vector2.zero;
-    public bool preserveIconAspect = true;
 
     /// <summary>
     /// 프리팹 데이터 세팅
@@ -37,54 +32,63 @@ public class SmallItemController : MonoBehaviour
 
         // 2) 아이템 이미지
         if (itemImage != null)
-            itemImage.sprite = sprite;
-
-        // 3) 가격 표시
-        if (priceText != null)
         {
-            if (currencyType == "FREE")
+            itemImage.sprite = sprite;
+            Debug.Log($"[SmallItemController] ItemImage.sprite set to {(sprite != null ? sprite.name : "null")}");
+        }
+
+        // 3) 가격 텍스트 처리
+        if (priceText != null && wonPriceText != null)
+        {
+            if (currencyType == "WON")
             {
-                // 무료는 광고보기로 표시
-                priceText.text = "광고보기";
-            }
-            else if (currencyType == "WON")
-            {
-                // 현금은 '\ ' 기호 붙이기
-                priceText.text = "\\ " + price.ToString();
+                priceText.gameObject.SetActive(false);
+                wonPriceText.gameObject.SetActive(true);
+                wonPriceText.text = "￦ " + price;
             }
             else
             {
-                // 그 외는 숫자만 표시
-                priceText.text = price.ToString();
+                wonPriceText.gameObject.SetActive(false);
+                priceText.gameObject.SetActive(true);
+
+                if (currencyType == "FREE")
+                    priceText.text = "광고보기";
+                else
+                    priceText.text = price.ToString();
             }
         }
 
-        // 4) 결제수단 아이콘
+        // 4) 결제수단 아이콘 설정
         if (currencyIconImage != null)
         {
-            Sprite icon = null;
-            switch (currencyType)
+            if (currencyType == "WON")
             {
-                case "DIAMOND": icon = diamondIcon; break;
-                case "GC": icon = goldIcon; break;
-                case "MILEAGE": icon = mileageIcon; break;
-                case "FREE": icon = freeIcon; break;
-                case "WON": icon = wonIcon; break;
-            }
-
-            if (icon != null)
-            {
-                currencyIconImage.enabled = true;
-                currencyIconImage.sprite = icon;
-                currencyIconImage.preserveAspect = preserveIconAspect;
-
-                var rt = currencyIconImage.rectTransform;
-                rt.sizeDelta = iconSize;
-                rt.anchoredPosition = iconOffset;
+                currencyIconImage.enabled = false;
+                Debug.Log("[SmallItemController] WON 결제 방식이므로 아이콘 비활성화");
             }
             else
             {
-                currencyIconImage.enabled = false;
+                Sprite icon = null;
+                switch (currencyType)
+                {
+                    case "DIAMOND": icon = diamondIcon; break;
+                    case "GC": icon = goldIcon; break;
+                    case "MILEAGE": icon = mileageIcon; break;
+                    case "FREE": icon = freeIcon; break;
+                }
+
+                if (icon != null)
+                {
+                    currencyIconImage.enabled = true;
+                    currencyIconImage.sprite = icon;
+
+                    Debug.Log($"[SmallItemController] CurrencyIcon set: {currencyType} → {icon.name}");
+                }
+                else
+                {
+                    currencyIconImage.enabled = false;
+                    Debug.LogWarning($"[SmallItemController] No icon found for currencyType '{currencyType}'");
+                }
             }
         }
     }

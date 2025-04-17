@@ -11,13 +11,16 @@ public class FreeManager : MonoBehaviour
     [Header("무료(Free) 탭 팝업 Canvas")]
     public GameObject freePopupCanvas;
 
+    [Header("기본 컨텐츠 (헤더 미발견 시)")]
+    public Transform defaultContentParent;
+
     [System.Serializable]
     public class HeaderConfig { public string headerName; public Transform contentParent; }
     [Header("Header → Content Parent 매핑")]
     public HeaderConfig[] headerConfigs;
 
     [Header("단일 아이템 Prefab")]
-    public GameObject itemPrefab;           
+    public GameObject itemPrefab;
 
     private string fetchFreeUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetFreeShopData?code=RSjJW7s3xyKlU3iJzYog0Fd50ylVsuIp-PdqRpG807e4AzFu0MBECg==";
     private List<FreeItemData> freeItems;
@@ -59,31 +62,32 @@ public class FreeManager : MonoBehaviour
 
     public void LoadData(List<FreeItemData> items)
     {
+        Debug.Log("[FreeManager] ▶ 서버에서 받은 Header 목록:");
+        foreach (var it in items)
+            Debug.Log($"    • '{it.Header}'");
+
         freeItems = items;
         PopulateFreeItems();
     }
 
     private void PopulateFreeItems()
     {
-        // 1) 모든 헤더 영역 비우기
+        // 1) 기존 모든 헤더 영역과 default 영역 비우기
         foreach (var hc in headerConfigs)
             ClearContent(hc.contentParent);
+        ClearContent(defaultContentParent);
 
         if (freeItems == null || freeItems.Count == 0) return;
 
-        // 2) 단일 Prefab으로 Instantiate + Setup
+        // 2) Instantiate + Setup (헤더 미발견 시 default)
         foreach (var item in freeItems)
         {
-            var parent = GetContentParent(item.Header);
+            var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            if (ctrl != null)
-            {
-                // 이름, null(sprite), 가격, 통화타입 전달
-                ctrl.Setup(item.ItemName, null, item.Price, item.CurrencyType);
-            }
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
         }
     }
 
@@ -93,8 +97,7 @@ public class FreeManager : MonoBehaviour
         foreach (var hc in headerConfigs)
             if (header.Contains(hc.headerName))
                 return hc.contentParent;
-        Debug.LogWarning($"[FreeManager] 헤더 미발견: {header}");
-        return null;
+        return null; // default 처리는 호출부에서
     }
 
     private void ClearContent(Transform parent)

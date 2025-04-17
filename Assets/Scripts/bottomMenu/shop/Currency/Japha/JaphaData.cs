@@ -11,7 +11,7 @@ public class JaphaResponseData
     [JsonProperty("errorMessage")]
     public string ErrorMessage { get; set; }
 
-    [JsonProperty("japhaItemList")]
+    [JsonProperty("japhwaItemList")]
     public List<JaphaItemData> JaphaItemList { get; set; }
 }
 
@@ -19,15 +19,14 @@ public class JaphaResponseData
 public class JaphaItemData
 {
     [JsonProperty("itemName")]
-    public string ItemName { get; set; }        // 예: "던전 티켓 A", "농장 티켓 B"
+    public string ItemName { get; set; }
 
     [JsonProperty("price")]
-    public int Price { get; set; }              // 예: 300, 1200 등
+    public int Price { get; set; }
 
     [JsonProperty("currencyType")]
-    public string CurrencyType { get; set; }     // "FREE", "DIAMOND", "GC", "WON" 등
+    public string CurrencyType { get; set; }
 
     [JsonProperty("header")]
-    public string Header { get; set; }          // "던전티켓", "농장티켓" 등 (헤더 구분)
-
+    public string Header { get; set; }
 }

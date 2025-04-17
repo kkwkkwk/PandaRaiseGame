@@ -17,42 +17,53 @@ public class CurrencyTabController : MonoBehaviour
 
     private void Start()
     {
+        // 씬 시작 시 기본으로 무료 탭을 연다
+        ShowFreePanel();
+    }
+
+    private void OnEnable()
+    {
+        // 이 스크립트가 활성화될 때(재화 탭을 다시 열 때)도 무료 탭을 기본으로 연다
         ShowFreePanel();
     }
 
     private void HideAllTabs()
     {
-        freePanel.SetActive(false);
-        japhaPanel.SetActive(false);
-        diaPanel.SetActive(false);
-        mileagePanel.SetActive(false);
+        freePanel?.SetActive(false);
+        japhaPanel?.SetActive(false);
+        diaPanel?.SetActive(false);
+        mileagePanel?.SetActive(false);
     }
 
     public void ShowFreePanel()
     {
         HideAllTabs();
-        freePanel.SetActive(true);
-        freeManager.OpenFreePanel();
+        freePanel?.SetActive(true);
+        Debug.Log("[CurrencyTabController] 무료 탭 열림");
+        freeManager?.OpenFreePanel();
     }
 
     public void ShowJaphaPanel()
     {
         HideAllTabs();
-        japhaPanel.SetActive(true);
-        japhaManager.OpenJaphaPanel();
+        japhaPanel?.SetActive(true);
+        Debug.Log("[CurrencyTabController] 잡화 탭 열림");
+        japhaManager?.OpenJaphaPanel();
     }
 
     public void ShowDiaPanel()
     {
         HideAllTabs();
-        diaPanel.SetActive(true);
-        diamondManager.OpenDiamondPanel();
+        diaPanel?.SetActive(true);
+        Debug.Log("[CurrencyTabController] 다이아 탭 열림");
+        diamondManager?.OpenDiamondPanel();
     }
 
     public void ShowMileagePanel()
     {
         HideAllTabs();
-        mileagePanel.SetActive(true);
-        mileageManager.OpenMileagePanel();
+        mileagePanel?.SetActive(true);
+        Debug.Log("[CurrencyTabController] 마일리지 탭 열림");
+        mileageManager?.OpenMileagePanel();
     }
 }

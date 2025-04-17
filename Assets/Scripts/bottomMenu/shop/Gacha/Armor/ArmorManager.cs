@@ -1,30 +1,30 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;                // ScrollRect, LayoutRebuilder
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 public class ArmorManager : MonoBehaviour
 {
-    // 1) 싱글톤 인스턴스
     public static ArmorManager Instance { get; private set; }
 
-    [Header("방어구 팝업 Panel/Canvas")]
+    [Header("방어구 패널 Canvas")]
     public GameObject armorPopupCanvas;
 
+    [Header("ScrollView Content (Viewport→Content)")]
+    public RectTransform scrollContent;   // ← 추가
+
     [System.Serializable]
-    public class HeaderConfig
-    {
-        public string headerName;
-        public Transform contentParent;
-    }
-    [Header("헤더 + Content Parent 매핑")]
+    public class HeaderConfig { public string headerName; public Transform contentParent; }
+    [Header("헤더 + ContentParent 매핑")]
     public HeaderConfig[] headerConfigs;
 
-    [Header("단일 아이템 프리팹")]
+    [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private const string fetchArmorUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetArmorGachaData?code=oRjQ3RDt8YXXaItejzasxC8IpWXG9VY5nxWfjTqy3xB6AzFugcy0Ww==";
+    private const string fetchArmorUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetArmorGachaData?code=oRjQ3RDt8YXXaItejzasxC8IpWXG9VY5nxWfjTqy3xB6AzFugcy0Ww==";
 
     private List<ArmorItemData> armorItems;
 
@@ -34,17 +34,36 @@ public class ArmorManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    /// <summary>
+    /// 방어구 탭 열기: 패널 켜고, 스크롤 콘텐츠 숨긴 뒤 데이터 로드
+    /// </summary>
     public void OpenArmorPanel()
     {
-        if (armorPopupCanvas != null)
-            armorPopupCanvas.SetActive(true);
-        StartCoroutine(FetchArmorDataCoroutine());
+        armorPopupCanvas?.SetActive(true);
+        scrollContent.gameObject.SetActive(false);
+        StartCoroutine(FetchThenShow());
     }
 
     public void CloseArmorPanel()
     {
-        if (armorPopupCanvas != null)
-            armorPopupCanvas.SetActive(false);
+        armorPopupCanvas?.SetActive(false);
+    }
+
+    private IEnumerator FetchThenShow()
+    {
+        // 데이터 Fetch → LoadData → Populate
+        yield return FetchArmorDataCoroutine();
+
+        // 레이아웃 강제 재빌드
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
+
+        // 스크롤 맨 위로 초기화
+        var sr = scrollContent.GetComponentInParent<ScrollRect>();
+        if (sr != null) sr.verticalNormalizedPosition = 1f;
+
+        // 콘텐츠 보이기
+        scrollContent.gameObject.SetActive(true);
     }
 
     private IEnumerator FetchArmorDataCoroutine()
@@ -54,19 +73,16 @@ public class ArmorManager : MonoBehaviour
         req.uploadHandler = new UploadHandlerRaw(body);
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
-
         yield return req.SendWebRequest();
+
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[ArmorManager] 데이터 조회 실패: {req.error}");
+            Debug.LogError($"[ArmorManager] Fetch 실패: {req.error}");
             yield break;
         }
 
         ArmorResponseData resp = null;
-        try
-        {
-            resp = JsonConvert.DeserializeObject<ArmorResponseData>(req.downloadHandler.text);
-        }
+        try { resp = JsonConvert.DeserializeObject<ArmorResponseData>(req.downloadHandler.text); }
         catch (System.Exception ex)
         {
             Debug.LogError($"[ArmorManager] JSON 파싱 오류: {ex.Message}");
@@ -75,7 +91,7 @@ public class ArmorManager : MonoBehaviour
 
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogError("[ArmorManager] 응답 이상");
+            Debug.LogWarning("[ArmorManager] 서버 응답 이상");
             yield break;
         }
 
@@ -85,42 +101,34 @@ public class ArmorManager : MonoBehaviour
     public void LoadData(List<ArmorItemData> items)
     {
         armorItems = items;
-        PopulateArmorItems();
+        Populate();
     }
 
-    private void PopulateArmorItems()
+    private void Populate()
     {
+        // 기존 콘텐츠 비우기
         foreach (var hc in headerConfigs)
             ClearContent(hc.contentParent);
 
-        if (armorItems == null || armorItems.Count == 0)
-        {
-            Debug.LogWarning("[ArmorManager] 아이템 목록이 없습니다.");
-            return;
-        }
+        if (armorItems == null || armorItems.Count == 0) return;
 
+        // 프리팹 생성
         foreach (var item in armorItems)
         {
-            Transform parent = GetContentParent(item.Header);
-            if (parent == null || itemPrefab == null) continue;
+            var parent = GetParent(item.Header);
+            if (parent == null) continue;
 
-            GameObject go = Instantiate(itemPrefab, parent);
+            var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            if (ctrl != null)
-            {
-                Sprite sprite = null;
-                ctrl.Setup(item.ItemName, sprite, item.Price, item.CurrencyType);
-            }
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
         }
     }
 
-    private Transform GetContentParent(string header)
+    private Transform GetParent(string header)
     {
-        if (string.IsNullOrEmpty(header)) return null;
         foreach (var hc in headerConfigs)
             if (!string.IsNullOrEmpty(hc.headerName) && header.Contains(hc.headerName))
                 return hc.contentParent;
-        Debug.LogWarning($"[ArmorManager] 헤더 매칭 실패: {header}");
         return null;
     }
 

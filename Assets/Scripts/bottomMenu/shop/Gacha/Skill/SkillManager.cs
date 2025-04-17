@@ -1,30 +1,30 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;                // ScrollRect, LayoutRebuilder
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 public class SkillManager : MonoBehaviour
 {
-    // 1) 싱글톤 인스턴스
     public static SkillManager Instance { get; private set; }
 
-    [Header("스킬 팝업 Panel/Canvas")]
+    [Header("스킬 패널 Canvas")]
     public GameObject skillPopupCanvas;
 
+    [Header("ScrollView Content (Viewport→Content)")]
+    public RectTransform scrollContent;   // ← 추가
+
     [System.Serializable]
-    public class HeaderConfig
-    {
-        public string headerName;
-        public Transform contentParent;
-    }
-    [Header("헤더 + Content Parent 매핑")]
+    public class HeaderConfig { public string headerName; public Transform contentParent; }
+    [Header("헤더 + ContentParent 매핑")]
     public HeaderConfig[] headerConfigs;
 
-    [Header("단일 아이템 프리팹")]
+    [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private const string fetchSkillUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetSkillGachaData?code=5TkJ9Ck9okV81RdtuQA8jUEEEUDm37fq5owAnfIE-hBPAzFurDM8bA==";
+    private const string fetchSkillUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetSkillGachaData?code=5TkJ9Ck9okV81RdtuQA8jUEEEUDm37fq5owAnfIE-hBPAzFurDM8bA==";
 
     private List<SkillItemData> skillItems;
 
@@ -36,15 +36,27 @@ public class SkillManager : MonoBehaviour
 
     public void OpenSkillPanel()
     {
-        if (skillPopupCanvas != null)
-            skillPopupCanvas.SetActive(true);
-        StartCoroutine(FetchSkillDataCoroutine());
+        skillPopupCanvas?.SetActive(true);
+        scrollContent.gameObject.SetActive(false);
+        StartCoroutine(FetchThenShow());
     }
 
     public void CloseSkillPanel()
     {
-        if (skillPopupCanvas != null)
-            skillPopupCanvas.SetActive(false);
+        skillPopupCanvas?.SetActive(false);
+    }
+
+    private IEnumerator FetchThenShow()
+    {
+        yield return FetchSkillDataCoroutine();
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
+
+        var sr = scrollContent.GetComponentInParent<ScrollRect>();
+        if (sr != null) sr.verticalNormalizedPosition = 1f;
+
+        scrollContent.gameObject.SetActive(true);
     }
 
     private IEnumerator FetchSkillDataCoroutine()
@@ -54,19 +66,16 @@ public class SkillManager : MonoBehaviour
         req.uploadHandler = new UploadHandlerRaw(body);
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
-
         yield return req.SendWebRequest();
+
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[SkillManager] 데이터 조회 실패: {req.error}");
+            Debug.LogError($"[SkillManager] Fetch 실패: {req.error}");
             yield break;
         }
 
         SkillResponseData resp = null;
-        try
-        {
-            resp = JsonConvert.DeserializeObject<SkillResponseData>(req.downloadHandler.text);
-        }
+        try { resp = JsonConvert.DeserializeObject<SkillResponseData>(req.downloadHandler.text); }
         catch (System.Exception ex)
         {
             Debug.LogError($"[SkillManager] JSON 파싱 오류: {ex.Message}");
@@ -75,7 +84,7 @@ public class SkillManager : MonoBehaviour
 
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogError("[SkillManager] 응답 이상");
+            Debug.LogWarning("[SkillManager] 서버 응답 이상");
             yield break;
         }
 
@@ -85,42 +94,32 @@ public class SkillManager : MonoBehaviour
     public void LoadData(List<SkillItemData> items)
     {
         skillItems = items;
-        PopulateSkillItems();
+        Populate();
     }
 
-    private void PopulateSkillItems()
+    private void Populate()
     {
         foreach (var hc in headerConfigs)
             ClearContent(hc.contentParent);
 
-        if (skillItems == null || skillItems.Count == 0)
-        {
-            Debug.LogWarning("[SkillManager] 아이템 목록이 없습니다.");
-            return;
-        }
+        if (skillItems == null || skillItems.Count == 0) return;
 
         foreach (var item in skillItems)
         {
-            Transform parent = GetContentParent(item.Header);
-            if (parent == null || itemPrefab == null) continue;
+            var parent = GetParent(item.Header);
+            if (parent == null) continue;
 
-            GameObject go = Instantiate(itemPrefab, parent);
+            var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            if (ctrl != null)
-            {
-                Sprite sprite = null;
-                ctrl.Setup(item.ItemName, sprite, item.Price, item.CurrencyType);
-            }
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
         }
     }
 
-    private Transform GetContentParent(string header)
+    private Transform GetParent(string header)
     {
-        if (string.IsNullOrEmpty(header)) return null;
         foreach (var hc in headerConfigs)
             if (!string.IsNullOrEmpty(hc.headerName) && header.Contains(hc.headerName))
                 return hc.contentParent;
-        Debug.LogWarning($"[SkillManager] 헤더 매칭 실패: {header}");
         return null;
     }
 

@@ -11,6 +11,9 @@ public class DiamondManager : MonoBehaviour
     [Header("다이아 탭 팝업 Canvas")]
     public GameObject diamondPopupCanvas;
 
+    [Header("기본 컨텐츠 (헤더 미발견 시)")]
+    public Transform defaultContentParent;
+
     [System.Serializable]
     public class HeaderConfig { public string headerName; public Transform contentParent; }
     [Header("Header → Content Parent 매핑")]
@@ -59,6 +62,10 @@ public class DiamondManager : MonoBehaviour
 
     public void LoadData(List<DiamondItemData> items)
     {
+        Debug.Log("[DiamondManager] ▶ 서버에서 받은 Header 목록:");
+        foreach (var it in items)
+            Debug.Log($"    • '{it.Header}'");
+
         diamondItems = items;
         PopulateDiamondItems();
     }
@@ -67,27 +74,27 @@ public class DiamondManager : MonoBehaviour
     {
         foreach (var hc in headerConfigs)
             ClearContent(hc.contentParent);
+        ClearContent(defaultContentParent);
 
         if (diamondItems == null || diamondItems.Count == 0) return;
 
         foreach (var item in diamondItems)
         {
-            var parent = GetContentParent(item.Header);
+            var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            if (ctrl != null)
-                ctrl.Setup(item.ItemName, null, item.Price, item.CurrencyType);
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
         }
     }
 
     private Transform GetContentParent(string header)
     {
+        if (string.IsNullOrEmpty(header)) return null;
         foreach (var hc in headerConfigs)
             if (header.Contains(hc.headerName))
                 return hc.contentParent;
-        Debug.LogWarning($"[DiamondManager] 헤더 미발견: {header}");
         return null;
     }
 

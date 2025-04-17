@@ -11,6 +11,9 @@ public class MileageManager : MonoBehaviour
     [Header("마일리지 탭 팝업 Canvas")]
     public GameObject mileagePopupCanvas;
 
+    [Header("기본 컨텐츠 (헤더 미설정 시)")]
+    public Transform defaultContentParent;
+
     [System.Serializable]
     public class HeaderConfig { public string headerName; public Transform contentParent; }
     [Header("Header → Content Parent 매핑")]
@@ -59,35 +62,43 @@ public class MileageManager : MonoBehaviour
 
     public void LoadData(List<MileageItemData> items)
     {
+        Debug.Log("[MileageManager] ▶ 서버에서 받은 Header 목록:");
+        foreach (var it in items)
+            Debug.Log($"    • '{it.Header}'");
+
         mileageItems = items;
         PopulateMileageItems();
     }
 
     private void PopulateMileageItems()
     {
+        // 기존 콘텐츠 모두 클리어
         foreach (var hc in headerConfigs)
             ClearContent(hc.contentParent);
+        ClearContent(defaultContentParent);
 
         if (mileageItems == null || mileageItems.Count == 0) return;
 
+        // 아이템 배치
         foreach (var item in mileageItems)
         {
-            var parent = GetContentParent(item.Header);
+            // 헤더 매칭 → 없으면 default
+            var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            if (ctrl != null)
-                ctrl.Setup(item.ItemName, null, item.Price, item.CurrencyType);
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
         }
     }
 
     private Transform GetContentParent(string header)
     {
+        if (string.IsNullOrEmpty(header)) return null;
         foreach (var hc in headerConfigs)
             if (header.Contains(hc.headerName))
                 return hc.contentParent;
-        Debug.LogWarning($"[MileageManager] 헤더 미발견: {header}");
+        // 매칭 실패 시 null 반환 → defaultContentParent 로 배치
         return null;
     }
 

@@ -1,44 +1,54 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;                // ScrollRect, LayoutRebuilder
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
 public class WeaponManager : MonoBehaviour
 {
-    [Header("무기 팝업 Panel/Canvas")]
+    [Header("무기 패널 Canvas")]
     public GameObject weaponPopupCanvas;
 
+    [Header("ScrollView Content (Viewport→Content)")]
+    public RectTransform scrollContent;   // ← 추가
+
     [System.Serializable]
-    public class HeaderConfig
-    {
-        public string headerName;       // 서버 DTO의 item.Header와 매칭
-        public Transform contentParent; // 해당 헤더 아래에 Item 프리팹을 배치
-    }
-    [Header("헤더 + Content Parent 매핑")]
+    public class HeaderConfig { public string headerName; public Transform contentParent; }
+    [Header("헤더 + ContentParent 매핑")]
     public HeaderConfig[] headerConfigs;
 
-    [Header("단일 아이템 프리팹")]
-    public GameObject itemPrefab;      // SmallItemController 가 붙어 있는 프리팹
+    [Header("단일 아이템 Prefab")]
+    public GameObject itemPrefab;
 
-    // 서버 API URL (직접 코드에서 관리)
-    private const string fetchWeaponUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetWeaponGachaData?code=LbwpDyYAz2G1OE94wg-oUgI5VHYlmOY54oFUWFTUiJ7PAzFuafMI_g==";
+    private const string fetchWeaponUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetWeaponGachaData?code=LbwpDyYAz2G1OE94wg-oUgI5VHYlmOY54oFUWFTUiJ7PAzFuafMI_g==";
 
     private List<WeaponItemData> weaponItems;
 
-    /// <summary> 무기 패널 열기 + 서버 데이터 요청 </summary>
     public void OpenWeaponPanel()
     {
-        if (weaponPopupCanvas != null)
-            weaponPopupCanvas.SetActive(true);
-        StartCoroutine(FetchWeaponDataCoroutine());
+        weaponPopupCanvas?.SetActive(true);
+        scrollContent.gameObject.SetActive(false);
+        StartCoroutine(FetchThenShow());
     }
 
-    /// <summary> 무기 패널 닫기 </summary>
     public void CloseWeaponPanel()
     {
-        if (weaponPopupCanvas != null)
-            weaponPopupCanvas.SetActive(false);
+        weaponPopupCanvas?.SetActive(false);
+    }
+
+    private IEnumerator FetchThenShow()
+    {
+        yield return FetchWeaponDataCoroutine();
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
+
+        var sr = scrollContent.GetComponentInParent<ScrollRect>();
+        if (sr != null) sr.verticalNormalizedPosition = 1f;
+
+        scrollContent.gameObject.SetActive(true);
     }
 
     private IEnumerator FetchWeaponDataCoroutine()
@@ -48,19 +58,16 @@ public class WeaponManager : MonoBehaviour
         req.uploadHandler = new UploadHandlerRaw(body);
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
-
         yield return req.SendWebRequest();
+
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[WeaponManager] 데이터 조회 실패: {req.error}");
+            Debug.LogError($"[WeaponManager] Fetch 실패: {req.error}");
             yield break;
         }
 
         WeaponResponseData resp = null;
-        try
-        {
-            resp = JsonConvert.DeserializeObject<WeaponResponseData>(req.downloadHandler.text);
-        }
+        try { resp = JsonConvert.DeserializeObject<WeaponResponseData>(req.downloadHandler.text); }
         catch (System.Exception ex)
         {
             Debug.LogError($"[WeaponManager] JSON 파싱 오류: {ex.Message}");
@@ -69,56 +76,42 @@ public class WeaponManager : MonoBehaviour
 
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogError("[WeaponManager] 응답 이상");
+            Debug.LogWarning("[WeaponManager] 서버 응답 이상");
             yield break;
         }
 
         LoadData(resp.WeaponItemList);
     }
 
-    /// <summary> DTO 리스트를 저장하고 UI 갱신 </summary>
     public void LoadData(List<WeaponItemData> items)
     {
         weaponItems = items;
-        PopulateWeaponItems();
+        Populate();
     }
 
-    private void PopulateWeaponItems()
+    private void Populate()
     {
-        // 1) 기존 콘텐츠 비우기
         foreach (var hc in headerConfigs)
             ClearContent(hc.contentParent);
 
-        if (weaponItems == null || weaponItems.Count == 0)
-        {
-            Debug.LogWarning("[WeaponManager] 아이템 목록이 없습니다.");
-            return;
-        }
+        if (weaponItems == null || weaponItems.Count == 0) return;
 
-        // 2) 헤더 매칭 후 단일 프리팹 Instantiate + Setup 호출
         foreach (var item in weaponItems)
         {
-            Transform parent = GetContentParent(item.Header);
-            if (parent == null || itemPrefab == null) continue;
+            var parent = GetParent(item.Header);
+            if (parent == null) continue;
 
-            GameObject go = Instantiate(itemPrefab, parent);
+            var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            if (ctrl != null)
-            {
-                // TODO: item.ImageUrl이 있으면 여기에 로드해서 넘겨주세요.
-                Sprite sprite = null;
-                ctrl.Setup(item.ItemName, sprite, item.Price, item.CurrencyType);
-            }
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
         }
     }
 
-    private Transform GetContentParent(string header)
+    private Transform GetParent(string header)
     {
-        if (string.IsNullOrEmpty(header)) return null;
         foreach (var hc in headerConfigs)
             if (!string.IsNullOrEmpty(hc.headerName) && header.Contains(hc.headerName))
                 return hc.contentParent;
-        Debug.LogWarning($"[WeaponManager] 헤더 매칭 실패: {header}");
         return null;
     }
 
