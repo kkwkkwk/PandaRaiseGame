@@ -11,78 +11,78 @@ using PlayFab.ServerModels;
 
 namespace Shop
 {
-    public class GetSkillGachaData
+    public class GetDiamondShopData
     {
-        private readonly ILogger<GetSkillGachaData> _logger;
+        private readonly ILogger<GetDiamondShopData> _logger;
 
-        public GetSkillGachaData(ILogger<GetSkillGachaData> logger)
+        public GetDiamondShopData(ILogger<GetDiamondShopData> logger)
         {
             _logger = logger;
         }
 
-        [Function("GetSkillData")]
+        [Function("GetDiamondData")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]
             HttpRequest req)
         {
-            _logger.LogInformation("[GetSkillData] Function invoked");
+            _logger.LogInformation("[GetDiamondData] Function invoked");
 
-            // 1. PlayFab 설정 (환경 변수 사용)
+            // 1) PlayFab 설정 (환경 변수로 보관)
             PlayFabSettings.staticSettings.TitleId =
                 Environment.GetEnvironmentVariable("PLAYFAB_TITLE_ID");
             PlayFabSettings.staticSettings.DeveloperSecretKey =
                 Environment.GetEnvironmentVariable("PLAYFAB_SECRET_KEY");
 
-            // 2. TitleData (SkillGachaShop) 조회
+            // 2) TitleData 조회: DiamondShop
             var tdReq = new GetTitleDataRequest
             {
-                Keys = new List<string> { "SkillGachaShop" }
+                Keys = new List<string> { "DiamondShop" }
             };
-
             var tdResult = await PlayFabServerAPI.GetTitleDataAsync(tdReq);
+
             if (tdResult.Error != null)
             {
-                _logger.LogError("[GetSkillData] PlayFab error: {0}",
+                _logger.LogError("[GetDiamondData] PlayFab error: {0}",
                                  tdResult.Error.GenerateErrorReport());
-                return new OkObjectResult(new SkillGachaResponseData
+                return new OkObjectResult(new DiamondResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "PlayFab TitleData 조회 실패"
                 });
             }
 
-            if (!tdResult.Result.Data.TryGetValue("SkillGachaShop", out var json))
+            if (!tdResult.Result.Data.TryGetValue("DiamondShop", out var json))
             {
-                _logger.LogWarning("[GetSkillData] SkillGachaShop key not found");
-                return new OkObjectResult(new SkillGachaResponseData
+                _logger.LogWarning("[GetDiamondData] DiamondShop key not found");
+                return new OkObjectResult(new DiamondResponseData
                 {
                     IsSuccess = false,
-                    ErrorMessage = "상점 데이터가 없습니다"
+                    ErrorMessage = "상품 데이터가 없습니다"
                 });
             }
 
-            // 3. JSON → DTO 변환
-            List<SkillGachaItemData>? list;
+            // 3) JSON → DTO List 변환
+            List<DiamondItemData>? list;
             try
             {
-                list = JsonConvert.DeserializeObject<List<SkillGachaItemData>>(json);
+                list = JsonConvert.DeserializeObject<List<DiamondItemData>>(json);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[GetSkillData] JSON 파싱 오류");
-                return new OkObjectResult(new SkillGachaResponseData
+                _logger.LogError(ex, "[GetDiamondData] JSON 파싱 오류");
+                return new OkObjectResult(new DiamondResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "데이터 형식 오류"
                 });
             }
 
-            // 4. 응답 객체 구성 및 전송
-            var resp = new SkillGachaResponseData
+            // 4) 응답 구성
+            var resp = new DiamondResponseData
             {
                 IsSuccess = true,
                 ErrorMessage = null,
-                SkillItemList = list
+                DiamondItemList = list
             };
 
             return new OkObjectResult(resp);

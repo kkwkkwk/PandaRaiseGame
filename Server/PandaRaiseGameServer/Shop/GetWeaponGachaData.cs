@@ -44,7 +44,7 @@ namespace Shop
             {
                 _logger.LogError("[GetWeaponData] PlayFab error: {0}",
                                  tdResult.Error.GenerateErrorReport());
-                return new OkObjectResult(new WeaponResponseData
+                return new OkObjectResult(new WeaponGachaResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "PlayFab TitleData 조회 실패"
@@ -54,7 +54,7 @@ namespace Shop
             if (!tdResult.Result.Data.TryGetValue("WeaponGachaShop", out var json))
             {
                 _logger.LogWarning("[GetWeaponData] WeaponGachaShop key not found");
-                return new OkObjectResult(new WeaponResponseData
+                return new OkObjectResult(new WeaponGachaResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "상점 데이터가 없습니다"
@@ -62,15 +62,15 @@ namespace Shop
             }
 
             // 3. JSON 데이터를 DTO(List)로 변환
-            List<WeaponItemData>? list;
+            List<WeaponGachaItemData>? list;
             try
             {
-                list = JsonConvert.DeserializeObject<List<WeaponItemData>>(json);
+                list = JsonConvert.DeserializeObject<List<WeaponGachaItemData>>(json);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[GetWeaponData] JSON 파싱 오류");
-                return new OkObjectResult(new WeaponResponseData
+                return new OkObjectResult(new WeaponGachaResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "데이터 형식 오류"
@@ -78,7 +78,7 @@ namespace Shop
             }
 
             // 4. 응답 전송
-            var resp = new WeaponResponseData
+            var resp = new WeaponGachaResponseData
             {
                 IsSuccess = true,
                 ErrorMessage = null,

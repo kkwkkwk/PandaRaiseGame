@@ -50,7 +50,7 @@ namespace Shop
             {
                 _logger.LogError("[GetArmorData] PlayFab error: {0}",
                                  tdResult.Error.GenerateErrorReport());
-                return new OkObjectResult(new ArmorResponseData
+                return new OkObjectResult(new ArmorGachaResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "PlayFab TitleData 조회 실패"
@@ -60,7 +60,7 @@ namespace Shop
             if (!tdResult.Result.Data.TryGetValue("ArmorGachaShop", out var json))
             {
                 _logger.LogWarning("[GetArmorData] ArmorGachaShop key not found");
-                return new OkObjectResult(new ArmorResponseData
+                return new OkObjectResult(new ArmorGachaResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "상점 데이터가 없습니다"
@@ -70,15 +70,15 @@ namespace Shop
             // ─────────────────────────────────────────────────────────────
             // 3. JSON → DTO 변환
             // ─────────────────────────────────────────────────────────────
-            List<ArmorItemData>? list;
+            List<ArmorGachaItemData>? list;
             try
             {
-                list = JsonConvert.DeserializeObject<List<ArmorItemData>>(json);
+                list = JsonConvert.DeserializeObject<List<ArmorGachaItemData>>(json);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[GetArmorData] JSON 파싱 오류");
-                return new OkObjectResult(new ArmorResponseData
+                return new OkObjectResult(new ArmorGachaResponseData
                 {
                     IsSuccess = false,
                     ErrorMessage = "데이터 형식 오류"
@@ -88,7 +88,7 @@ namespace Shop
             // ─────────────────────────────────────────────────────────────
             // 4. 프론트 형식으로 응답
             // ─────────────────────────────────────────────────────────────
-            var resp = new ArmorResponseData
+            var resp = new ArmorGachaResponseData
             {
                 IsSuccess = true,
                 ErrorMessage = null,
