@@ -138,7 +138,7 @@ public class WeaponPopupManager : MonoBehaviour
             }
         }
     }
-    
+
     // -----------------------[Prefab 생성 & 데이터 적용 메서드 추가]-----------------------
     /// <summary>
     /// ScrollView Content를 비우고, weaponDataList에 있는 데이터만큼 무기 아이템 Prefab을 생성해 배치합니다.

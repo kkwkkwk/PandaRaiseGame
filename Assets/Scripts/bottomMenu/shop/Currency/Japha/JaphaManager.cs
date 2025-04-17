@@ -3,163 +3,98 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using TMPro;
 
 public class JaphaManager : MonoBehaviour
 {
-    [Header("잡화 탭 패널(Canvas)")]
+    public static JaphaManager Instance { get; private set; }
+
+    [Header("잡화 탭 팝업 Canvas")]
     public GameObject japhaPopupCanvas;
 
     [System.Serializable]
-    public class HeaderConfig
-    {
-        public string headerName;
-        public Transform contentParent;
-    }
-    [Header("headerName-ContentParent 매핑 배열")]
+    public class HeaderConfig { public string headerName; public Transform contentParent; }
+    [Header("Header → Content Parent 매핑")]
     public HeaderConfig[] headerConfigs;
 
-    [Header("아이템 프리팹(결제수단별)")]
-    public GameObject freeItemPrefab;
-    public GameObject diamondItemPrefab;
-    public GameObject goldItemPrefab;
-    public GameObject wonItemPrefab;
+    [Header("단일 아이템 Prefab")]
+    public GameObject itemPrefab;
 
     private string fetchJaphaUrl = "https://YOUR_SERVER/api/GetJaphaData";
-    private List<JaphaItemData> currentJaphaItems;
+    private List<JaphaItemData> japhaItems;
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
 
     public void OpenJaphaPanel()
     {
-        if (japhaPopupCanvas != null)
-            japhaPopupCanvas.SetActive(true);
-
+        japhaPopupCanvas?.SetActive(true);
         StartCoroutine(FetchJaphaDataFromServer());
-        Debug.Log("[JaphaManager] OpenJaphaPanel");
     }
 
     public void CloseJaphaPanel()
     {
-        if (japhaPopupCanvas != null)
-            japhaPopupCanvas.SetActive(false);
-
-        Debug.Log("[JaphaManager] CloseJaphaPanel");
+        japhaPopupCanvas?.SetActive(false);
     }
 
     private IEnumerator FetchJaphaDataFromServer()
     {
-        Debug.Log("[JaphaManager] FetchJaphaDataFromServer 시작");
-
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes("{}");
-        using (UnityWebRequest request = new UnityWebRequest(fetchJaphaUrl, "POST"))
+        var body = System.Text.Encoding.UTF8.GetBytes("{}");
+        using var req = new UnityWebRequest(fetchJaphaUrl, "POST")
         {
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.SendWebRequest();
+            uploadHandler = new UploadHandlerRaw(body),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        req.SetRequestHeader("Content-Type", "application/json");
+        yield return req.SendWebRequest();
+        if (req.result != UnityWebRequest.Result.Success) yield break;
 
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError("[JaphaManager] 조회 실패: " + request.error);
-                yield break;
-            }
+        var resp = JsonConvert.DeserializeObject<JaphaResponseData>(req.downloadHandler.text);
+        if (resp == null || !resp.IsSuccess) yield break;
 
-            string respJson = request.downloadHandler.text;
-            Debug.Log("[JaphaManager] 서버 응답: " + respJson);
-
-            JaphaResponseData resp = null;
-            try
-            {
-                resp = JsonConvert.DeserializeObject<JaphaResponseData>(respJson);
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError("[JaphaManager] JSON 파싱 오류: " + ex.Message);
-                yield break;
-            }
-
-            if (resp == null || !resp.IsSuccess)
-            {
-                Debug.LogError("[JaphaManager] 응답 이상");
-                yield break;
-            }
-
-            LoadData(resp.JaphaItemList);
-        }
-        Debug.Log("[JaphaManager] FetchJaphaDataFromServer 종료");
+        LoadData(resp.JaphaItemList);
     }
 
     public void LoadData(List<JaphaItemData> items)
     {
-        currentJaphaItems = items;
-        Debug.Log($"[JaphaManager] LoadData: count={currentJaphaItems?.Count ?? 0}");
+        japhaItems = items;
         PopulateJaphaItems();
     }
 
     private void PopulateJaphaItems()
     {
-        // 1) 헤더별 Clear
         foreach (var hc in headerConfigs)
+            ClearContent(hc.contentParent);
+
+        if (japhaItems == null || japhaItems.Count == 0) return;
+
+        foreach (var item in japhaItems)
         {
-            if (hc.contentParent != null)
-                ClearContent(hc.contentParent);
-        }
+            var parent = GetContentParent(item.Header);
+            if (parent == null || itemPrefab == null) continue;
 
-        if (currentJaphaItems == null || currentJaphaItems.Count == 0)
-        {
-            Debug.LogWarning("[JaphaManager] 잡화 아이템 없음");
-            return;
-        }
-
-        // 2) header → contentParent, currencyType → prefab
-        foreach (var item in currentJaphaItems)
-        {
-            var parent = GetContentByHeader(item.Header);
-            if (parent == null) continue;
-
-            var prefab = GetPrefabByCurrency(item.CurrencyType);
-            if (prefab == null) continue;
-
-            var cardObj = Instantiate(prefab, parent);
-            var nameText = cardObj.transform.Find("ItemNameText")?.GetComponent<TextMeshProUGUI>();
-            var priceText = cardObj.transform.Find("PriceText")?.GetComponent<TextMeshProUGUI>();
-
-            if (nameText != null) nameText.text = item.ItemName;
-            if (priceText != null) priceText.text = $"{item.Price} ({item.CurrencyType})";
+            var go = Instantiate(itemPrefab, parent);
+            var ctrl = go.GetComponent<SmallItemController>();
+            if (ctrl != null)
+                ctrl.Setup(item.ItemName, null, item.Price, item.CurrencyType);
         }
     }
 
-    private Transform GetContentByHeader(string header)
+    private Transform GetContentParent(string header)
     {
-        if (string.IsNullOrEmpty(header)) return null;
         foreach (var hc in headerConfigs)
-        {
-            if (!string.IsNullOrEmpty(hc.headerName) && header.Contains(hc.headerName))
+            if (header.Contains(hc.headerName))
                 return hc.contentParent;
-        }
-        Debug.LogWarning("[JaphaManager] 헤더 못찾음: " + header);
+        Debug.LogWarning($"[JaphaManager] 헤더 미발견: {header}");
         return null;
-    }
-
-    private GameObject GetPrefabByCurrency(string currency)
-    {
-        switch (currency)
-        {
-            case "FREE": return freeItemPrefab;
-            case "DIAMOND": return diamondItemPrefab;
-            case "GC": return goldItemPrefab;
-            case "WON": return wonItemPrefab;
-            default:
-                Debug.LogWarning("[JaphaManager] 알수없는통화: " + currency);
-                return null;
-        }
     }
 
     private void ClearContent(Transform parent)
     {
         if (parent == null) return;
         for (int i = parent.childCount - 1; i >= 0; i--)
-        {
             Destroy(parent.GetChild(i).gameObject);
-        }
     }
 }

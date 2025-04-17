@@ -6,102 +6,119 @@ using Newtonsoft.Json;
 
 public class VipManager : MonoBehaviour
 {
-    [Header("VIP 팝업 Panel")]
-    public GameObject vipPopupCanvas;  // VIP 메뉴 전체 패널 (Canvas)
+    [Header("VIP 패널 (옵션)")]
+    public GameObject vipPanel;          // VIP 메뉴 전체 패널
 
-    // 서버 API URL – 실제 주소로 교체 필요
-    private string fetchVipUrl = "https://YOUR_SERVER/api/GetVipData?code=YOUR_CODE_HERE";
+    [Header("아이템 배치용 Content Parent")]
+    public Transform contentParent;      // ScrollView Content 등
 
-    // 현재 로드된 VIP 아이템 목록
+    [Header("단일 아이템 Prefab")]
+    public GameObject itemPrefab;        // SmallItemController가 붙어 있어야 함
+
+    // 서버 API URL (코드에서 직접 관리)
+    private const string fetchVipUrl = "https://YOUR_SERVER/api/GetVipData?code=YOUR_CODE_HERE";
+
     private List<VipItemData> vipItems;
 
     /// <summary>
-    /// VIP 메뉴(패널)을 열고 서버에서 VIP 상품 정보를 요청한다.
+    /// VIP 패널 열기 + 서버 데이터 요청
     /// </summary>
     public void OpenVipPanel()
     {
-        if (vipPopupCanvas != null)
-            vipPopupCanvas.SetActive(true);
+        if (vipPanel != null)
+            vipPanel.SetActive(true);
 
-        // 서버 데이터 요청 (또는 상위 매니저에서 VipItemData 리스트를 직접 LoadData()해도 됨)
-        StartCoroutine(FetchVipDataFromServer());
-
-        Debug.Log("[VipManager] OpenVipPanel 호출");
+        // 기존 UI 초기화
+        ClearContent();
+        // 데이터 요청
+        StartCoroutine(FetchVipDataCoroutine());
     }
 
     /// <summary>
-    /// VIP 메뉴(패널)을 닫는다.
+    /// VIP 패널 닫기
     /// </summary>
     public void CloseVipPanel()
     {
-        if (vipPopupCanvas != null)
-            vipPopupCanvas.SetActive(false);
-
-        Debug.Log("[VipManager] CloseVipPanel 호출");
+        if (vipPanel != null)
+            vipPanel.SetActive(false);
     }
 
     /// <summary>
-    /// 서버에서 VIP 아이템 데이터를 가져오는 코루틴.
-    /// (Title, Price, currencyType만 받아서 UI의 세부 이미지/설명 등은 앱 내부에서 처리)
+    /// 서버에서 VIP 아이템 데이터를 가져오는 코루틴
     /// </summary>
-    private IEnumerator FetchVipDataFromServer()
+    private IEnumerator FetchVipDataCoroutine()
     {
-        Debug.Log("[VipManager] FetchVipDataFromServer 시작");
-
-        string requestBody = "{}";
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(requestBody);
-
-        using (UnityWebRequest request = new UnityWebRequest(fetchVipUrl, "POST"))
+        byte[] body = System.Text.Encoding.UTF8.GetBytes("{}");
+        using var req = new UnityWebRequest(fetchVipUrl, "POST")
         {
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
+            uploadHandler = new UploadHandlerRaw(body),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        req.SetRequestHeader("Content-Type", "application/json");
+        yield return req.SendWebRequest();
 
-            yield return request.SendWebRequest();
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[VipManager] 데이터 조회 실패: {req.error}");
+            yield break;
+        }
 
-            if (request.result != UnityWebRequest.Result.Success)
+        VipResponseData resp = null;
+        try
+        {
+            resp = JsonConvert.DeserializeObject<VipResponseData>(req.downloadHandler.text);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[VipManager] JSON 파싱 오류: {ex.Message}");
+            yield break;
+        }
+
+        if (resp == null || !resp.IsSuccess)
+        {
+            Debug.LogWarning("[VipManager] 유효하지 않은 응답");
+            yield break;
+        }
+
+        // 데이터 저장 및 UI 구성
+        vipItems = resp.VipItemList;
+        PopulateVipItems();
+    }
+
+    /// <summary>
+    /// 받아온 데이터를 기반으로 아이템 Prefab을 Instantiate하여 UI 배치
+    /// </summary>
+    private void PopulateVipItems()
+    {
+        if (vipItems == null || vipItems.Count == 0)
+            return;
+
+        foreach (var item in vipItems)
+        {
+            if (itemPrefab == null || contentParent == null)
+                break;
+
+            var go = Instantiate(itemPrefab, contentParent);
+            var ctrl = go.GetComponent<SmallItemController>();
+            if (ctrl != null)
             {
-                Debug.LogError("[VipManager] VIP 데이터 조회 실패: " + request.error);
-                yield break;
+                // Title, null(sprite), Price, currencyType 전달
+                ctrl.Setup(item.Title, null, item.Price, item.CurrencyType);
             }
-
-            string respJson = request.downloadHandler.text;
-            Debug.Log("[VipManager] 서버 응답: " + respJson);
-
-            VipResponseData resp = null;
-            try
-            {
-                resp = JsonConvert.DeserializeObject<VipResponseData>(respJson);
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError("[VipManager] JSON 파싱 오류: " + ex.Message);
-                yield break;
-            }
-
-            if (resp == null || !resp.IsSuccess)
-            {
-                Debug.LogError("[VipManager] 응답이 이상함");
-                yield break;
-            }
-
-            // 서버에서 받은 VIP 아이템 리스트 저장
-            LoadData(resp.VipItemList);
-
-            Debug.Log("[VipManager] FetchVipDataFromServer 종료");
         }
     }
 
     /// <summary>
-    /// 서버나 외부에서 받은 VIP 아이템 리스트를 내부에 보관.
-    /// 앱 내부에서는 title, price, currencyType을 활용해 UI를 구성.
+    /// Content Parent의 자식 모두 제거
     /// </summary>
-    public void LoadData(List<VipItemData> items)
+    private void ClearContent()
     {
-        vipItems = items;
-        Debug.Log($"[VipManager] LoadData() 호출됨, 개수={vipItems?.Count ?? 0}");
+        if (contentParent == null)
+            return;
 
-        // 여기서 UI 배치를 자동으로 하지 않는다 가정(사용자 요청에 따라).
-        // 필요하면 PopulateVipItems() 같은 메서드에서 제목, 가격 표시만 처리할 수 있음.
+        for (int i = contentParent.childCount - 1; i >= 0; i--)
+        {
+            Destroy(contentParent.GetChild(i).gameObject);
+        }
     }
 }
