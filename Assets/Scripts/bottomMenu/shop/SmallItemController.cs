@@ -1,3 +1,4 @@
+// SmallItemController.cs
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -5,11 +6,12 @@ using TMPro;
 public class SmallItemController : MonoBehaviour
 {
     [Header("UI References")]
-    public TextMeshProUGUI itemNameText;          // 아이템명
-    public Image itemImage;                       // 아이템 이미지
-    public Image currencyIconImage;               // 결제 수단 아이콘
-    public TextMeshProUGUI priceText;             // 일반 결제용 텍스트
-    public TextMeshProUGUI wonPriceText;          // 현금 결제용 텍스트 (₩)
+    public TextMeshProUGUI itemNameText;    // 아이템명
+    public Image itemImage;       // 아이템 이미지
+    public Image currencyIconImage; // 결제 수단 아이콘
+    public TextMeshProUGUI priceText;        // 일반 결제용 텍스트
+    public TextMeshProUGUI wonPriceText;     // ₩ 결제용 텍스트
+    public Button purchaseButton;   // 구매 버튼
 
     [Header("Sprites (Currency Icons)")]
     public Sprite diamondIcon;
@@ -18,77 +20,114 @@ public class SmallItemController : MonoBehaviour
     public Sprite freeIcon;
 
     /// <summary>
-    /// 프리팹 데이터 세팅
+    /// UI 세팅만 수행 (버튼 리스너 제거)
     /// </summary>
-    /// <param name="name">아이템명</param>
-    /// <param name="sprite">아이템 이미지</param>
-    /// <param name="price">가격</param>
-    /// <param name="currencyType">결제수단 ("DIAMOND","GC","MILEAGE","FREE","WON")</param>
     public void Setup(string name, Sprite sprite, int price, string currencyType)
     {
-        // 1) 아이템명
+        SetupInternal(name, sprite, price, currencyType);
+        if (purchaseButton != null)
+            purchaseButton.onClick.RemoveAllListeners();
+    }
+
+    /// <summary>
+    /// 구매 기능까지 포함한 세팅.
+    /// itemId: 서버 식별용 ID (여기선 itemName 사용)
+    /// itemType: "Weapon","Armor","Skill","Diamond","Free","Japha","Mileage"
+    /// </summary>
+    public void Setup(string name, Sprite sprite, int price, string currencyType, string itemId, string itemType)
+    {
+        SetupInternal(name, sprite, price, currencyType);
+
+        if (purchaseButton != null)
+        {
+            purchaseButton.onClick.RemoveAllListeners();
+            purchaseButton.onClick.AddListener(() =>
+            {
+                switch (itemType)
+                {
+                    case "Weapon":
+                        WeaponManager.Instance?.PurchaseWeapon(itemId, currencyType);
+                        break;
+                    case "Armor":
+                        ArmorManager.Instance?.PurchaseArmor(itemId, currencyType);
+                        break;
+                    case "Skill":
+                        SkillManager.Instance?.PurchaseSkill(itemId, currencyType);
+                        break;
+                    case "Diamond":
+                        DiamondManager.Instance?.PurchaseDiamond(itemId, currencyType);
+                        break;
+                    case "Free":
+                        FreeManager.Instance?.PurchaseFree(itemId, currencyType);
+                        break;
+                    case "Japha":
+                        JaphaManager.Instance?.PurchaseJapha(itemId, currencyType);
+                        break;
+                    case "Mileage":
+                        MileageManager.Instance?.PurchaseMileage(itemId, currencyType);
+                        break;
+                    default:
+                        Debug.LogWarning($"[SmallItemController] 알 수 없는 itemType: {itemType}");
+                        break;
+                }
+            });
+        }
+    }
+
+    /// <summary>
+    /// UI 텍스트 및 아이콘 설정 공통 로직
+    /// </summary>
+    private void SetupInternal(string name, Sprite sprite, int price, string currencyType)
+    {
+        // 1) 아이템명 표시
         if (itemNameText != null)
             itemNameText.text = name;
 
-        // 2) 아이템 이미지
+        // 2) 이미지 설정
         if (itemImage != null)
-        {
             itemImage.sprite = sprite;
-            Debug.Log($"[SmallItemController] ItemImage.sprite set to {(sprite != null ? sprite.name : "null")}");
-        }
 
         // 3) 가격 텍스트 처리
-        if (priceText != null && wonPriceText != null)
+        if (currencyType == "WON")
         {
-            if (currencyType == "WON")
+            if (priceText != null) priceText.gameObject.SetActive(false);
+            if (wonPriceText != null)
             {
-                priceText.gameObject.SetActive(false);
                 wonPriceText.gameObject.SetActive(true);
                 wonPriceText.text = "￦ " + price;
             }
-            else
+        }
+        else
+        {
+            if (wonPriceText != null) wonPriceText.gameObject.SetActive(false);
+            if (priceText != null)
             {
-                wonPriceText.gameObject.SetActive(false);
                 priceText.gameObject.SetActive(true);
-
-                if (currencyType == "FREE")
-                    priceText.text = "광고보기";
-                else
-                    priceText.text = price.ToString();
+                priceText.text = (currencyType == "FREE") ? "광고보기" : price.ToString();
             }
         }
 
-        // 4) 결제수단 아이콘 설정
+        // 4) 결제 수단 아이콘 설정
         if (currencyIconImage != null)
         {
             if (currencyType == "WON")
             {
                 currencyIconImage.enabled = false;
-                Debug.Log("[SmallItemController] WON 결제 방식이므로 아이콘 비활성화");
             }
             else
             {
-                Sprite icon = null;
-                switch (currencyType)
+                Sprite icon = currencyType switch
                 {
-                    case "DIAMOND": icon = diamondIcon; break;
-                    case "GC": icon = goldIcon; break;
-                    case "MILEAGE": icon = mileageIcon; break;
-                    case "FREE": icon = freeIcon; break;
-                }
+                    "DIAMOND" => diamondIcon,
+                    "GC" => goldIcon,
+                    "MILEAGE" => mileageIcon,
+                    "FREE" => freeIcon,
+                    _ => null
+                };
 
+                currencyIconImage.enabled = (icon != null);
                 if (icon != null)
-                {
-                    currencyIconImage.enabled = true;
                     currencyIconImage.sprite = icon;
-
-                    Debug.Log($"[SmallItemController] CurrencyIcon set: {currencyType} → {icon.name}");
-                }
-                else
-                {
-                    currencyIconImage.enabled = false;
-                    Debug.LogWarning($"[SmallItemController] No icon found for currencyType '{currencyType}'");
-                }
             }
         }
     }

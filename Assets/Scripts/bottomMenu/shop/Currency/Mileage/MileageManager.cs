@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;                // ScrollRect, LayoutRebuilder
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -11,7 +12,7 @@ public class MileageManager : MonoBehaviour
     [Header("마일리지 탭 팝업 Canvas")]
     public GameObject mileagePopupCanvas;
 
-    [Header("기본 컨텐츠 (헤더 미설정 시)")]
+    [Header("기본 컨텐츠 (헤더 미발견 시)")]
     public Transform defaultContentParent;
 
     [System.Serializable]
@@ -22,7 +23,11 @@ public class MileageManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private string fetchMileageUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetMileageShopData?code=7FEp57GIrRLmJG0-E3k5IuuksDTzUgpcSkJiNRzVM3H2AzFuWLTgiw==";
+    private const string fetchMileageUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetMileageShopData?code=7FEp57GIrRLmJG0-E3k5IuuksDTzUgpcSkJiNRzVM3H2AzFuWLTgiw==";
+    private const string purchaseMileageUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyMileageShopItem";
+
     private List<MileageItemData> mileageItems;
 
     private void Awake()
@@ -52,43 +57,43 @@ public class MileageManager : MonoBehaviour
         };
         req.SetRequestHeader("Content-Type", "application/json");
         yield return req.SendWebRequest();
-        if (req.result != UnityWebRequest.Result.Success) yield break;
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[MileageManager] Fetch 실패: {req.error}");
+            yield break;
+        }
 
         var resp = JsonConvert.DeserializeObject<MileageResponseData>(req.downloadHandler.text);
-        if (resp == null || !resp.IsSuccess) yield break;
+        if (resp == null || !resp.IsSuccess)
+        {
+            Debug.LogWarning("[MileageManager] 서버 응답 이상");
+            yield break;
+        }
 
         LoadData(resp.MileageItemList);
     }
 
     public void LoadData(List<MileageItemData> items)
     {
-        Debug.Log("[MileageManager] ▶ 서버에서 받은 Header 목록:");
-        foreach (var it in items)
-            Debug.Log($"    • '{it.Header}'");
-
         mileageItems = items;
         PopulateMileageItems();
     }
 
     private void PopulateMileageItems()
     {
-        // 기존 콘텐츠 모두 클리어
-        foreach (var hc in headerConfigs)
-            ClearContent(hc.contentParent);
+        foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         ClearContent(defaultContentParent);
 
         if (mileageItems == null || mileageItems.Count == 0) return;
 
-        // 아이템 배치
         foreach (var item in mileageItems)
         {
-            // 헤더 매칭 → 없으면 default
             var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Mileage");
         }
     }
 
@@ -98,7 +103,6 @@ public class MileageManager : MonoBehaviour
         foreach (var hc in headerConfigs)
             if (header.Contains(hc.headerName))
                 return hc.contentParent;
-        // 매칭 실패 시 null 반환 → defaultContentParent 로 배치
         return null;
     }
 
@@ -107,5 +111,40 @@ public class MileageManager : MonoBehaviour
         if (parent == null) return;
         for (int i = parent.childCount - 1; i >= 0; i--)
             Destroy(parent.GetChild(i).gameObject);
+    }
+
+    public void PurchaseMileage(string itemName, string currencyType)
+    {
+        var requestData = new BuyCurrencyRequestData
+        {
+            PlayFabId = PlayerPrefs.GetString("PlayFabId"),
+            ItemName = itemName,
+            CurrencyType = currencyType,
+            ItemType = "Currency"
+        };
+        StartCoroutine(SendBuyCurrencyRequest(requestData));
+    }
+
+    private IEnumerator SendBuyCurrencyRequest(BuyCurrencyRequestData data)
+    {
+        string json = JsonConvert.SerializeObject(data);
+        var req = new UnityWebRequest(purchaseMileageUrl, "POST");
+        req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        yield return req.SendWebRequest();
+        if (req.result == UnityWebRequest.Result.Success)
+        {
+            var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
+            if (resp != null && resp.IsSuccess)
+                Debug.Log("[MileageManager] 재화 구매 성공");
+            else
+                Debug.LogWarning("[MileageManager] 서버 처리 실패 (isSuccess == false)");
+        }
+        else
+        {
+            Debug.LogError($"[MileageManager] 요청 실패: {req.error}");
+        }
     }
 }

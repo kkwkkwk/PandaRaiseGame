@@ -23,16 +23,22 @@ public class ShopPackageCardUI : MonoBehaviour
     [Header("구매 버튼")]
     public Button buyButton;
 
+    // 서버 식별용 패키지 ID
+    private string packageId;
+
     /// <summary>
     /// 패키지 정보를 UI에 적용합니다.
     /// </summary>
     /// <param name="iconSprite">상품 아이콘 스프라이트</param>
+    /// <param name="packageId">서버 식별용 패키지 ID</param>
     /// <param name="packageTitle">패키지 제목</param>
     /// <param name="packageDescLines">각 줄 설명 문자열 배열</param>
     /// <param name="price">가격</param>
     /// <param name="currencyType">결제 수단 기호 (예: "₩", "$" 등)</param>
-    public void Setup(Sprite iconSprite, string packageTitle, string[] packageDescLines, int price, string currencyType)
+    public void Setup(Sprite iconSprite, string packageId, string packageTitle, string[] packageDescLines, int price, string currencyType)
     {
+        this.packageId = packageId;
+
         // 1) 아이콘
         if (packageIconImage != null)
         {
@@ -41,10 +47,7 @@ public class ShopPackageCardUI : MonoBehaviour
                 packageIconImage.sprite = iconSprite;
                 packageIconImage.gameObject.SetActive(true);
             }
-            else
-            {
-                packageIconImage.gameObject.SetActive(false);
-            }
+            else packageIconImage.gameObject.SetActive(false);
         }
 
         // 2) 제목
@@ -56,26 +59,20 @@ public class ShopPackageCardUI : MonoBehaviour
         {
             var descField = descriptionTexts[i];
             if (descField == null) continue;
-
             if (i < packageDescLines.Length)
             {
                 descField.text = packageDescLines[i];
                 descField.gameObject.SetActive(true);
             }
-            else
-            {
-                // 남는 필드는 비활성화
-                descField.gameObject.SetActive(false);
-            }
+            else descField.gameObject.SetActive(false);
         }
 
-        // 4) 가격 표시: '₩'인 경우 앞에 '\'를 붙임
+        // 4) 가격 표시
         if (priceText != null)
         {
             if (currencyType == "₩")
                 priceText.text = "\\" + price;
-            else
-                priceText.text = $"{currencyType}{price}";
+            else priceText.text = $"{currencyType}{price}";
         }
 
         // 5) 버튼 이벤트 연결
@@ -88,7 +85,8 @@ public class ShopPackageCardUI : MonoBehaviour
 
     private void OnBuyButtonClicked()
     {
-        Debug.Log($"[ShopPackageCardUI] 구매 요청: {packageTitleText.text}");
-        // TODO: 실제 구매 로직 호출
+        Debug.Log($"[ShopPackageCardUI] 구매 요청: ID={packageId}, 제목={packageTitleText.text}");
+        // SpecialManager의 PurchaseSpecial 메소드 호출
+        SpecialManager.Instance?.PurchaseSpecial(packageId);
     }
 }

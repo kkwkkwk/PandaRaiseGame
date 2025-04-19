@@ -13,7 +13,7 @@ public class ArmorManager : MonoBehaviour
     public GameObject armorPopupCanvas;
 
     [Header("ScrollView Content (Viewport→Content)")]
-    public RectTransform scrollContent;   // ← 추가
+    public RectTransform scrollContent;
 
     [System.Serializable]
     public class HeaderConfig { public string headerName; public Transform contentParent; }
@@ -25,6 +25,8 @@ public class ArmorManager : MonoBehaviour
 
     private const string fetchArmorUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetArmorGachaData?code=oRjQ3RDt8YXXaItejzasxC8IpWXG9VY5nxWfjTqy3xB6AzFugcy0Ww==";
+    private const string purchaseArmorUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyArmorGachaItem";
 
     private List<ArmorItemData> armorItems;
 
@@ -34,9 +36,6 @@ public class ArmorManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    /// <summary>
-    /// 방어구 탭 열기: 패널 켜고, 스크롤 콘텐츠 숨긴 뒤 데이터 로드
-    /// </summary>
     public void OpenArmorPanel()
     {
         armorPopupCanvas?.SetActive(true);
@@ -51,18 +50,11 @@ public class ArmorManager : MonoBehaviour
 
     private IEnumerator FetchThenShow()
     {
-        // 데이터 Fetch → LoadData → Populate
         yield return FetchArmorDataCoroutine();
-
-        // 레이아웃 강제 재빌드
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
-
-        // 스크롤 맨 위로 초기화
         var sr = scrollContent.GetComponentInParent<ScrollRect>();
         if (sr != null) sr.verticalNormalizedPosition = 1f;
-
-        // 콘텐츠 보이기
         scrollContent.gameObject.SetActive(true);
     }
 
@@ -106,13 +98,11 @@ public class ArmorManager : MonoBehaviour
 
     private void Populate()
     {
-        // 기존 콘텐츠 비우기
         foreach (var hc in headerConfigs)
             ClearContent(hc.contentParent);
 
         if (armorItems == null || armorItems.Count == 0) return;
 
-        // 프리팹 생성
         foreach (var item in armorItems)
         {
             var parent = GetParent(item.Header);
@@ -120,7 +110,7 @@ public class ArmorManager : MonoBehaviour
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Armor");
         }
     }
 
@@ -137,5 +127,40 @@ public class ArmorManager : MonoBehaviour
         if (parent == null) return;
         for (int i = parent.childCount - 1; i >= 0; i--)
             Destroy(parent.GetChild(i).gameObject);
+    }
+
+    public void PurchaseArmor(string itemName, string currencyType)
+    {
+        var requestData = new BuyGachaRequestData
+        {
+            PlayFabId = PlayerPrefs.GetString("PlayFabId"),
+            ItemName = itemName,
+            CurrencyType = currencyType,
+            ItemType = "Armor"
+        };
+        StartCoroutine(SendBuyRequest(requestData));
+    }
+
+    private IEnumerator SendBuyRequest(BuyGachaRequestData data)
+    {
+        string json = JsonConvert.SerializeObject(data);
+        var req = new UnityWebRequest(purchaseArmorUrl, "POST");
+        req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        yield return req.SendWebRequest();
+        if (req.result == UnityWebRequest.Result.Success)
+        {
+            var resp = JsonConvert.DeserializeObject<BuyGachaResponseData>(req.downloadHandler.text);
+            if (resp != null && resp.IsSuccess)
+                Debug.Log($"[ArmorManager] 구매 성공! 뽑힌 아이템 수: {resp.OwnedItemList.Count}");
+            else
+                Debug.LogWarning("[ArmorManager] 서버 처리 실패 (isSuccess == false)");
+        }
+        else
+        {
+            Debug.LogError($"[ArmorManager] 요청 실패: {req.error}");
+        }
     }
 }

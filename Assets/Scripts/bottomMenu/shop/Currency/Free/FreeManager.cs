@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;                // ScrollRect, LayoutRebuilder
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -22,7 +23,11 @@ public class FreeManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private string fetchFreeUrl = "https://pandaraisegame-shop.azurewebsites.net/api/GetFreeShopData?code=RSjJW7s3xyKlU3iJzYog0Fd50ylVsuIp-PdqRpG807e4AzFu0MBECg==";
+    private const string fetchFreeUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetFreeShopData?code=RSjJW7s3xyKlU3iJzYog0Fd50ylVsuIp-PdqRpG807e4AzFu0MBECg==";
+    private const string purchaseFreeUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyFreeShopItem";
+
     private List<FreeItemData> freeItems;
 
     private void Awake()
@@ -52,34 +57,35 @@ public class FreeManager : MonoBehaviour
         };
         req.SetRequestHeader("Content-Type", "application/json");
         yield return req.SendWebRequest();
-        if (req.result != UnityWebRequest.Result.Success) yield break;
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[FreeManager] Fetch 실패: {req.error}");
+            yield break;
+        }
 
         var resp = JsonConvert.DeserializeObject<FreeResponseData>(req.downloadHandler.text);
-        if (resp == null || !resp.IsSuccess) yield break;
+        if (resp == null || !resp.IsSuccess)
+        {
+            Debug.LogWarning("[FreeManager] 서버 응답 이상");
+            yield break;
+        }
 
         LoadData(resp.FreeItemList);
     }
 
     public void LoadData(List<FreeItemData> items)
     {
-        Debug.Log("[FreeManager] ▶ 서버에서 받은 Header 목록:");
-        foreach (var it in items)
-            Debug.Log($"    • '{it.Header}'");
-
         freeItems = items;
         PopulateFreeItems();
     }
 
     private void PopulateFreeItems()
     {
-        // 1) 기존 모든 헤더 영역과 default 영역 비우기
-        foreach (var hc in headerConfigs)
-            ClearContent(hc.contentParent);
+        foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         ClearContent(defaultContentParent);
 
         if (freeItems == null || freeItems.Count == 0) return;
 
-        // 2) Instantiate + Setup (헤더 미발견 시 default)
         foreach (var item in freeItems)
         {
             var parent = GetContentParent(item.Header) ?? defaultContentParent;
@@ -87,7 +93,7 @@ public class FreeManager : MonoBehaviour
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType);
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Free");
         }
     }
 
@@ -97,7 +103,7 @@ public class FreeManager : MonoBehaviour
         foreach (var hc in headerConfigs)
             if (header.Contains(hc.headerName))
                 return hc.contentParent;
-        return null; // default 처리는 호출부에서
+        return null;
     }
 
     private void ClearContent(Transform parent)
@@ -105,5 +111,40 @@ public class FreeManager : MonoBehaviour
         if (parent == null) return;
         for (int i = parent.childCount - 1; i >= 0; i--)
             Destroy(parent.GetChild(i).gameObject);
+    }
+
+    public void PurchaseFree(string itemName, string currencyType)
+    {
+        var requestData = new BuyCurrencyRequestData
+        {
+            PlayFabId = PlayerPrefs.GetString("PlayFabId"),
+            ItemName = itemName,
+            CurrencyType = currencyType,
+            ItemType = "Currency"
+        };
+        StartCoroutine(SendBuyCurrencyRequest(requestData));
+    }
+
+    private IEnumerator SendBuyCurrencyRequest(BuyCurrencyRequestData data)
+    {
+        string json = JsonConvert.SerializeObject(data);
+        var req = new UnityWebRequest(purchaseFreeUrl, "POST");
+        req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        yield return req.SendWebRequest();
+        if (req.result == UnityWebRequest.Result.Success)
+        {
+            var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
+            if (resp != null && resp.IsSuccess)
+                Debug.Log("[FreeManager] 무료 아이템 처리 성공");
+            else
+                Debug.LogWarning("[FreeManager] 서버 처리 실패 (isSuccess == false)");
+        }
+        else
+        {
+            Debug.LogError($"[FreeManager] 요청 실패: {req.error}");
+        }
     }
 }
