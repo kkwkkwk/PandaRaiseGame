@@ -14,12 +14,6 @@ public class PlayFabIdRequestData
     public string playFabId;
 }
 
-public static class GlobalData
-{
-    public static string playFabId;
-    public static EntityTokenResponse entityToken;
-}
-
 public class LoginPlayFabUser : MonoBehaviour
 {
     public static LoginPlayFabUser Instance;

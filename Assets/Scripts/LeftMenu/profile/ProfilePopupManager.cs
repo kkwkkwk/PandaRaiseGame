@@ -143,6 +143,10 @@ public class ProfilePopupManager : MonoBehaviour
             }
             else
             {
+                // 받은 프로필 전체를 글로벌 데이터에 저장
+                GlobalData.ProfileData = profileData;
+                Debug.Log($"[ProfilePopupManager] GlobalData.ProfileData 설정 완료: displayName={profileData.displayName}");
+
                 // 8) UI에 반영
                 Debug.Log("[ProfilePopupManager] UI에 프로필 데이터 적용 시작...");
                 Debug.Log($"[ProfilePopupManager] Parsed - displayName: {profileData.displayName}, createdKst: {profileData.createdKst}, lastLogin: {profileData.lastLogin}, loginCount: {profileData.loginCount}");

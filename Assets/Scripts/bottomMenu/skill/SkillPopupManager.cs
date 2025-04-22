@@ -128,6 +128,8 @@ public class SkillPopupManager : MonoBehaviour
             }
             else
             {
+                GlobalData.SkillDataList = skillList;
+                Debug.Log($"[SkillPopupManager] GlobalData.SkillDataList에 {skillList.Count}개 저장");
                 // UI 갱신
                 PopulateSkillItems(skillList);
             }

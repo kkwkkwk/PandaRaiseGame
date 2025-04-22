@@ -133,6 +133,22 @@ public class QuestPopupManager : MonoBehaviour
             }
             else
             {
+                List<QuestData> parsedList;
+                try
+                {
+                    parsedList = JsonConvert
+                        .DeserializeObject<List<QuestData>>(response.QuestData)
+                        ?? new List<QuestData>();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("[QuestPopupManager] QuestData JSON 파싱 실패: " + ex);
+                    yield break;
+                }
+
+                // 전역 데이터에 저장
+                GlobalData.QuestDataList = parsedList;
+                Debug.Log($"[QuestPopupManager] 전역 QuestDataList에 {parsedList.Count}개 저장");
                 // (옵션) 전체 응답 문자열을 출력 (디버깅 용)
                 if (questPopupText != null)
                 {

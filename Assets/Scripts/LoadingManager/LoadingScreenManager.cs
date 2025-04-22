@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using PlayFab;
 
 /// <summary>
 /// 로딩 화면을 관리 + 병렬 로딩을 모두 처리하는 매니저
@@ -28,6 +29,16 @@ public class LoadingScreenManager : MonoBehaviour
     {
         // 예) 씬 시작 시점에 자동으로 실행
         ShowLoadingScreen();
+
+        // 글로벌 데이터(가상화폐 잔액) 초기화
+        if (GlobalDataManager.Instance != null)
+        {
+            yield return StartCoroutine(GlobalDataManager.Instance.Initialize());
+        }
+        else
+        {
+            Debug.LogWarning("[LoadingScreenManager] GlobalDataManager 인스턴스를 찾을 수 없습니다.");
+        }
 
         // 병렬 로딩 코루틴 실행
         yield return StartCoroutine(LoadAllDataConcurrently());

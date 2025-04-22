@@ -133,6 +133,8 @@ public class WeaponPopupManager : MonoBehaviour
             }
             else
             {
+                GlobalData.WeaponDataList = weaponList;
+                Debug.Log($"[WeaponPopupManager] GlobalData.WeaponDataList에 {weaponList.Count}개 저장");
                 // UI 갱신
                 PopulateWeaponItems(weaponList);
             }

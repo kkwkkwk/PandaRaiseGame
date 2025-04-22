@@ -128,6 +128,8 @@ public class ArmorPopupManager : MonoBehaviour
             }
             else
             {
+                GlobalData.ArmorDataList = armorList;
+                Debug.Log($"[ArmorPopupManager] GlobalData.ArmorDataList에 {armorList.Count}개 저장");
                 // UI 갱신
                 PopulateArmorItems(armorList);
             }
