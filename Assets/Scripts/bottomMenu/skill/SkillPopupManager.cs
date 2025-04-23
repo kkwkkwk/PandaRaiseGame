@@ -40,9 +40,9 @@ public class SkillPopupManager : MonoBehaviour
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.middlePreview = true;
 
-        // server
-        StartCoroutine(FetchSkillDataCoroutine());
+        PopulateSkillFromGlobal();
     }
+
     public void CloseSkillPanel()
     {  // 팝업 비활성화
         if (SkillPopupCanvas != null)
@@ -133,6 +133,21 @@ public class SkillPopupManager : MonoBehaviour
                 // UI 갱신
                 PopulateSkillItems(skillList);
             }
+        }
+    }
+
+    private void PopulateSkillFromGlobal()
+    {
+        var list = GlobalData.SkillDataList;
+        if (list != null && list.Count > 0)
+        {
+            // 기존 PopulateSkillItems(List<SkillData>) 호출
+            PopulateSkillItems(list);
+            Debug.Log($"[SkillPopupManager] GlobalData.SkillDataList에서 {list.Count}개 적용");
+        }
+        else
+        {
+            Debug.LogWarning("[SkillPopupManager] 전역 스킬 데이터가 없습니다.");
         }
     }
 

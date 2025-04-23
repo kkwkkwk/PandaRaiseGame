@@ -40,8 +40,7 @@ public class ArmorPopupManager : MonoBehaviour
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.middlePreview = true;
 
-        // server
-        StartCoroutine(FetchArmorDataCoroutine());
+        PopulateArmorFromGlobal();
     }
     public void CloseArmorPanel()
     {  // 팝업 비활성화
@@ -174,6 +173,21 @@ public class ArmorPopupManager : MonoBehaviour
                 // SetData를 "List<ArmorData>"로 받을 수 있게 수정
                 rowController.SetData(rowData, equipmentImagePrefab);
             }
+        }
+    }
+
+    private void PopulateArmorFromGlobal()
+    {
+        var list = GlobalData.ArmorDataList;
+        if (list != null && list.Count > 0)
+        {
+            // 기존 PopulateArmorItems(List<ArmorData>) 호출
+            PopulateArmorItems(list);
+            Debug.Log($"[ArmorPopupManager] GlobalData.ArmorDataList에서 {list.Count}개 적용");
+        }
+        else
+        {
+            Debug.LogWarning("[ArmorPopupManager] 전역 방어구 데이터가 없습니다.");
         }
     }
 

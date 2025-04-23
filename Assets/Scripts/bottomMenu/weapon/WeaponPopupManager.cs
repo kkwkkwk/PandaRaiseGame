@@ -42,8 +42,7 @@ public class WeaponPopupManager : MonoBehaviour
         ChatPopupManager.Instance.CloseBottomChatPreview(); // 하단에 채팅 미리보기 ui 제거
         ChatPopupManager.Instance.middlePreview = true;
 
-        // server
-        StartCoroutine(FetchWeaponDataCoroutine());
+        PopulateWeaponFromGlobal();
     }
     public void CloseWeaponPanel()
     {  // 팝업 비활성화
@@ -179,6 +178,21 @@ public class WeaponPopupManager : MonoBehaviour
                 // SetData를 "List<WeaponData>"로 받을 수 있게 수정
                 rowController.SetData(rowData, equipmentImagePrefab);
             }
+        }
+    }
+
+    private void PopulateWeaponFromGlobal()
+    {
+        var list = GlobalData.WeaponDataList;
+        if (list != null && list.Count > 0)
+        {
+            // 기존 PopulateWeaponItems(List<WeaponData>) 호출
+            PopulateWeaponItems(list);
+            Debug.Log($"[WeaponPopupManager] GlobalData.WeaponDataList에서 {list.Count}개 적용");
+        }
+        else
+        {
+            Debug.LogWarning("[WeaponPopupManager] 전역 무기 데이터가 없습니다.");
         }
     }
 

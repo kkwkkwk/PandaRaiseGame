@@ -66,7 +66,7 @@ public class QuestPopupManager : MonoBehaviour
         {
             QuestCanvas.SetActive(true);
             Debug.Log("퀘스트 팝업 열기");
-            StartCoroutine(CallGetQuestData());
+            PopulateQuestFromGlobal();
         }
     }
 
@@ -164,6 +164,21 @@ public class QuestPopupManager : MonoBehaviour
                     Debug.LogWarning("QuestTabPanelListCreator 참조가 설정되지 않았습니다.");
                 }
             }
+        }
+    }
+    private void PopulateQuestFromGlobal()
+    {
+        var list = GlobalData.QuestDataList;
+        if (list != null && list.Count > 0)
+        {
+            // 기존 메서드 이름 그대로, JSON 문자열로 전달
+            string json = JsonConvert.SerializeObject(list);
+            questListCreator.SetQuestDataFromString(json);
+            Debug.Log($"[QuestPopupManager] SetQuestDataFromString 호출: {list.Count}개");
+        }
+        else
+        {
+            Debug.LogWarning("[QuestPopupManager] 전역 퀘스트 데이터가 없습니다.");
         }
     }
 }
