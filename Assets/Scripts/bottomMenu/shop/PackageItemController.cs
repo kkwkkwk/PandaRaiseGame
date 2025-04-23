@@ -1,81 +1,70 @@
+// PackageItemController.cs         ← 파일명과 동일해야 합니다!
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class ShopPackageCardUI : MonoBehaviour
+public class PackageItemController : MonoBehaviour
 {
+    /* ──────────────── 인스펙터 필드 ──────────────── */
     [Header("상품 아이콘")]
-    [Tooltip("상품 이미지 표시용 UI Image")]
     public Image packageIconImage;
 
     [Header("패키지 제목")]
-    [Tooltip("패키지 제목을 보여줄 TextMeshProUGUI")]
     public TextMeshProUGUI packageTitleText;
 
     [Header("패키지 설명(여러 줄)")]
-    [Tooltip("각 줄마다 드래그해서 연결하세요")]
     public TextMeshProUGUI[] descriptionTexts;
 
     [Header("가격 표시")]
-    [Tooltip("가격 및 결제 수단을 보여줄 TextMeshProUGUI")]
     public TextMeshProUGUI priceText;
 
     [Header("구매 버튼")]
     public Button buyButton;
 
-    // 서버 식별용 패키지 ID
-    private string packageId;
+    /* ──────────────── 내부 상태 ──────────────── */
+    private string packageId;   // 서버 식별용 ID
 
-    /// <summary>
-    /// 패키지 정보를 UI에 적용합니다.
-    /// </summary>
-    /// <param name="iconSprite">상품 아이콘 스프라이트</param>
-    /// <param name="packageId">서버 식별용 패키지 ID</param>
-    /// <param name="packageTitle">패키지 제목</param>
-    /// <param name="packageDescLines">각 줄 설명 문자열 배열</param>
-    /// <param name="price">가격</param>
-    /// <param name="currencyType">결제 수단 기호 (예: "₩", "$" 등)</param>
-    public void Setup(Sprite iconSprite, string packageId, string packageTitle, string[] packageDescLines, int price, string currencyType)
+    /* ==============================================================
+       Setup : 서버에서 받은 패키지 데이터를 UI에 반영
+    ============================================================== */
+    public void Setup(Sprite iconSprite,
+                      string packageId,
+                      string packageTitle,
+                      string[] packageDescLines,
+                      int price,
+                      string currencyType)
     {
         this.packageId = packageId;
 
-        // 1) 아이콘
+        /* 1) 아이콘 */
         if (packageIconImage != null)
         {
-            if (iconSprite != null)
-            {
-                packageIconImage.sprite = iconSprite;
-                packageIconImage.gameObject.SetActive(true);
-            }
-            else packageIconImage.gameObject.SetActive(false);
+            bool hasIcon = iconSprite != null;
+            packageIconImage.gameObject.SetActive(hasIcon);
+            if (hasIcon) packageIconImage.sprite = iconSprite;
         }
 
-        // 2) 제목
+        /* 2) 제목 */
         if (packageTitleText != null)
             packageTitleText.text = packageTitle;
 
-        // 3) 설명 배열
+        /* 3) 설명(최대 라인 수만큼 처리) */
         for (int i = 0; i < descriptionTexts.Length; i++)
         {
-            var descField = descriptionTexts[i];
-            if (descField == null) continue;
-            if (i < packageDescLines.Length)
-            {
-                descField.text = packageDescLines[i];
-                descField.gameObject.SetActive(true);
-            }
-            else descField.gameObject.SetActive(false);
+            if (descriptionTexts[i] == null) continue;
+
+            bool hasLine = i < packageDescLines.Length;
+            descriptionTexts[i].gameObject.SetActive(hasLine);
+            if (hasLine) descriptionTexts[i].text = packageDescLines[i];
         }
 
-        // 4) 가격 표시
+        /* 4) 가격 표시 */
         if (priceText != null)
-        {
-            if (currencyType == "₩")
-                priceText.text = "\\" + price;
-            else priceText.text = $"{currencyType}{price}";
-        }
+            priceText.text = currencyType == "₩"
+                           ? $"\\{price}"          // 원화 기호 앞에 \ 추가
+                           : $"{currencyType}{price}";
 
-        // 5) 버튼 이벤트 연결
+        /* 5) 구매 버튼 이벤트 */
         if (buyButton != null)
         {
             buyButton.onClick.RemoveAllListeners();
@@ -83,10 +72,12 @@ public class ShopPackageCardUI : MonoBehaviour
         }
     }
 
+    /* ==============================================================
+       구매 버튼 콜백
+    ============================================================== */
     private void OnBuyButtonClicked()
     {
-        Debug.Log($"[ShopPackageCardUI] 구매 요청: ID={packageId}, 제목={packageTitleText.text}");
-        // SpecialManager의 PurchaseSpecial 메소드 호출
-        SpecialManager.Instance?.PurchaseSpecial(packageId);
+        Debug.Log($"[PackageItemController] 구매 요청 → ID={packageId}, 제목={packageTitleText?.text}");
+        ShopSpecialManager.Instance?.PurchaseSpecial(packageId);
     }
 }

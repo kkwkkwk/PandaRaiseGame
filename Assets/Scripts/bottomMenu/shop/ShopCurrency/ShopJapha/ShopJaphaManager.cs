@@ -5,12 +5,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class MileageManager : MonoBehaviour
+public class ShopJaphaManager : MonoBehaviour
 {
-    public static MileageManager Instance { get; private set; }
+    public static ShopJaphaManager Instance { get; private set; }
 
-    [Header("마일리지 탭 팝업 Canvas")]
-    public GameObject mileagePopupCanvas;
+    [Header("잡화 탭 팝업 Canvas")]
+    public GameObject japhaPopupCanvas;
+
+    [Header("ScrollView Content (Viewport→Content)")]
+    public RectTransform scrollContent;
 
     [Header("기본 컨텐츠 (헤더 미발견 시)")]
     public Transform defaultContentParent;
@@ -23,12 +26,12 @@ public class MileageManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private const string fetchMileageUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/GetMileageShopData?code=7FEp57GIrRLmJG0-E3k5IuuksDTzUgpcSkJiNRzVM3H2AzFuWLTgiw==";
-    private const string purchaseMileageUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyMileageShopItem";
+    private const string fetchJaphaUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetJaphwaShopData?code=Qjq_KGQpLvoZjJKDCR76iOJE9EjQHoO2PvucK7Ea92-EAzFu8w6Mtg==";
+    private const string purchaseJaphaUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyJaphwaShopItem";
 
-    private List<MileageItemData> mileageItems;
+    private List<JaphaItemData> japhaItems;
 
     private void Awake()
     {
@@ -36,21 +39,32 @@ public class MileageManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void OpenMileagePanel()
+    public void OpenJaphaPanel()
     {
-        mileagePopupCanvas?.SetActive(true);
-        StartCoroutine(FetchMileageDataFromServer());
+        japhaPopupCanvas?.SetActive(true);
+        scrollContent.gameObject.SetActive(false);
+        StartCoroutine(FetchAndShow());
     }
 
-    public void CloseMileagePanel()
+    public void CloseJaphaPanel()
     {
-        mileagePopupCanvas?.SetActive(false);
+        japhaPopupCanvas?.SetActive(false);
     }
 
-    private IEnumerator FetchMileageDataFromServer()
+    private IEnumerator FetchAndShow()
+    {
+        yield return FetchJaphaDataCoroutine();
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
+        var sr = scrollContent.GetComponentInParent<ScrollRect>();
+        if (sr != null) sr.verticalNormalizedPosition = 1f;
+        scrollContent.gameObject.SetActive(true);
+    }
+
+    private IEnumerator FetchJaphaDataCoroutine()
     {
         var body = System.Text.Encoding.UTF8.GetBytes("{}");
-        using var req = new UnityWebRequest(fetchMileageUrl, "POST")
+        using var req = new UnityWebRequest(fetchJaphaUrl, "POST")
         {
             uploadHandler = new UploadHandlerRaw(body),
             downloadHandler = new DownloadHandlerBuffer()
@@ -59,41 +73,36 @@ public class MileageManager : MonoBehaviour
         yield return req.SendWebRequest();
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[MileageManager] Fetch 실패: {req.error}");
+            Debug.LogError($"[JaphaManager] Fetch 실패: {req.error}");
             yield break;
         }
 
-        var resp = JsonConvert.DeserializeObject<MileageResponseData>(req.downloadHandler.text);
+        var resp = JsonConvert.DeserializeObject<JaphaResponseData>(req.downloadHandler.text);
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogWarning("[MileageManager] 서버 응답 이상");
+            Debug.LogWarning("[JaphaManager] 서버 응답 이상");
             yield break;
         }
 
-        LoadData(resp.MileageItemList);
+        japhaItems = resp.JaphaItemList;
+        PopulateJaphaItems();
     }
 
-    public void LoadData(List<MileageItemData> items)
-    {
-        mileageItems = items;
-        PopulateMileageItems();
-    }
-
-    private void PopulateMileageItems()
+    private void PopulateJaphaItems()
     {
         foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         ClearContent(defaultContentParent);
 
-        if (mileageItems == null || mileageItems.Count == 0) return;
+        if (japhaItems == null || japhaItems.Count == 0) return;
 
-        foreach (var item in mileageItems)
+        foreach (var item in japhaItems)
         {
             var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Mileage");
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Japha");
         }
     }
 
@@ -113,7 +122,7 @@ public class MileageManager : MonoBehaviour
             Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void PurchaseMileage(string itemName, string currencyType)
+    public void PurchaseJapha(string itemName, string currencyType)
     {
         var requestData = new BuyCurrencyRequestData
         {
@@ -128,7 +137,7 @@ public class MileageManager : MonoBehaviour
     private IEnumerator SendBuyCurrencyRequest(BuyCurrencyRequestData data)
     {
         string json = JsonConvert.SerializeObject(data);
-        var req = new UnityWebRequest(purchaseMileageUrl, "POST");
+        var req = new UnityWebRequest(purchaseJaphaUrl, "POST");
         req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
@@ -138,13 +147,13 @@ public class MileageManager : MonoBehaviour
         {
             var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
             if (resp != null && resp.IsSuccess)
-                Debug.Log("[MileageManager] 재화 구매 성공");
+                Debug.Log("[JaphaManager] 재화 구매 성공");
             else
-                Debug.LogWarning("[MileageManager] 서버 처리 실패 (isSuccess == false)");
+                Debug.LogWarning("[JaphaManager] 서버 처리 실패 (isSuccess == false)");
         }
         else
         {
-            Debug.LogError($"[MileageManager] 요청 실패: {req.error}");
+            Debug.LogError($"[JaphaManager] 요청 실패: {req.error}");
         }
     }
 }

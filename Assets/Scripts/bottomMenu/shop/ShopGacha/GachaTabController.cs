@@ -8,9 +8,9 @@ public class GachaTabController : MonoBehaviour
     public GameObject skillPanel;
 
     [Header("퍼블릭 매니저 참조")]
-    public WeaponManager weaponManager;
-    public ArmorManager armorManager;
-    public SkillManager skillManager;
+    public ShopWeaponManager weaponManager;
+    public ShopArmorManager armorManager;
+    public ShopSkillManager skillManager;
 
     private void Start()
     {

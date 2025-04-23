@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class VipManager : MonoBehaviour
+public class ShopVipManager : MonoBehaviour
 {
     [Header("VIP 패널 (옵션)")]
     public GameObject vipPanel;          // VIP 메뉴 전체 패널

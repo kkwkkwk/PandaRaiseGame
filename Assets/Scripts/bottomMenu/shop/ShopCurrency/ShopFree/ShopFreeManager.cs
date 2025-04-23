@@ -5,12 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class DiamondManager : MonoBehaviour
+public class ShopFreeManager : MonoBehaviour
 {
-    public static DiamondManager Instance { get; private set; }
+    public static ShopFreeManager Instance { get; private set; }
 
-    [Header("다이아 탭 팝업 Canvas")]
-    public GameObject diamondPopupCanvas;
+    [Header("무료(Free) 탭 팝업 Canvas")]
+    public GameObject freePopupCanvas;
 
     [Header("기본 컨텐츠 (헤더 미발견 시)")]
     public Transform defaultContentParent;
@@ -23,12 +23,12 @@ public class DiamondManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private const string fetchDiamondUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/GetDiamondShopData?code=NFo5vc5QTYyNUxJBokgDiMDi5F_NgRP6JuvKWpz4R6RBAzFuKOBC_A==";
-    private const string purchaseDiamondUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyDiamondShopItem";
+    private const string fetchFreeUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetFreeShopData?code=RSjJW7s3xyKlU3iJzYog0Fd50ylVsuIp-PdqRpG807e4AzFu0MBECg==";
+    private const string purchaseFreeUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyFreeShopItem";
 
-    private List<DiamondItemData> diamondItems;
+    private List<FreeItemData> freeItems;
 
     private void Awake()
     {
@@ -36,21 +36,21 @@ public class DiamondManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void OpenDiamondPanel()
+    public void OpenFreePanel()
     {
-        diamondPopupCanvas?.SetActive(true);
-        StartCoroutine(FetchDiamondDataFromServer());
+        freePopupCanvas?.SetActive(true);
+        StartCoroutine(FetchFreeDataFromServer());
     }
 
-    public void CloseDiamondPanel()
+    public void CloseFreePanel()
     {
-        diamondPopupCanvas?.SetActive(false);
+        freePopupCanvas?.SetActive(false);
     }
 
-    private IEnumerator FetchDiamondDataFromServer()
+    private IEnumerator FetchFreeDataFromServer()
     {
         var body = System.Text.Encoding.UTF8.GetBytes("{}");
-        using var req = new UnityWebRequest(fetchDiamondUrl, "POST")
+        using var req = new UnityWebRequest(fetchFreeUrl, "POST")
         {
             uploadHandler = new UploadHandlerRaw(body),
             downloadHandler = new DownloadHandlerBuffer()
@@ -59,41 +59,41 @@ public class DiamondManager : MonoBehaviour
         yield return req.SendWebRequest();
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[DiamondManager] Fetch 실패: {req.error}");
+            Debug.LogError($"[FreeManager] Fetch 실패: {req.error}");
             yield break;
         }
 
-        var resp = JsonConvert.DeserializeObject<DiamondResponseData>(req.downloadHandler.text);
+        var resp = JsonConvert.DeserializeObject<FreeResponseData>(req.downloadHandler.text);
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogWarning("[DiamondManager] 서버 응답 이상");
+            Debug.LogWarning("[FreeManager] 서버 응답 이상");
             yield break;
         }
 
-        LoadData(resp.DiamondItemList);
+        LoadData(resp.FreeItemList);
     }
 
-    public void LoadData(List<DiamondItemData> items)
+    public void LoadData(List<FreeItemData> items)
     {
-        diamondItems = items;
-        PopulateDiamondItems();
+        freeItems = items;
+        PopulateFreeItems();
     }
 
-    private void PopulateDiamondItems()
+    private void PopulateFreeItems()
     {
         foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         ClearContent(defaultContentParent);
 
-        if (diamondItems == null || diamondItems.Count == 0) return;
+        if (freeItems == null || freeItems.Count == 0) return;
 
-        foreach (var item in diamondItems)
+        foreach (var item in freeItems)
         {
             var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Diamond");
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Free");
         }
     }
 
@@ -113,7 +113,7 @@ public class DiamondManager : MonoBehaviour
             Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void PurchaseDiamond(string itemName, string currencyType)
+    public void PurchaseFree(string itemName, string currencyType)
     {
         var requestData = new BuyCurrencyRequestData
         {
@@ -128,7 +128,7 @@ public class DiamondManager : MonoBehaviour
     private IEnumerator SendBuyCurrencyRequest(BuyCurrencyRequestData data)
     {
         string json = JsonConvert.SerializeObject(data);
-        var req = new UnityWebRequest(purchaseDiamondUrl, "POST");
+        var req = new UnityWebRequest(purchaseFreeUrl, "POST");
         req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
@@ -138,13 +138,13 @@ public class DiamondManager : MonoBehaviour
         {
             var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
             if (resp != null && resp.IsSuccess)
-                Debug.Log("[DiamondManager] 재화 구매 성공");
+                Debug.Log("[FreeManager] 무료 아이템 처리 성공");
             else
-                Debug.LogWarning("[DiamondManager] 서버 처리 실패 (isSuccess == false)");
+                Debug.LogWarning("[FreeManager] 서버 처리 실패 (isSuccess == false)");
         }
         else
         {
-            Debug.LogError($"[DiamondManager] 요청 실패: {req.error}");
+            Debug.LogError($"[FreeManager] 요청 실패: {req.error}");
         }
     }
 }

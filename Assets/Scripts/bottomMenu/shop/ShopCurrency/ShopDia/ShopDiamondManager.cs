@@ -5,15 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class JaphaManager : MonoBehaviour
+public class ShopDiamondManager : MonoBehaviour
 {
-    public static JaphaManager Instance { get; private set; }
+    public static ShopDiamondManager Instance { get; private set; }
 
-    [Header("잡화 탭 팝업 Canvas")]
-    public GameObject japhaPopupCanvas;
-
-    [Header("ScrollView Content (Viewport→Content)")]
-    public RectTransform scrollContent;
+    [Header("다이아 탭 팝업 Canvas")]
+    public GameObject diamondPopupCanvas;
 
     [Header("기본 컨텐츠 (헤더 미발견 시)")]
     public Transform defaultContentParent;
@@ -26,12 +23,12 @@ public class JaphaManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private const string fetchJaphaUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/GetJaphwaShopData?code=Qjq_KGQpLvoZjJKDCR76iOJE9EjQHoO2PvucK7Ea92-EAzFu8w6Mtg==";
-    private const string purchaseJaphaUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyJaphwaShopItem";
+    private const string fetchDiamondUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetDiamondShopData?code=NFo5vc5QTYyNUxJBokgDiMDi5F_NgRP6JuvKWpz4R6RBAzFuKOBC_A==";
+    private const string purchaseDiamondUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyDiamondShopItem";
 
-    private List<JaphaItemData> japhaItems;
+    private List<DiamondItemData> diamondItems;
 
     private void Awake()
     {
@@ -39,32 +36,21 @@ public class JaphaManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void OpenJaphaPanel()
+    public void OpenDiamondPanel()
     {
-        japhaPopupCanvas?.SetActive(true);
-        scrollContent.gameObject.SetActive(false);
-        StartCoroutine(FetchAndShow());
+        diamondPopupCanvas?.SetActive(true);
+        StartCoroutine(FetchDiamondDataFromServer());
     }
 
-    public void CloseJaphaPanel()
+    public void CloseDiamondPanel()
     {
-        japhaPopupCanvas?.SetActive(false);
+        diamondPopupCanvas?.SetActive(false);
     }
 
-    private IEnumerator FetchAndShow()
-    {
-        yield return FetchJaphaDataCoroutine();
-        Canvas.ForceUpdateCanvases();
-        LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
-        var sr = scrollContent.GetComponentInParent<ScrollRect>();
-        if (sr != null) sr.verticalNormalizedPosition = 1f;
-        scrollContent.gameObject.SetActive(true);
-    }
-
-    private IEnumerator FetchJaphaDataCoroutine()
+    private IEnumerator FetchDiamondDataFromServer()
     {
         var body = System.Text.Encoding.UTF8.GetBytes("{}");
-        using var req = new UnityWebRequest(fetchJaphaUrl, "POST")
+        using var req = new UnityWebRequest(fetchDiamondUrl, "POST")
         {
             uploadHandler = new UploadHandlerRaw(body),
             downloadHandler = new DownloadHandlerBuffer()
@@ -73,36 +59,41 @@ public class JaphaManager : MonoBehaviour
         yield return req.SendWebRequest();
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[JaphaManager] Fetch 실패: {req.error}");
+            Debug.LogError($"[DiamondManager] Fetch 실패: {req.error}");
             yield break;
         }
 
-        var resp = JsonConvert.DeserializeObject<JaphaResponseData>(req.downloadHandler.text);
+        var resp = JsonConvert.DeserializeObject<DiamondResponseData>(req.downloadHandler.text);
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogWarning("[JaphaManager] 서버 응답 이상");
+            Debug.LogWarning("[DiamondManager] 서버 응답 이상");
             yield break;
         }
 
-        japhaItems = resp.JaphaItemList;
-        PopulateJaphaItems();
+        LoadData(resp.DiamondItemList);
     }
 
-    private void PopulateJaphaItems()
+    public void LoadData(List<DiamondItemData> items)
+    {
+        diamondItems = items;
+        PopulateDiamondItems();
+    }
+
+    private void PopulateDiamondItems()
     {
         foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         ClearContent(defaultContentParent);
 
-        if (japhaItems == null || japhaItems.Count == 0) return;
+        if (diamondItems == null || diamondItems.Count == 0) return;
 
-        foreach (var item in japhaItems)
+        foreach (var item in diamondItems)
         {
             var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Japha");
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Diamond");
         }
     }
 
@@ -122,7 +113,7 @@ public class JaphaManager : MonoBehaviour
             Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void PurchaseJapha(string itemName, string currencyType)
+    public void PurchaseDiamond(string itemName, string currencyType)
     {
         var requestData = new BuyCurrencyRequestData
         {
@@ -137,7 +128,7 @@ public class JaphaManager : MonoBehaviour
     private IEnumerator SendBuyCurrencyRequest(BuyCurrencyRequestData data)
     {
         string json = JsonConvert.SerializeObject(data);
-        var req = new UnityWebRequest(purchaseJaphaUrl, "POST");
+        var req = new UnityWebRequest(purchaseDiamondUrl, "POST");
         req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
@@ -147,13 +138,13 @@ public class JaphaManager : MonoBehaviour
         {
             var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
             if (resp != null && resp.IsSuccess)
-                Debug.Log("[JaphaManager] 재화 구매 성공");
+                Debug.Log("[DiamondManager] 재화 구매 성공");
             else
-                Debug.LogWarning("[JaphaManager] 서버 처리 실패 (isSuccess == false)");
+                Debug.LogWarning("[DiamondManager] 서버 처리 실패 (isSuccess == false)");
         }
         else
         {
-            Debug.LogError($"[JaphaManager] 요청 실패: {req.error}");
+            Debug.LogError($"[DiamondManager] 요청 실패: {req.error}");
         }
     }
 }

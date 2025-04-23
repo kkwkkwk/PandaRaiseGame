@@ -5,23 +5,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class SkillManager : MonoBehaviour
+public class ShopSkillManager : MonoBehaviour
 {
-    public static SkillManager Instance { get; private set; }
+    public static ShopSkillManager Instance { get; private set; }
 
-    [Header("스킬 패널 Canvas")]
-    public GameObject skillPopupCanvas;
+    [Header("스킬 패널 Canvas")] public GameObject skillPopupCanvas;
+    [Header("ScrollView Content (Viewport→Content)")] public RectTransform scrollContent;
 
-    [Header("ScrollView Content (Viewport→Content)")]
-    public RectTransform scrollContent;
+    [System.Serializable] public class HeaderConfig { public string headerName; public Transform contentParent; }
+    [Header("헤더 + ContentParent 매핑")] public HeaderConfig[] headerConfigs;
 
-    [System.Serializable]
-    public class HeaderConfig { public string headerName; public Transform contentParent; }
-    [Header("헤더 + ContentParent 매핑")]
-    public HeaderConfig[] headerConfigs;
-
-    [Header("단일 아이템 Prefab")]
-    public GameObject itemPrefab;
+    [Header("단일 아이템 Prefab")] public GameObject itemPrefab;
 
     private const string fetchSkillUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetSkillGachaData?code=5TkJ9Ck9okV81RdtuQA8jUEEEUDm37fq5owAnfIE-hBPAzFurDM8bA==";
@@ -36,17 +30,14 @@ public class SkillManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    #region 패널/데이터 ------------------------------------------------------------
     public void OpenSkillPanel()
     {
         skillPopupCanvas?.SetActive(true);
         scrollContent.gameObject.SetActive(false);
         StartCoroutine(FetchThenShow());
     }
-
-    public void CloseSkillPanel()
-    {
-        skillPopupCanvas?.SetActive(false);
-    }
+    public void CloseSkillPanel() => skillPopupCanvas?.SetActive(false);
 
     private IEnumerator FetchThenShow()
     {
@@ -89,7 +80,9 @@ public class SkillManager : MonoBehaviour
 
         LoadData(resp.SkillItemList);
     }
+    #endregion
 
+    #region UI --------------------------------------------------------------------
     public void LoadData(List<SkillItemData> items)
     {
         skillItems = items;
@@ -98,19 +91,16 @@ public class SkillManager : MonoBehaviour
 
     private void Populate()
     {
-        foreach (var hc in headerConfigs)
-            ClearContent(hc.contentParent);
-
+        foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         if (skillItems == null || skillItems.Count == 0) return;
 
         foreach (var item in skillItems)
         {
-            var parent = GetParent(item.Header);
-            if (parent == null) continue;
-
+            var parent = GetParent(item.Header) ?? headerConfigs[0].contentParent;
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Skill");
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType,
+                        item.ItemName, "Skill");
         }
     }
 
@@ -121,22 +111,30 @@ public class SkillManager : MonoBehaviour
                 return hc.contentParent;
         return null;
     }
-
     private void ClearContent(Transform parent)
     {
         if (parent == null) return;
         for (int i = parent.childCount - 1; i >= 0; i--)
             Destroy(parent.GetChild(i).gameObject);
     }
+    #endregion
 
+    #region 구매 ------------------------------------------------------------------
     public void PurchaseSkill(string itemName, string currencyType)
     {
+        var itemData = skillItems?.Find(i => i.ItemName == itemName);
+        if (itemData == null)
+        {
+            Debug.LogError($"[SkillManager] Purchase 요청 실패 – '{itemName}' 캐시 미존재");
+            return;
+        }
+
         var requestData = new BuyGachaRequestData
         {
             PlayFabId = PlayerPrefs.GetString("PlayFabId"),
-            ItemName = itemName,
             CurrencyType = currencyType,
-            ItemType = "Skill"
+            ItemType = "Skill",
+            SkillItemData = itemData
         };
         StartCoroutine(SendBuyRequest(requestData));
     }
@@ -144,23 +142,30 @@ public class SkillManager : MonoBehaviour
     private IEnumerator SendBuyRequest(BuyGachaRequestData data)
     {
         string json = JsonConvert.SerializeObject(data);
-        var req = new UnityWebRequest(purchaseSkillUrl, "POST");
-        req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
-        req.downloadHandler = new DownloadHandlerBuffer();
+        Debug.Log($"[SkillManager] ▶ Purchase JSON\n{json}");
+
+        var req = new UnityWebRequest(purchaseSkillUrl, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
         req.SetRequestHeader("Content-Type", "application/json");
 
         yield return req.SendWebRequest();
-        if (req.result == UnityWebRequest.Result.Success)
-        {
-            var resp = JsonConvert.DeserializeObject<BuyGachaResponseData>(req.downloadHandler.text);
-            if (resp != null && resp.IsSuccess)
-                Debug.Log($"[SkillManager] 구매 성공! 뽑힌 아이템 수: {resp.OwnedItemList.Count}");
-            else
-                Debug.LogWarning("[SkillManager] 서버 처리 실패 (isSuccess == false)");
-        }
-        else
+
+        if (req.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"[SkillManager] 요청 실패: {req.error}");
+            yield break;
         }
+
+        Debug.Log($"[SkillManager] ◀ Response JSON\n{req.downloadHandler.text}");
+        var resp = JsonConvert.DeserializeObject<BuyGachaResponseData>(req.downloadHandler.text);
+
+        if (resp != null && resp.IsSuccess)
+            Debug.Log($"[SkillManager] 구매 성공! 뽑힌 아이템 수: {resp.OwnedItemList.Count}");
+        else
+            Debug.LogWarning("[SkillManager] 서버 처리 실패 (isSuccess == false)");
     }
+    #endregion
 }

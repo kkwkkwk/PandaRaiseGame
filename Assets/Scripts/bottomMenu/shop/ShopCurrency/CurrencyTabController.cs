@@ -10,10 +10,10 @@ public class CurrencyTabController : MonoBehaviour
     public GameObject mileagePanel;   // 마일리지 탭
 
     [Header("하위 메뉴 매니저 (Open…Panel 호출)")]
-    public FreeManager freeManager;
-    public JaphaManager japhaManager;
-    public DiamondManager diamondManager;
-    public MileageManager mileageManager;
+    public ShopFreeManager freeManager;
+    public ShopJaphaManager japhaManager;
+    public ShopDiamondManager diamondManager;
+    public ShopMileageManager mileageManager;
 
     private void Start()
     {

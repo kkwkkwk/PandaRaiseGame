@@ -4,9 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class SpecialManager : MonoBehaviour
+public class ShopSpecialManager : MonoBehaviour
 {
-    public static SpecialManager Instance { get; private set; }
+    public static ShopSpecialManager Instance { get; private set; }
 
     [Header("스페셜 패널 (옵션)")]
     public GameObject specialPanel;

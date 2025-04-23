@@ -5,12 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class FreeManager : MonoBehaviour
+public class ShopMileageManager : MonoBehaviour
 {
-    public static FreeManager Instance { get; private set; }
+    public static ShopMileageManager Instance { get; private set; }
 
-    [Header("무료(Free) 탭 팝업 Canvas")]
-    public GameObject freePopupCanvas;
+    [Header("마일리지 탭 팝업 Canvas")]
+    public GameObject mileagePopupCanvas;
 
     [Header("기본 컨텐츠 (헤더 미발견 시)")]
     public Transform defaultContentParent;
@@ -23,12 +23,12 @@ public class FreeManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private const string fetchFreeUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/GetFreeShopData?code=RSjJW7s3xyKlU3iJzYog0Fd50ylVsuIp-PdqRpG807e4AzFu0MBECg==";
-    private const string purchaseFreeUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyFreeShopItem";
+    private const string fetchMileageUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/GetMileageShopData?code=7FEp57GIrRLmJG0-E3k5IuuksDTzUgpcSkJiNRzVM3H2AzFuWLTgiw==";
+    private const string purchaseMileageUrl =
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyMileageShopItem";
 
-    private List<FreeItemData> freeItems;
+    private List<MileageItemData> mileageItems;
 
     private void Awake()
     {
@@ -36,21 +36,21 @@ public class FreeManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void OpenFreePanel()
+    public void OpenMileagePanel()
     {
-        freePopupCanvas?.SetActive(true);
-        StartCoroutine(FetchFreeDataFromServer());
+        mileagePopupCanvas?.SetActive(true);
+        StartCoroutine(FetchMileageDataFromServer());
     }
 
-    public void CloseFreePanel()
+    public void CloseMileagePanel()
     {
-        freePopupCanvas?.SetActive(false);
+        mileagePopupCanvas?.SetActive(false);
     }
 
-    private IEnumerator FetchFreeDataFromServer()
+    private IEnumerator FetchMileageDataFromServer()
     {
         var body = System.Text.Encoding.UTF8.GetBytes("{}");
-        using var req = new UnityWebRequest(fetchFreeUrl, "POST")
+        using var req = new UnityWebRequest(fetchMileageUrl, "POST")
         {
             uploadHandler = new UploadHandlerRaw(body),
             downloadHandler = new DownloadHandlerBuffer()
@@ -59,41 +59,41 @@ public class FreeManager : MonoBehaviour
         yield return req.SendWebRequest();
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[FreeManager] Fetch 실패: {req.error}");
+            Debug.LogError($"[MileageManager] Fetch 실패: {req.error}");
             yield break;
         }
 
-        var resp = JsonConvert.DeserializeObject<FreeResponseData>(req.downloadHandler.text);
+        var resp = JsonConvert.DeserializeObject<MileageResponseData>(req.downloadHandler.text);
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogWarning("[FreeManager] 서버 응답 이상");
+            Debug.LogWarning("[MileageManager] 서버 응답 이상");
             yield break;
         }
 
-        LoadData(resp.FreeItemList);
+        LoadData(resp.MileageItemList);
     }
 
-    public void LoadData(List<FreeItemData> items)
+    public void LoadData(List<MileageItemData> items)
     {
-        freeItems = items;
-        PopulateFreeItems();
+        mileageItems = items;
+        PopulateMileageItems();
     }
 
-    private void PopulateFreeItems()
+    private void PopulateMileageItems()
     {
         foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         ClearContent(defaultContentParent);
 
-        if (freeItems == null || freeItems.Count == 0) return;
+        if (mileageItems == null || mileageItems.Count == 0) return;
 
-        foreach (var item in freeItems)
+        foreach (var item in mileageItems)
         {
             var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Free");
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Mileage");
         }
     }
 
@@ -113,7 +113,7 @@ public class FreeManager : MonoBehaviour
             Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void PurchaseFree(string itemName, string currencyType)
+    public void PurchaseMileage(string itemName, string currencyType)
     {
         var requestData = new BuyCurrencyRequestData
         {
@@ -128,7 +128,7 @@ public class FreeManager : MonoBehaviour
     private IEnumerator SendBuyCurrencyRequest(BuyCurrencyRequestData data)
     {
         string json = JsonConvert.SerializeObject(data);
-        var req = new UnityWebRequest(purchaseFreeUrl, "POST");
+        var req = new UnityWebRequest(purchaseMileageUrl, "POST");
         req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
@@ -138,13 +138,13 @@ public class FreeManager : MonoBehaviour
         {
             var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
             if (resp != null && resp.IsSuccess)
-                Debug.Log("[FreeManager] 무료 아이템 처리 성공");
+                Debug.Log("[MileageManager] 재화 구매 성공");
             else
-                Debug.LogWarning("[FreeManager] 서버 처리 실패 (isSuccess == false)");
+                Debug.LogWarning("[MileageManager] 서버 처리 실패 (isSuccess == false)");
         }
         else
         {
-            Debug.LogError($"[FreeManager] 요청 실패: {req.error}");
+            Debug.LogError($"[MileageManager] 요청 실패: {req.error}");
         }
     }
 }
