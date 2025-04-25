@@ -20,7 +20,7 @@ public class ShopArmorManager : MonoBehaviour
     private const string fetchArmorUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetArmorGachaData?code=oRjQ3RDt8YXXaItejzasxC8IpWXG9VY5nxWfjTqy3xB6AzFugcy0Ww==";
     private const string purchaseArmorUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyArmorGachaItem";
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyGachaItem?code=lwFZwNzXVVbEbzFgjxRpfbaTeGN0fOkKEfq5K0_dRRWvAzFuxgjhXQ==";
 
     private List<ArmorItemData> armorItems;
 
@@ -131,7 +131,7 @@ public class ShopArmorManager : MonoBehaviour
 
         var requestData = new BuyGachaRequestData
         {
-            PlayFabId = PlayerPrefs.GetString("PlayFabId"),
+            PlayFabId = GlobalData.playFabId,
             CurrencyType = currencyType,
             ItemType = "Armor",
             ArmorItemData = itemData

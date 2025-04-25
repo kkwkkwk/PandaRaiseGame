@@ -26,7 +26,7 @@ public class ShopWeaponManager : MonoBehaviour
     private const string fetchWeaponUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetWeaponGachaData?code=LbwpDyYAz2G1OE94wg-oUgI5VHYlmOY54oFUWFTUiJ7PAzFuafMI_g==";
     private const string purchaseWeaponUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyWeaponGachaItem";
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyGachaItem?code=lwFZwNzXVVbEbzFgjxRpfbaTeGN0fOkKEfq5K0_dRRWvAzFuxgjhXQ==";
 
     /** 서버에서 내려온 아이템 캐시 */
     private List<WeaponItemData> weaponItems;
@@ -148,7 +148,7 @@ public class ShopWeaponManager : MonoBehaviour
 
         var requestData = new BuyGachaRequestData
         {
-            PlayFabId = PlayerPrefs.GetString("PlayFabId"),
+            PlayFabId = GlobalData.playFabId,
             CurrencyType = currencyType,
             ItemType = "Weapon",
             WeaponItemData = itemData          // ← 전체 ItemData 전송

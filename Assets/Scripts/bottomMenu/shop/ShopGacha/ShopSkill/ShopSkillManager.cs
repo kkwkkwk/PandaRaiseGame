@@ -20,7 +20,7 @@ public class ShopSkillManager : MonoBehaviour
     private const string fetchSkillUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetSkillGachaData?code=5TkJ9Ck9okV81RdtuQA8jUEEEUDm37fq5owAnfIE-hBPAzFurDM8bA==";
     private const string purchaseSkillUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuySkillGachaItem";
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyGachaItem?code=lwFZwNzXVVbEbzFgjxRpfbaTeGN0fOkKEfq5K0_dRRWvAzFuxgjhXQ==";
 
     private List<SkillItemData> skillItems;
 
@@ -131,7 +131,7 @@ public class ShopSkillManager : MonoBehaviour
 
         var requestData = new BuyGachaRequestData
         {
-            PlayFabId = PlayerPrefs.GetString("PlayFabId"),
+            PlayFabId = GlobalData.playFabId,
             CurrencyType = currencyType,
             ItemType = "Skill",
             SkillItemData = itemData
