@@ -63,7 +63,7 @@ public class SmallItemController : MonoBehaviour
                     ShopFreeManager.Instance?.PurchaseFree(itemId, currencyType);
                     break;
                 case "Japha":
-                    ShopJaphaManager.Instance?.PurchaseJapha(itemId, currencyType);
+                    ShopJaphwaManager.Instance?.PurchaseJapha(itemId, currencyType);
                     break;
                 case "Mileage":
                     ShopMileageManager.Instance?.PurchaseMileage(itemId, currencyType);

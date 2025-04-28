@@ -5,9 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class ShopJaphaManager : MonoBehaviour
+public class ShopJaphwaManager : MonoBehaviour
 {
-    public static ShopJaphaManager Instance { get; private set; }
+    public static ShopJaphwaManager Instance { get; private set; }
 
     [Header("잡화 탭 팝업 Canvas")]
     public GameObject japhaPopupCanvas;
@@ -31,7 +31,7 @@ public class ShopJaphaManager : MonoBehaviour
     private const string purchaseJaphaUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/BuyJaphwaShopItem";
 
-    private List<JaphaItemData> japhaItems;
+    private List<JaphwaItemData> japhaItems;
 
     private void Awake()
     {
@@ -77,7 +77,7 @@ public class ShopJaphaManager : MonoBehaviour
             yield break;
         }
 
-        var resp = JsonConvert.DeserializeObject<JaphaResponseData>(req.downloadHandler.text);
+        var resp = JsonConvert.DeserializeObject<JaphwaResponseData>(req.downloadHandler.text);
         if (resp == null || !resp.IsSuccess)
         {
             Debug.LogWarning("[JaphaManager] 서버 응답 이상");

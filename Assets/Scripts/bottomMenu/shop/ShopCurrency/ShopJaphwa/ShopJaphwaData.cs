@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 [Serializable]
-public class JaphaResponseData
+public class JaphwaResponseData
 {
     [JsonProperty("isSuccess")]
     public bool IsSuccess { get; set; }
@@ -12,11 +12,11 @@ public class JaphaResponseData
     public string ErrorMessage { get; set; }
 
     [JsonProperty("japhwaItemList")]
-    public List<JaphaItemData> JaphaItemList { get; set; }
+    public List<JaphwaItemData> JaphaItemList { get; set; }
 }
 
 [Serializable]
-public class JaphaItemData
+public class JaphwaItemData
 {
     [JsonProperty("itemName")]
     public string ItemName { get; set; }

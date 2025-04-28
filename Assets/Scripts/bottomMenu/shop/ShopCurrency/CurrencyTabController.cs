@@ -11,7 +11,7 @@ public class CurrencyTabController : MonoBehaviour
 
     [Header("하위 메뉴 매니저 (Open…Panel 호출)")]
     public ShopFreeManager freeManager;
-    public ShopJaphaManager japhaManager;
+    public ShopJaphwaManager japhaManager;
     public ShopDiamondManager diamondManager;
     public ShopMileageManager mileageManager;
 
