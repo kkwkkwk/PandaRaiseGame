@@ -89,7 +89,7 @@ namespace Shop
                 try
                 {
                     var cd = JsonConvert.DeserializeObject<Dictionary<string, string>>(ci.CustomData);
-                    if (!cd.TryGetValue("rank", out var rank)) continue;
+                    if (!cd!.TryGetValue("rank", out var rank)) continue;
                     if (!poolByRank.ContainsKey(rank))
                         poolByRank[rank] = new List<CatalogItem>();
                     poolByRank[rank].Add(ci);
@@ -133,7 +133,7 @@ namespace Shop
             }
 
             // 7) 재화 차감
-            if (!data.CurrencyType.Equals("FREE", StringComparison.OrdinalIgnoreCase) && pricePerDraw > 0)
+            if (!data.CurrencyType!.Equals("FREE", StringComparison.OrdinalIgnoreCase) && pricePerDraw > 0)
             {
                 var subRes = await PlayFabServerAPI.SubtractUserVirtualCurrencyAsync(new SubtractUserVirtualCurrencyRequest
                 {

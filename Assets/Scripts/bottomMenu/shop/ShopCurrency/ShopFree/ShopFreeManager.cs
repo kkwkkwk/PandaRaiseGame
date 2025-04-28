@@ -26,7 +26,7 @@ public class ShopFreeManager : MonoBehaviour
     private const string fetchFreeUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetFreeShopData?code=RSjJW7s3xyKlU3iJzYog0Fd50ylVsuIp-PdqRpG807e4AzFu0MBECg==";
     private const string purchaseFreeUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyFreeShopItem";
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyCurrencyItem?code=LXn8o8WNXOWZhs85YUY8XgN4xyX87Oj8vrskr-3aDmMVAzFuRI30Fg==";
 
     private List<FreeItemData> freeItems;
 

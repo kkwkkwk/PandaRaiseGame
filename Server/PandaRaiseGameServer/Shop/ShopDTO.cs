@@ -193,7 +193,36 @@ namespace Shop
         public string? Header { get; set; }
     }
     #endregion
+    #region
+    [Serializable]
+    public class BuyCurrencyRequestData
+    {
+        [JsonProperty("playFabId")]
+        public string? PlayFabId { get; set; }
 
+        [JsonProperty("itemName")]
+        public string? ItemName { get; set; }
+
+        [JsonProperty("currencyType")]
+        public string? CurrencyType { get; set; }   // "소모 재화"
+
+        [JsonProperty("price")]
+        public int Price { get; set; }
+
+        [JsonProperty("goodsType")]
+        public string? GoodsType { get; set; }  // "상품 종류"
+    }
+
+    [Serializable]
+    public class BuyCurrencyResponseData
+    {
+        [JsonProperty("isSuccess")]
+        public bool IsSuccess { get; set; }
+
+        [JsonProperty("errorMessage")]
+        public string? ErrorMessage { get; set; }
+    }
+    #endregion
     #region Gacha
     /// <summary>
     /// 가챠 구매 요청 데이터

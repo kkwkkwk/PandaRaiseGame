@@ -27,6 +27,9 @@ public class DiamondItemData
     [JsonProperty("currencyType")]
     public string CurrencyType { get; set; }  // "Won"
 
+    [JsonProperty("goodsType")]
+    public string GoodsType { get; set; }  // "상품 종류"
+
     [JsonProperty("header")]
     public string Header { get; set; }          // 헤더 UI
 }

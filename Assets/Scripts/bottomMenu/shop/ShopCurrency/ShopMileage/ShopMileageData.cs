@@ -27,6 +27,9 @@ public class MileageItemData
     [JsonProperty("currencyType")]
     public string CurrencyType { get; set; }  // 예: "FREE", "MILEAGE", "WON" 등
 
+    [JsonProperty("goodsType")]
+    public string GoodsType { get; set; }  // "상품 종류"
+
     [JsonProperty("header")]
     public string Header { get; set; }       // UI 헤더에 해당
 }

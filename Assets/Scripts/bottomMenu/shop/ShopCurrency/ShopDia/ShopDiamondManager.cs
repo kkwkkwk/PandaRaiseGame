@@ -26,7 +26,7 @@ public class ShopDiamondManager : MonoBehaviour
     private const string fetchDiamondUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetDiamondShopData?code=NFo5vc5QTYyNUxJBokgDiMDi5F_NgRP6JuvKWpz4R6RBAzFuKOBC_A==";
     private const string purchaseDiamondUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyDiamondShopItem";
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyCurrencyItem?code=LXn8o8WNXOWZhs85YUY8XgN4xyX87Oj8vrskr-3aDmMVAzFuRI30Fg==";
 
     private List<DiamondItemData> diamondItems;
 

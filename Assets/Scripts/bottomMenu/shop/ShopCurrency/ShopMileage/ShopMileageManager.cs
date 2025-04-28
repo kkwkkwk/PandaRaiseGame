@@ -26,7 +26,7 @@ public class ShopMileageManager : MonoBehaviour
     private const string fetchMileageUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetMileageShopData?code=7FEp57GIrRLmJG0-E3k5IuuksDTzUgpcSkJiNRzVM3H2AzFuWLTgiw==";
     private const string purchaseMileageUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyMileageShopItem";
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyCurrencyItem?code=LXn8o8WNXOWZhs85YUY8XgN4xyX87Oj8vrskr-3aDmMVAzFuRI30Fg==";
 
     private List<MileageItemData> mileageItems;
 

@@ -29,7 +29,7 @@ public class ShopJaphwaManager : MonoBehaviour
     private const string fetchJaphaUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetJaphwaShopData?code=Qjq_KGQpLvoZjJKDCR76iOJE9EjQHoO2PvucK7Ea92-EAzFu8w6Mtg==";
     private const string purchaseJaphaUrl =
-        "https://pandaraisegame-shop.azurewebsites.net/api/BuyJaphwaShopItem";
+        "https://pandaraisegame-shop.azurewebsites.net/api/BuyCurrencyItem?code=LXn8o8WNXOWZhs85YUY8XgN4xyX87Oj8vrskr-3aDmMVAzFuRI30Fg==";
 
     private List<JaphwaItemData> japhaItems;
 
