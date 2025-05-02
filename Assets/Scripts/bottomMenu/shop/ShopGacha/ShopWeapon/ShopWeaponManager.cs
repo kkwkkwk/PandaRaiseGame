@@ -11,7 +11,6 @@ public class ShopWeaponManager : MonoBehaviour
 
     [Header("무기 패널 Canvas")]
     public GameObject weaponPopupCanvas;
-
     [Header("ScrollView Content (Viewport→Content)")]
     public RectTransform scrollContent;
 
@@ -23,12 +22,18 @@ public class ShopWeaponManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
+    [Header("로딩 패널")]
+    [Tooltip("서버 요청 중 표시할 로딩 UI")] public GameObject loadingPanel;
+
+    [Header("가챠 결과 창 컨트롤러")]
+    [Tooltip("GachaResultController를 인스펙터에서 연결하세요.")]
+    public GachaResultController gachaResultController;
+
     private const string fetchWeaponUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetWeaponGachaData?code=LbwpDyYAz2G1OE94wg-oUgI5VHYlmOY54oFUWFTUiJ7PAzFuafMI_g==";
     private const string purchaseWeaponUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/BuyGachaItem?code=lwFZwNzXVVbEbzFgjxRpfbaTeGN0fOkKEfq5K0_dRRWvAzFuxgjhXQ==";
 
-    /** 서버에서 내려온 아이템 캐시 */
     private List<WeaponItemData> weaponItems;
 
     private void Awake()
@@ -103,9 +108,11 @@ public class ShopWeaponManager : MonoBehaviour
 
     private void Populate()
     {
-        foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
+        foreach (var hc in headerConfigs)
+            ClearContent(hc.contentParent);
 
-        if (weaponItems == null || weaponItems.Count == 0) return;
+        if (weaponItems == null || weaponItems.Count == 0)
+            return;
 
         foreach (var item in weaponItems)
         {
@@ -113,9 +120,13 @@ public class ShopWeaponManager : MonoBehaviour
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
 
-            // 6-인자 Setup : 버튼 클릭 시 PurchaseWeapon 호출
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType,
-                        item.ItemName, "Weapon");
+            // WeaponItemData 객체 자체를 넘기도록 Setup 호출
+            ctrl?.Setup(item.ItemName,
+                        null,
+                        item.Price,
+                        item.CurrencyType,
+                        item,
+                        "Weapon");
         }
     }
 
@@ -136,22 +147,24 @@ public class ShopWeaponManager : MonoBehaviour
     #endregion
 
     #region 구매 ------------------------------------------------------------------
-    /** SmallItemController 에서 itemName 으로 호출 */
-    public void PurchaseWeapon(string itemName, string currencyType)
+    public void PurchaseWeapon(WeaponItemData itemData, string currencyType)
     {
-        var itemData = weaponItems?.Find(i => i.ItemName == itemName);
         if (itemData == null)
         {
-            Debug.LogError($"[WeaponManager] Purchase 요청 실패 – '{itemName}' 캐시 미존재");
+            Debug.LogError("[WeaponManager] Purchase 요청 실패 – itemData is null");
             return;
         }
+
+        // ▶ 로딩 시작
+        if (loadingPanel != null)
+            loadingPanel.SetActive(true);
 
         var requestData = new BuyGachaRequestData
         {
             PlayFabId = GlobalData.playFabId,
             CurrencyType = currencyType,
             ItemType = "Weapon",
-            WeaponItemData = itemData          // ← 전체 ItemData 전송
+            WeaponItemData = itemData
         };
 
         StartCoroutine(SendBuyRequest(requestData));
@@ -160,7 +173,7 @@ public class ShopWeaponManager : MonoBehaviour
     private IEnumerator SendBuyRequest(BuyGachaRequestData data)
     {
         string json = JsonConvert.SerializeObject(data);
-        Debug.Log($"[WeaponManager] ▶ Purchase JSON\n{json}");   // **요청 로그 추가**
+        Debug.Log($"[WeaponManager] ▶ Purchase JSON\n{json}");
 
         var req = new UnityWebRequest(purchaseWeaponUrl, "POST")
         {
@@ -171,6 +184,10 @@ public class ShopWeaponManager : MonoBehaviour
 
         yield return req.SendWebRequest();
 
+        // ▶ 로딩 종료
+        if (loadingPanel != null)
+            loadingPanel.SetActive(false);
+
         if (req.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"[WeaponManager] 요청 실패: {req.error}");
@@ -178,10 +195,14 @@ public class ShopWeaponManager : MonoBehaviour
         }
 
         var resp = JsonConvert.DeserializeObject<BuyGachaResponseData>(req.downloadHandler.text);
-        Debug.Log($"[WeaponManager] ◀ Response JSON\n{req.downloadHandler.text}"); // **응답 로그**
+        Debug.Log($"[WeaponManager] ◀ Response JSON\n{req.downloadHandler.text}");
 
         if (resp != null && resp.IsSuccess)
+        {
             Debug.Log($"[WeaponManager] 구매 성공! 뽑힌 아이템 수: {resp.OwnedItemList.Count}");
+            if (gachaResultController != null)
+                gachaResultController.ShowResults(resp.OwnedItemList);
+        }
         else
             Debug.LogWarning("[WeaponManager] 서버 처리 실패 (isSuccess == false)");
     }

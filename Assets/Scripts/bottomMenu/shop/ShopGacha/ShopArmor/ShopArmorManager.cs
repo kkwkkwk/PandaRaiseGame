@@ -17,6 +17,13 @@ public class ShopArmorManager : MonoBehaviour
 
     [Header("단일 아이템 Prefab")] public GameObject itemPrefab;
 
+    [Header("로딩 패널")]
+    [Tooltip("서버 요청 중 표시할 로딩 UI")] public GameObject loadingPanel;
+
+    [Header("가챠 결과 창 컨트롤러")]
+    [Tooltip("GachaResultController를 인스펙터에서 연결하세요.")]
+    public GachaResultController gachaResultController;
+
     private const string fetchArmorUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetArmorGachaData?code=oRjQ3RDt8YXXaItejzasxC8IpWXG9VY5nxWfjTqy3xB6AzFugcy0Ww==";
     private const string purchaseArmorUrl =
@@ -99,8 +106,9 @@ public class ShopArmorManager : MonoBehaviour
             var parent = GetParent(item.Header) ?? headerConfigs[0].contentParent;
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
+            // ArmorItemData 객체 기반 Setup 호출
             ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType,
-                        item.ItemName, "Armor");
+                        item, "Armor");
         }
     }
 
@@ -120,14 +128,17 @@ public class ShopArmorManager : MonoBehaviour
     #endregion
 
     #region 구매 ------------------------------------------------------------------
-    public void PurchaseArmor(string itemName, string currencyType)
+    public void PurchaseArmor(ArmorItemData itemData, string currencyType)
     {
-        var itemData = armorItems?.Find(i => i.ItemName == itemName);
         if (itemData == null)
         {
-            Debug.LogError($"[ArmorManager] Purchase 요청 실패 – '{itemName}' 캐시 미존재");
+            Debug.LogError("[ArmorManager] Purchase 요청 실패 – itemData is null");
             return;
         }
+
+        // ▶ 로딩 시작
+        if (loadingPanel != null)
+            loadingPanel.SetActive(true);
 
         var requestData = new BuyGachaRequestData
         {
@@ -153,6 +164,10 @@ public class ShopArmorManager : MonoBehaviour
 
         yield return req.SendWebRequest();
 
+        // ▶ 로딩 종료
+        if (loadingPanel != null)
+            loadingPanel.SetActive(false);
+
         if (req.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"[ArmorManager] 요청 실패: {req.error}");
@@ -163,7 +178,11 @@ public class ShopArmorManager : MonoBehaviour
         var resp = JsonConvert.DeserializeObject<BuyGachaResponseData>(req.downloadHandler.text);
 
         if (resp != null && resp.IsSuccess)
+        {
             Debug.Log($"[ArmorManager] 구매 성공! 뽑힌 아이템 수: {resp.OwnedItemList.Count}");
+            if (gachaResultController != null)
+                gachaResultController.ShowResults(resp.OwnedItemList);
+        }
         else
             Debug.LogWarning("[ArmorManager] 서버 처리 실패 (isSuccess == false)");
     }

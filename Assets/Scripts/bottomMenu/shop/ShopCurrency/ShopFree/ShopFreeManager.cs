@@ -115,36 +115,61 @@ public class ShopFreeManager : MonoBehaviour
 
     public void PurchaseFree(string itemName, string currencyType)
     {
+        // 1) 선택된 무료 아이템 찾기
+        var itemData = freeItems.Find(i => i.ItemName == itemName);
+        if (itemData == null)
+        {
+            Debug.LogError($"[FreeManager] Purchase 요청 실패 – '{itemName}' 항목 미존재");
+            return;
+        }
+
         var requestData = new BuyCurrencyRequestData
         {
-            PlayFabId = PlayerPrefs.GetString("PlayFabId"),
-            ItemName = itemName,
+            PlayFabId = GlobalData.playFabId,
             CurrencyType = currencyType,
-            ItemType = "Currency"
+            GoodsType = itemData.GoodsType,   
+            ItemType = "Free",
+            FreeItemData = itemData             // 이 필드만 채워짐
         };
+
         StartCoroutine(SendBuyCurrencyRequest(requestData));
     }
 
     private IEnumerator SendBuyCurrencyRequest(BuyCurrencyRequestData data)
     {
+        // ▶ Purchase JSON
         string json = JsonConvert.SerializeObject(data);
-        var req = new UnityWebRequest(purchaseFreeUrl, "POST");
-        req.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
-        req.downloadHandler = new DownloadHandlerBuffer();
-        req.SetRequestHeader("Content-Type", "application/json");
+        Debug.Log($"[FreeManager] ▶ Purchase JSON\n{json}");
 
-        yield return req.SendWebRequest();
-        if (req.result == UnityWebRequest.Result.Success)
+        // 요청 전송
+        var req = new UnityWebRequest(purchaseFreeUrl, "POST")
         {
-            var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
-            if (resp != null && resp.IsSuccess)
-                Debug.Log("[FreeManager] 무료 아이템 처리 성공");
-            else
-                Debug.LogWarning("[FreeManager] 서버 처리 실패 (isSuccess == false)");
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        req.SetRequestHeader("Content-Type", "application/json");
+        yield return req.SendWebRequest();
+
+        // HTTP 실패
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[FreeManager] 요청 실패: {req.error}");
+            yield break;
+        }
+
+        // ◀ Response JSON
+        Debug.Log($"[FreeManager] ◀ Response JSON\n{req.downloadHandler.text}");
+
+        // 성공/실패 로직 (message 없이)
+        var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
+        if (resp != null && resp.IsSuccess)
+        {
+            Debug.Log($"[FreeManager] 구매 성공! {data.GoodsType}");
         }
         else
         {
-            Debug.LogError($"[FreeManager] 요청 실패: {req.error}");
+            Debug.LogWarning($"[FreeManager] 서버 처리 실패 (isSuccess == false)");
         }
     }
+
 }
