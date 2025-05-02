@@ -42,7 +42,7 @@ public class ProfilePopupManager : MonoBehaviour
 
         // 2) 코루틴 완료 후 비활성화
         ProfileCanvas.SetActive(false);
-        Debug.Log("[LeaderboardPopupManager] StartSequence() 완료 후 Canvas 비활성화");
+        Debug.Log("[ProfilePopupManager] StartSequence() 완료 후 Canvas 비활성화");
     }
 
     /// <summary>

@@ -64,6 +64,7 @@ public class LoadingScreenManager : MonoBehaviour
         bool weaponDone = false;
         bool armorDone = false;
         bool skillDone = false;
+        bool farmDone = false;
 
         // 퀘스트
         if (QuestPopupManager.Instance != null)
@@ -148,8 +149,21 @@ public class LoadingScreenManager : MonoBehaviour
         {
             skillDone = true;
         }
+        // 농장 farm
+        if (FarmPopupManager.Instance != null)
+        {
+            StartCoroutine(ParallelHelper(
+                FarmPopupManager.Instance.StartSequence(),
+                () => farmDone = true
+            ));
+        }
+        else
+        {
+            // 없으면 그냥 완료 처리
+            questDone = true;
+        }
         // 모든 로드가 끝날 때까지 대기
-        while (!questDone || !profileDone || !leaderboardDone || !guildDone || !weaponDone || !armorDone || !skillDone)
+        while (!questDone || !profileDone || !leaderboardDone || !guildDone || !weaponDone || !armorDone || !skillDone || !farmDone)
         {
             yield return null;
         }
