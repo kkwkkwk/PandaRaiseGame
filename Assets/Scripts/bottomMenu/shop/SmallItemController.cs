@@ -160,9 +160,9 @@ public class SmallItemController : MonoBehaviour
         {
             Sprite icon = currencyType switch
             {
-                "DIAMOND" => diamondIcon,
+                "DM" => diamondIcon,
                 "GC" => goldIcon,
-                "MILEAGE" => mileageIcon,
+                "ML" => mileageIcon,
                 "FREE" => freeIcon,
                 _ => null
             };

@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.AspNetCore.Mvc;
+using CommonLibrary;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
-using CommonLibrary;
+using static Shop.BuyCurrencyRequestData;
 
 namespace Shop
 {
@@ -22,40 +22,68 @@ namespace Shop
 
         [Function("BuyCurrencyItem")]
         public async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "BuyCurrencyItem")] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "BuyCurrencyItem")] HttpRequest req)
         {
-            // 1) PlayFab 세팅
             PlayFabConfig.Configure();
 
-            // 2) 요청 파싱
+            // 1) 요청 바디 파싱
             var body = await new StreamReader(req.Body).ReadToEndAsync();
             _logger.LogInformation("[BuyCurrencyItem] Request Body: {0}", body);
             var data = JsonConvert.DeserializeObject<BuyCurrencyRequestData>(body)
                        ?? throw new Exception("Invalid request");
 
-            // 3) 문자열에서 수량 파싱 (e.g. "던전 티켓 10개" → 10)
-            var match = Regex.Match(data.ItemName!, @"\d+");
+            // 2) nested DTO 에서 price, itemName 추출 → 수량 파싱
+            int price;
+            string itemName;
+            switch (data.ItemType)
+            {
+                case "Diamond":
+                    price = data.DiamondItemData!.Price;
+                    itemName = data.DiamondItemData.ItemName!;
+                    break;
+                case "Free":
+                    price = data.FreeItemData!.Price;
+                    itemName = data.FreeItemData.ItemName!;
+                    break;
+                case "Japhwa":
+                    price = data.JaphwaItemData!.Price;
+                    itemName = data.JaphwaItemData.ItemName!;
+                    break;
+                case "Mileage":
+                    price = data.MileageItemData!.Price;
+                    itemName = data.MileageItemData.ItemName!;
+                    break;
+                default:
+                    return new BadRequestObjectResult(new BuyCurrencyResponseData
+                    {
+                        IsSuccess = false,
+                        OwnedItemList = null
+                    });
+            }
+
+            var match = Regex.Match(itemName, @"\d+");
             int quantity = match.Success ? int.Parse(match.Value) : 1;
 
-            // 4) 재화 차감 (FREE 면 차감 스킵)
-            if (!data.CurrencyType!.Equals("FREE", StringComparison.OrdinalIgnoreCase) && !data.CurrencyType.Equals("WON", StringComparison.OrdinalIgnoreCase))
+            // 3) 재화 차감 (FREE, WON 은 차감 스킵)
+            if (!data.CurrencyType!.Equals("FREE", StringComparison.OrdinalIgnoreCase)
+             && !data.CurrencyType.Equals("WON", StringComparison.OrdinalIgnoreCase))
             {
                 var subRes = await PlayFabServerAPI.SubtractUserVirtualCurrencyAsync(
                     new SubtractUserVirtualCurrencyRequest
                     {
                         PlayFabId = data.PlayFabId,
                         VirtualCurrency = data.CurrencyType,
-                        Amount = data.Price
+                        Amount = price
                     });
                 if (subRes.Error != null)
                     return new OkObjectResult(new BuyCurrencyResponseData
                     {
                         IsSuccess = false,
-                        ErrorMessage = "재화 차감 실패"
+                        OwnedItemList = null
                     });
             }
 
-            // 5) 지급 재화 추가
+            // 4) 지급 재화 추가
             var addRes = await PlayFabServerAPI.AddUserVirtualCurrencyAsync(
                 new AddUserVirtualCurrencyRequest
                 {
@@ -67,11 +95,37 @@ namespace Shop
                 return new OkObjectResult(new BuyCurrencyResponseData
                 {
                     IsSuccess = false,
-                    ErrorMessage = "재화 지급 실패"
+                    OwnedItemList = null
                 });
 
+            // 5) OwnedCurrencyData 생성 → nested DTO 그대로 복사
+            var owned = new OwnedCurrencyData
+            {
+                ItemType = data.ItemType
+            };
+            switch (data.ItemType)
+            {
+                case "Diamond":
+                    owned.DiamondItemData = data.DiamondItemData;
+                    break;
+                case "Free":
+                    owned.FreeItemData = data.FreeItemData;
+                    break;
+                case "Japhwa":
+                    owned.JaphwaItemData = data.JaphwaItemData;
+                    break;
+                case "Mileage":
+                    owned.MileageItemData = data.MileageItemData;
+                    break;
+            }
+
             // 6) 최종 응답
-            return new OkObjectResult(new BuyCurrencyResponseData { IsSuccess = true });
+            var response = new BuyCurrencyResponseData
+            {
+                IsSuccess = true,
+                OwnedItemList = new List<OwnedCurrencyData> { owned }
+            };
+            return new OkObjectResult(response);
         }
     }
 }

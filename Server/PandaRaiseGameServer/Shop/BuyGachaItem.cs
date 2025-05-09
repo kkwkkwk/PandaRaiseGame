@@ -271,11 +271,11 @@ namespace Shop
             {
                 ItemType = data.ItemType,
                 ArmorItemData = data.ItemType == "Armor"
-                    ? JsonConvert.DeserializeObject<ArmorItemData>(ci.CustomData) : null,
+                    ? JsonConvert.DeserializeObject<ArmorGachaItemData>(ci.CustomData) : null,
                 WeaponItemData = data.ItemType == "Weapon"
-                    ? JsonConvert.DeserializeObject<WeaponItemData>(ci.CustomData) : null,
+                    ? JsonConvert.DeserializeObject<WeaponGachaItemData>(ci.CustomData) : null,
                 SkillItemData = data.ItemType == "Skill"
-                    ? JsonConvert.DeserializeObject<SkillItemData>(ci.CustomData) : null
+                    ? JsonConvert.DeserializeObject<SkillGachaItemData>(ci.CustomData) : null
             }).ToList();
 
             return new OkObjectResult(new BuyGachaResponseData
