@@ -12,7 +12,7 @@ public class JaphwaResponseData
     public string ErrorMessage { get; set; }
 
     [JsonProperty("japhwaItemList")]
-    public List<JaphwaItemData> JaphaItemList { get; set; }
+    public List<JaphwaItemData> JaphwaItemList { get; set; }
 }
 
 [Serializable]

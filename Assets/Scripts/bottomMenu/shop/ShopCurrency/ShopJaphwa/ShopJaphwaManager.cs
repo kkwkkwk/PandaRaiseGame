@@ -10,7 +10,7 @@ public class ShopJaphwaManager : MonoBehaviour
     public static ShopJaphwaManager Instance { get; private set; }
 
     [Header("잡화 탭 팝업 Canvas")]
-    public GameObject japhaPopupCanvas;
+    public GameObject japhwaPopupCanvas;
 
     [Header("ScrollView Content (Viewport→Content)")]
     public RectTransform scrollContent;
@@ -26,12 +26,12 @@ public class ShopJaphwaManager : MonoBehaviour
     [Header("단일 아이템 Prefab")]
     public GameObject itemPrefab;
 
-    private const string fetchJaphaUrl =
+    private const string fetchJaphwaUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/GetJaphwaShopData?code=Qjq_KGQpLvoZjJKDCR76iOJE9EjQHoO2PvucK7Ea92-EAzFu8w6Mtg==";
-    private const string purchaseJaphaUrl =
+    private const string purchaseJaphwaUrl =
         "https://pandaraisegame-shop.azurewebsites.net/api/BuyCurrencyItem?code=LXn8o8WNXOWZhs85YUY8XgN4xyX87Oj8vrskr-3aDmMVAzFuRI30Fg==";
 
-    private List<JaphwaItemData> japhaItems;
+    private List<JaphwaItemData> japhwaItems;
 
     private void Awake()
     {
@@ -39,21 +39,21 @@ public class ShopJaphwaManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void OpenJaphaPanel()
+    public void OpenJaphwaPanel()
     {
-        japhaPopupCanvas?.SetActive(true);
+        japhwaPopupCanvas?.SetActive(true);
         scrollContent.gameObject.SetActive(false);
         StartCoroutine(FetchAndShow());
     }
 
-    public void CloseJaphaPanel()
+    public void CloseJaphwaPanel()
     {
-        japhaPopupCanvas?.SetActive(false);
+        japhwaPopupCanvas?.SetActive(false);
     }
 
     private IEnumerator FetchAndShow()
     {
-        yield return FetchJaphaDataCoroutine();
+        yield return FetchJaphwaDataCoroutine();
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent);
         var sr = scrollContent.GetComponentInParent<ScrollRect>();
@@ -61,10 +61,10 @@ public class ShopJaphwaManager : MonoBehaviour
         scrollContent.gameObject.SetActive(true);
     }
 
-    private IEnumerator FetchJaphaDataCoroutine()
+    private IEnumerator FetchJaphwaDataCoroutine()
     {
         var body = System.Text.Encoding.UTF8.GetBytes("{}");
-        using var req = new UnityWebRequest(fetchJaphaUrl, "POST")
+        using var req = new UnityWebRequest(fetchJaphwaUrl, "POST")
         {
             uploadHandler = new UploadHandlerRaw(body),
             downloadHandler = new DownloadHandlerBuffer()
@@ -73,36 +73,36 @@ public class ShopJaphwaManager : MonoBehaviour
         yield return req.SendWebRequest();
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[JaphaManager] Fetch 실패: {req.error}");
+            Debug.LogError($"[JaphwaManager] Fetch 실패: {req.error}");
             yield break;
         }
 
         var resp = JsonConvert.DeserializeObject<JaphwaResponseData>(req.downloadHandler.text);
         if (resp == null || !resp.IsSuccess)
         {
-            Debug.LogWarning("[JaphaManager] 서버 응답 이상");
+            Debug.LogWarning("[JaphwaManager] 서버 응답 이상");
             yield break;
         }
 
-        japhaItems = resp.JaphaItemList;
-        PopulateJaphaItems();
+        japhwaItems = resp.JaphwaItemList;
+        PopulateJaphwaItems();
     }
 
-    private void PopulateJaphaItems()
+    private void PopulateJaphwaItems()
     {
         foreach (var hc in headerConfigs) ClearContent(hc.contentParent);
         ClearContent(defaultContentParent);
 
-        if (japhaItems == null || japhaItems.Count == 0) return;
+        if (japhwaItems == null || japhwaItems.Count == 0) return;
 
-        foreach (var item in japhaItems)
+        foreach (var item in japhwaItems)
         {
             var parent = GetContentParent(item.Header) ?? defaultContentParent;
             if (parent == null || itemPrefab == null) continue;
 
             var go = Instantiate(itemPrefab, parent);
             var ctrl = go.GetComponent<SmallItemController>();
-            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Japha");
+            ctrl?.Setup(item.ItemName, null, item.Price, item.CurrencyType, item.ItemName, "Japhwa");
         }
     }
 
@@ -122,13 +122,13 @@ public class ShopJaphwaManager : MonoBehaviour
             Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void PurchaseJapha(string itemName, string currencyType)
+    public void PurchaseJaphwa(string itemName, string currencyType)
     {
         // 1) 선택된 잡화 아이템 찾기
-        var itemData = japhaItems.Find(i => i.ItemName == itemName);
+        var itemData = japhwaItems.Find(i => i.ItemName == itemName);
         if (itemData == null)
         {
-            Debug.LogError($"[JaphaManager] Purchase 요청 실패 – '{itemName}' 항목 미존재");
+            Debug.LogError($"[JaphwaManager] Purchase 요청 실패 – '{itemName}' 항목 미존재");
             return;
         }
 
@@ -137,7 +137,7 @@ public class ShopJaphwaManager : MonoBehaviour
             PlayFabId = GlobalData.playFabId,
             CurrencyType = currencyType,
             GoodsType = itemData.GoodsType,   
-            ItemType = "Japha",
+            ItemType = "Japhwa",
             JaphwaItemData = itemData
         };
 
@@ -150,10 +150,10 @@ public class ShopJaphwaManager : MonoBehaviour
     {
         // ▶ Purchase JSON
         string json = JsonConvert.SerializeObject(data);
-        Debug.Log($"[JaphaManager] ▶ Purchase JSON\n{json}");
+        Debug.Log($"[JaphwaManager] ▶ Purchase JSON\n{json}");
 
         // 요청 전송
-        var req = new UnityWebRequest(purchaseJaphaUrl, "POST")
+        var req = new UnityWebRequest(purchaseJaphwaUrl, "POST")
         {
             uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json)),
             downloadHandler = new DownloadHandlerBuffer()
@@ -164,22 +164,22 @@ public class ShopJaphwaManager : MonoBehaviour
         // HTTP 실패
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[JaphaManager] 요청 실패: {req.error}");
+            Debug.LogError($"[JaphwaManager] 요청 실패: {req.error}");
             yield break;
         }
 
         // ◀ Response JSON
-        Debug.Log($"[JaphaManager] ◀ Response JSON\n{req.downloadHandler.text}");
+        Debug.Log($"[JaphwaManager] ◀ Response JSON\n{req.downloadHandler.text}");
 
         // 성공/실패 로직 (message 없이)
         var resp = JsonConvert.DeserializeObject<BuyCurrencyResponseData>(req.downloadHandler.text);
         if (resp != null && resp.IsSuccess)
         {
-            Debug.Log($"[JaphaManager] 구매 성공! {data.GoodsType}");
+            Debug.Log($"[JaphwaManager] 구매 성공! {data.GoodsType}");
         }
         else
         {
-            Debug.LogWarning($"[JaphaManager] 서버 처리 실패 (isSuccess == false)");
+            Debug.LogWarning($"[JaphwaManager] 서버 처리 실패 (isSuccess == false)");
         }
     }
 

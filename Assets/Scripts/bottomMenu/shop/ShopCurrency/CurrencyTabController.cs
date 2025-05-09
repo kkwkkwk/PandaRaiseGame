@@ -5,13 +5,13 @@ public class CurrencyTabController : MonoBehaviour
 {
     [Header("재화 탭 패널들")]
     public GameObject freePanel;      // 무료 탭
-    public GameObject japhaPanel;     // 잡화 탭
+    public GameObject japhwaPanel;     // 잡화 탭
     public GameObject diaPanel;       // 다이아 탭
     public GameObject mileagePanel;   // 마일리지 탭
 
     [Header("하위 메뉴 매니저 (Open…Panel 호출)")]
     public ShopFreeManager freeManager;
-    public ShopJaphwaManager japhaManager;
+    public ShopJaphwaManager japhwaManager;
     public ShopDiamondManager diamondManager;
     public ShopMileageManager mileageManager;
 
@@ -30,7 +30,7 @@ public class CurrencyTabController : MonoBehaviour
     private void HideAllTabs()
     {
         freePanel?.SetActive(false);
-        japhaPanel?.SetActive(false);
+        japhwaPanel?.SetActive(false);
         diaPanel?.SetActive(false);
         mileagePanel?.SetActive(false);
     }
@@ -43,12 +43,12 @@ public class CurrencyTabController : MonoBehaviour
         freeManager?.OpenFreePanel();
     }
 
-    public void ShowJaphaPanel()
+    public void ShowJaphwaPanel()
     {
         HideAllTabs();
-        japhaPanel?.SetActive(true);
+        japhwaPanel?.SetActive(true);
         Debug.Log("[CurrencyTabController] 잡화 탭 열림");
-        japhaManager?.OpenJaphaPanel();
+        japhwaManager?.OpenJaphwaPanel();
     }
 
     public void ShowDiaPanel()
