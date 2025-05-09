@@ -119,15 +119,19 @@ public class SmallItemController : MonoBehaviour
     private void SetupInternal(string name, Sprite sprite, int price, string currencyType)
     {
         // ① 아이템명
-        if (itemNameText != null) itemNameText.text = name;
+        if (itemNameText != null)
+            itemNameText.text = name;
 
         // ② 아이콘
-        if (itemImage != null) itemImage.sprite = sprite;
+        if (itemImage != null)
+            itemImage.sprite = sprite;
 
         // ③ 가격 표시
         if (currencyType == "WON")
         {
-            priceText?.gameObject.SetActive(false);
+            // 현금 UI
+            if (priceText != null)
+                priceText.gameObject.SetActive(false);
             if (wonPriceText != null)
             {
                 wonPriceText.gameObject.SetActive(true);
@@ -136,9 +140,14 @@ public class SmallItemController : MonoBehaviour
         }
         else
         {
-            wonPriceText?.gameObject.SetActive(false);
+            // 기타 화폐 UI
+            if (wonPriceText != null)
+                wonPriceText.gameObject.SetActive(false);
             if (priceText != null)
+            {
+                priceText.gameObject.SetActive(true);
                 priceText.text = currencyType == "FREE" ? "광고보기" : price.ToString();
+            }
         }
 
         // ④ 통화 아이콘
@@ -158,7 +167,8 @@ public class SmallItemController : MonoBehaviour
                 _ => null
             };
             currencyIconImage.enabled = icon != null;
-            if (icon != null) currencyIconImage.sprite = icon;
+            if (icon != null)
+                currencyIconImage.sprite = icon;
         }
     }
 }
