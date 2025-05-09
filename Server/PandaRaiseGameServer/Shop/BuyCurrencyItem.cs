@@ -68,6 +68,36 @@ namespace Shop
             if (!data.CurrencyType!.Equals("FREE", StringComparison.OrdinalIgnoreCase)
              && !data.CurrencyType.Equals("WON", StringComparison.OrdinalIgnoreCase))
             {
+
+                // 3-1) 현재 잔액 조회
+                var invRes = await PlayFabServerAPI.GetUserInventoryAsync(
+                    new GetUserInventoryRequest { PlayFabId = data.PlayFabId });
+                if (invRes.Error != null)
+                {
+                    // 잔액 조회 실패 시에도 구매 중단
+                    return new OkObjectResult(new BuyCurrencyResponseData
+                    {
+                        IsSuccess = false,
+                        OwnedItemList = null
+                    });
+                }
+
+                int currentBalance = 0;
+                if (invRes != null
+                 && invRes.Result.VirtualCurrency.TryGetValue(data.CurrencyType, out var bal))
+                    currentBalance = bal;
+
+                // 3-2) 부족할 경우 즉시 실패 반환
+                if (currentBalance < price)
+                {
+                    return new OkObjectResult(new BuyCurrencyResponseData
+                    {
+                        IsSuccess = false,
+                        OwnedItemList = null
+                    });
+                }
+
+                // 3-3) 차감 진행
                 var subRes = await PlayFabServerAPI.SubtractUserVirtualCurrencyAsync(
                     new SubtractUserVirtualCurrencyRequest
                     {

@@ -135,6 +135,27 @@ namespace Shop
             // 7) 재화 차감
             if (!data.CurrencyType!.Equals("FREE", StringComparison.OrdinalIgnoreCase) && pricePerDraw > 0)
             {
+                // 7-1) 현재 잔액 조회
+                var invRes = await PlayFabServerAPI.GetUserInventoryAsync(new GetUserInventoryRequest
+                {
+                    PlayFabId = data.PlayFabId
+                });
+                if (invRes.Error != null)
+                {
+                    _logger.LogError(invRes.Error.GenerateErrorReport(), "[BuyGachaItem] 잔액 조회 실패");
+                    return new OkObjectResult(new BuyGachaResponseData { IsSuccess = false });
+                }
+
+                invRes.Result.VirtualCurrency.TryGetValue(data.CurrencyType, out int currentBalance);
+
+                // 7-2) 잔액 부족 체크
+                if (currentBalance < pricePerDraw)
+                {
+                    _logger.LogWarning("[BuyGachaItem] 잔액 부족: 현재 {0}, 필요 {1}", currentBalance, pricePerDraw);
+                    return new OkObjectResult(new BuyGachaResponseData { IsSuccess = false });
+                }
+
+                // 7-3) 차감 진행
                 var subRes = await PlayFabServerAPI.SubtractUserVirtualCurrencyAsync(new SubtractUserVirtualCurrencyRequest
                 {
                     PlayFabId = data.PlayFabId,
@@ -151,16 +172,16 @@ namespace Shop
 
 
             // 8) 아이템 지급
-            var invRes = await PlayFabServerAPI.GetUserInventoryAsync(new GetUserInventoryRequest
+            var invRes2 = await PlayFabServerAPI.GetUserInventoryAsync(new GetUserInventoryRequest
             {
                 PlayFabId = data.PlayFabId
             });
-            if (invRes.Error != null)
+            if (invRes2.Error != null)
             {
-                _logger.LogError(invRes.Error.GenerateErrorReport(), "[BuyGachaItem] GetUserInventory 실패");
+                _logger.LogError(invRes2.Error.GenerateErrorReport(), "[BuyGachaItem] GetUserInventory 실패");
                 return new OkObjectResult(new BuyGachaResponseData { IsSuccess = false });
             }
-            var inventory = invRes.Result.Inventory;
+            var inventory = invRes2.Result.Inventory;
 
             // drawn 리스트를 ItemId별로 그룹핑
             var groups = drawn
