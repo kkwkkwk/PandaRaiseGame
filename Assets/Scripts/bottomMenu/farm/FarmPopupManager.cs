@@ -36,10 +36,10 @@ public class FarmPopupManager : MonoBehaviour
     public GameObject harvestPanel;           // 수확 패널
     public Button harvestBtn;                 // 수확 버튼
 
-    private string getSeedsUrl;
-    private string plantSeedUrl;
-    private string getFarmPopupUrl;
-    private string harvestSeedUrl;             // 수확 요청 URL
+    private string getSeedsUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetSeeds?code=Tv8mHmBDbE6pz84BooiWxqK6tW2shaP-bRoeNJNvAQq1AzFuuGuDdw==";
+    private string plantSeedUrl = "https://pandaraisegame-farm.azurewebsites.net/api/PlantSeed?code=JH5yYearnjOvVi9T9NT1NRFVKe6Li-SL17KXvFwElu1wAzFud9aKlQ==";
+    private string getFarmPopupUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetFarmPopup?code=pXQfhig4Ik9qwKpu5ymGf5pml0UEnfRpqehn3kNUnh3cAzFunjCvpQ==";
+    private string harvestSeedUrl = "https://pandaraisegame-farm.azurewebsites.net/api/HarvestSeed?code=vIsoXbjWnezNCwy9MbFwhcb7AAVnYDOrBTFEjX4ZiQj6AzFujmRhww==";             // 수확 요청 URL
 
     // 받아온 데이터 저장
 

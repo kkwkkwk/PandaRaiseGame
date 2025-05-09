@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equipment", "Equipment\Equi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Growth", "Growth\Growth.csproj", "{5398F152-4FFD-484E-9C88-8B4D2332BCE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farm", "Farm\Farm.csproj", "{5C29B861-8148-4641-A2E4-641037B04633}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{5398F152-4FFD-484E-9C88-8B4D2332BCE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5398F152-4FFD-484E-9C88-8B4D2332BCE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5398F152-4FFD-484E-9C88-8B4D2332BCE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C29B861-8148-4641-A2E4-641037B04633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C29B861-8148-4641-A2E4-641037B04633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C29B861-8148-4641-A2E4-641037B04633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C29B861-8148-4641-A2E4-641037B04633}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
