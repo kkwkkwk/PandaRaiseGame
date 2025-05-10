@@ -206,5 +206,12 @@ public class ShopWeaponManager : MonoBehaviour
         else
             Debug.LogWarning("[WeaponManager] 서버 처리 실패 (isSuccess == false)");
     }
+
+    // 서버 한번에 로딩용
+    public IEnumerator StartSequence()
+    {
+        // UI 표시는 하지 않고 데이터만 가져오길 원한다면 FetchWeaponDataCoroutine()만 호출
+        yield return FetchWeaponDataCoroutine();
+    }
     #endregion
 }

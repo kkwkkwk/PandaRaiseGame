@@ -199,5 +199,9 @@ public class ShopSkillManager : MonoBehaviour
         else
             Debug.LogWarning("[SkillManager] 서버 처리 실패 (isSuccess == false)");
     }
+    public IEnumerator StartSequence()
+    {
+        yield return FetchSkillDataCoroutine();
+    }
     #endregion
 }

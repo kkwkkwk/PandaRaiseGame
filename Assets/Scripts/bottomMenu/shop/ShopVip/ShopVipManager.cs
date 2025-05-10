@@ -6,6 +6,9 @@ using Newtonsoft.Json;
 
 public class ShopVipManager : MonoBehaviour
 {
+    // 싱글턴 인스턴스 추가
+    public static ShopVipManager Instance { get; private set; }
+
     [Header("VIP 패널 (옵션)")]
     public GameObject vipPanel;          // VIP 메뉴 전체 패널
 
@@ -19,6 +22,13 @@ public class ShopVipManager : MonoBehaviour
     private const string fetchVipUrl = "https://YOUR_SERVER/api/GetVipData?code=YOUR_CODE_HERE";
 
     private List<VipItemData> vipItems;
+
+    private void Awake()
+    {
+        // 싱글턴 초기화
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
 
     /// <summary>
     /// VIP 패널 열기 + 서버 데이터 요청
@@ -120,5 +130,14 @@ public class ShopVipManager : MonoBehaviour
         {
             Destroy(contentParent.GetChild(i).gameObject);
         }
+    }
+
+    /// <summary>
+    /// LoadingScreenManager를 위한 StartSequence
+    /// </summary>
+    public IEnumerator StartSequence()
+    {
+        // 내부의 FetchVipDataCoroutine 을 그대로 호출
+        yield return FetchVipDataCoroutine();
     }
 }

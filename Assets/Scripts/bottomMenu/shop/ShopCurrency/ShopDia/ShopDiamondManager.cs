@@ -171,6 +171,9 @@ public class ShopDiamondManager : MonoBehaviour
         }
     }
 
-
+    public IEnumerator StartSequence()
+    {
+        yield return FetchDiamondDataFromServer();
+    }
 
 }

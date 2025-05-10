@@ -159,4 +159,8 @@ public class ShopSpecialManager : MonoBehaviour
         [JsonProperty("specialItemList")]
         public List<SpecialItemData> SpecialItemList { get; set; }
     }
+    public IEnumerator StartSequence()
+    {
+        yield return FetchSpecialDataCoroutine();
+    }
 }

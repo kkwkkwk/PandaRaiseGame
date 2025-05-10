@@ -161,6 +161,7 @@ public class SmallItemController : MonoBehaviour
             Sprite icon = currencyType switch
             {
                 "DM" => diamondIcon,
+                "DIAMOND" => diamondIcon, // 오빠가 말한대로 서버에서 받아오는거 참고해서 DM만 남겨놓았는데 그러면 아이콘이 불러와지지않아서 이거 추가하니까 아이콘 불러와지더라 왜그런걸까?
                 "GC" => goldIcon,
                 "ML" => mileageIcon,
                 "FREE" => freeIcon,

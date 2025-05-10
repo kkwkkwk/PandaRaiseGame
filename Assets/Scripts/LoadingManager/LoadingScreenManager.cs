@@ -65,6 +65,82 @@ public class LoadingScreenManager : MonoBehaviour
         bool armorDone = false;
         bool skillDone = false;
         bool farmDone = false;
+        // Shop 로딩 플래그(많아서 주석으로 분리했음)
+        bool ShopWeaponDone = false;
+        bool ShopArmorDone = false;
+        bool ShopSkillDone = false;
+        bool ShopFreeDone = false;
+        bool ShopDiamondDone = false;
+        bool ShopJaphwaDone = false;
+        bool ShopMileageDone = false;
+        bool ShopSpecialDone = false;
+        bool ShopVipDone = false;
+
+        // Shop
+
+        if (ShopWeaponManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopWeaponManager.Instance.StartSequence(),
+                () => ShopWeaponDone = true
+            ));
+        else ShopWeaponDone = true;
+
+        if (ShopArmorManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopArmorManager.Instance.StartSequence(),
+                () => ShopArmorDone = true
+            ));
+        else ShopArmorDone = true;
+
+        if (ShopSkillManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopSkillManager.Instance.StartSequence(),
+                () => ShopSkillDone = true
+            ));
+        else ShopSkillDone = true;
+
+        if (ShopFreeManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopFreeManager.Instance.StartSequence(),
+                () => ShopFreeDone = true
+            ));
+        else ShopFreeDone = true;
+
+        if (ShopDiamondManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopDiamondManager.Instance.StartSequence(),
+                () => ShopDiamondDone = true
+            ));
+        else ShopDiamondDone = true;
+
+        if (ShopJaphwaManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopJaphwaManager.Instance.StartSequence(),
+                () => ShopJaphwaDone = true
+            ));
+        else ShopJaphwaDone = true;
+
+        if (ShopMileageManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopMileageManager.Instance.StartSequence(),
+                () => ShopMileageDone = true
+            ));
+        else ShopMileageDone = true;
+
+        if (ShopSpecialManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopSpecialManager.Instance.StartSequence(),
+                () => ShopSpecialDone = true
+            ));
+        else ShopSpecialDone = true;
+
+        if (ShopVipManager.Instance != null)
+            StartCoroutine(ParallelHelper(
+                ShopVipManager.Instance.StartSequence(),
+                () => ShopVipDone = true
+            ));
+        else ShopVipDone = true;
+
 
         // 퀘스트
         if (QuestPopupManager.Instance != null)
@@ -163,10 +239,16 @@ public class LoadingScreenManager : MonoBehaviour
             questDone = true;
         }
         // 모든 로드가 끝날 때까지 대기
-        while (!questDone || !profileDone || !leaderboardDone || !guildDone || !weaponDone || !armorDone || !skillDone || !farmDone)
+        while (!questDone || !profileDone || !leaderboardDone ||
+       !guildDone || !weaponDone || !armorDone ||
+       !skillDone || !farmDone ||
+       !ShopWeaponDone || !ShopArmorDone || !ShopSkillDone ||
+       !ShopFreeDone || !ShopDiamondDone || !ShopJaphwaDone || !ShopMileageDone ||
+       !ShopSpecialDone || !ShopVipDone)
         {
             yield return null;
         }
+
         Debug.Log("[LoadingScreenManager] 병렬 로딩 완료");
     }
 

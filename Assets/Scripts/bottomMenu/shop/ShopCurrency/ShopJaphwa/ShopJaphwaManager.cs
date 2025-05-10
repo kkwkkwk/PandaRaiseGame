@@ -182,5 +182,10 @@ public class ShopJaphwaManager : MonoBehaviour
             Debug.LogWarning($"[JaphwaManager] 서버 처리 실패 (isSuccess == false)");
         }
     }
+    public IEnumerator StartSequence()
+    {
+        yield return FetchJaphwaDataCoroutine();
+    }
+
 
 }

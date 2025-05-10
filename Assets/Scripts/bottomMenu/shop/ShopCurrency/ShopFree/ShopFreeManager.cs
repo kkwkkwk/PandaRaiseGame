@@ -172,4 +172,9 @@ public class ShopFreeManager : MonoBehaviour
         }
     }
 
+    public IEnumerator StartSequence()
+    {
+        yield return FetchFreeDataFromServer();
+    }
+
 }

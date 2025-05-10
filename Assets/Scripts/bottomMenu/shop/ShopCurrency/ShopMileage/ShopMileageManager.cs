@@ -171,5 +171,9 @@ public class ShopMileageManager : MonoBehaviour
             Debug.LogWarning($"[MileageManager] 서버 처리 실패 (isSuccess == false)");
         }
     }
+    public IEnumerator StartSequence()
+    {
+        yield return FetchMileageDataFromServer();
+    }
 
 }

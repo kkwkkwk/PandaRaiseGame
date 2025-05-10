@@ -186,5 +186,11 @@ public class ShopArmorManager : MonoBehaviour
         else
             Debug.LogWarning("[ArmorManager] 서버 처리 실패 (isSuccess == false)");
     }
+
+    //서버 로딩용
+    public IEnumerator StartSequence()
+    {
+        yield return FetchArmorDataCoroutine();
+    }
     #endregion
 }
