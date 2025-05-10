@@ -61,12 +61,30 @@ public class GachaResultController : MonoBehaviour
             var ctrl = go.GetComponent<GachaResultItemController>();
             if (ctrl == null) continue;
 
-            if (owned.WeaponItemData != null)
-                ctrl.Setup(owned.WeaponItemData, count);
-            else if (owned.ArmorItemData != null)
-                ctrl.Setup(owned.ArmorItemData, count);
-            else if (owned.SkillItemData != null)
-                ctrl.Setup(owned.SkillItemData, count);
+            
+             if (owned.WeaponItemData != null)
+                ctrl.Setup(
+                owned.WeaponItemData,        // 이제 이 객체 안에 .ItemName, .Rank(등급) 등이 있습니다
+                count,
+                owned.WeaponItemData.Rank   // 서버 CustomData 안에 rank 로 내려주는 필드
+                     );
+
+            
+             else if (owned.ArmorItemData != null)
+                ctrl.Setup(
+                owned.ArmorItemData,
+                count,
+                owned.ArmorItemData.Rank
+                     );
+
+            
+             else if (owned.SkillItemData != null)
+                ctrl.Setup(
+                owned.SkillItemData,
+                count,
+                owned.SkillItemData.Rank
+                     );
+        
         }
 
         resultPanel.SetActive(true);

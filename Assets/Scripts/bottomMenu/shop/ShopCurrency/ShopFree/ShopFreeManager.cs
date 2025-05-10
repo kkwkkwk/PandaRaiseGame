@@ -126,7 +126,7 @@ public class ShopFreeManager : MonoBehaviour
         var requestData = new BuyCurrencyRequestData
         {
             PlayFabId = GlobalData.playFabId,
-            CurrencyType = currencyType,
+            CurrencyType = itemData.CurrencyType,
             GoodsType = itemData.GoodsType,   
             ItemType = "Free",
             FreeItemData = itemData             // 이 필드만 채워짐

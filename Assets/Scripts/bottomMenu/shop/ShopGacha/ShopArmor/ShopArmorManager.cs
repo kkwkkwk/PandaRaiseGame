@@ -143,7 +143,7 @@ public class ShopArmorManager : MonoBehaviour
         var requestData = new BuyGachaRequestData
         {
             PlayFabId = GlobalData.playFabId,
-            CurrencyType = currencyType,
+            CurrencyType = itemData.CurrencyType,
             ItemType = "Armor",
             ArmorItemData = itemData
         };

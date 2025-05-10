@@ -23,13 +23,14 @@ public class OwnedItemData
     [JsonProperty("itemType")]
     public string ItemType { get; set; }   // "Weapon", "Armor", "Skill"
 
+
     // 아래 세 필드 중 하나만 채워지면 됨
     [JsonProperty("weaponItemData", NullValueHandling = NullValueHandling.Ignore)]
-    public WeaponItemData WeaponItemData { get; set; }
+    public WeaponGachaItemData WeaponItemData { get; set; }
 
     [JsonProperty("armorItemData", NullValueHandling = NullValueHandling.Ignore)]
-    public ArmorItemData ArmorItemData { get; set; }
+    public ArmorGachaItemData ArmorItemData { get; set; }
 
     [JsonProperty("skillItemData", NullValueHandling = NullValueHandling.Ignore)]
-    public SkillItemData SkillItemData { get; set; }
+    public SkillGachaItemData SkillItemData { get; set; }
 }

@@ -156,7 +156,7 @@ public class ShopSkillManager : MonoBehaviour
         var requestData = new BuyGachaRequestData
         {
             PlayFabId = GlobalData.playFabId,
-            CurrencyType = currencyType,
+            CurrencyType = itemData.CurrencyType,
             ItemType = "Skill",
             SkillItemData = itemData
         };

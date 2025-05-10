@@ -125,7 +125,7 @@ public class ShopMileageManager : MonoBehaviour
         var requestData = new BuyCurrencyRequestData
         {
             PlayFabId = GlobalData.playFabId,
-            CurrencyType = currencyType,
+            CurrencyType = itemData.CurrencyType,
             GoodsType = itemData.GoodsType,  
             ItemType = "Mileage",
             MileageItemData = itemData

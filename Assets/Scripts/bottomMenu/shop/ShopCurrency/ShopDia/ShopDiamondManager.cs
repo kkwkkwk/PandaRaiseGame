@@ -125,7 +125,7 @@ public class ShopDiamondManager : MonoBehaviour
         var requestData = new BuyCurrencyRequestData
         {
             PlayFabId = GlobalData.playFabId,
-            CurrencyType = currencyType,
+            CurrencyType = itemData.CurrencyType,
             GoodsType = itemData.GoodsType,   
             ItemType = "Diamond",
             DiamondItemData = itemData            // 이 필드만 채워지고 나머지는 null

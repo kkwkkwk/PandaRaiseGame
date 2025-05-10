@@ -135,7 +135,7 @@ public class ShopJaphwaManager : MonoBehaviour
         var requestData = new BuyCurrencyRequestData
         {
             PlayFabId = GlobalData.playFabId,
-            CurrencyType = currencyType,
+            CurrencyType = itemData.CurrencyType,
             GoodsType = itemData.GoodsType,   
             ItemType = "Japhwa",
             JaphwaItemData = itemData

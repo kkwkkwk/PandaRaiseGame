@@ -162,7 +162,7 @@ public class ShopWeaponManager : MonoBehaviour
         var requestData = new BuyGachaRequestData
         {
             PlayFabId = GlobalData.playFabId,
-            CurrencyType = currencyType,
+            CurrencyType = itemData.CurrencyType,
             ItemType = "Weapon",
             WeaponItemData = itemData
         };
