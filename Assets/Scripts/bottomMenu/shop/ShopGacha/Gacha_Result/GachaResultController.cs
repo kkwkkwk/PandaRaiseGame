@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class GachaResultController : MonoBehaviour
 {
@@ -36,24 +37,79 @@ public class GachaResultController : MonoBehaviour
         var map = new Dictionary<string, (OwnedItemData item, int count)>();
         foreach (var owned in results)
         {
-            string key;
-            if (owned.WeaponItemData != null)
-                key = "Weapon:" + owned.WeaponItemData.ItemName;
-            else if (owned.ArmorItemData != null)
-                key = "Armor:" + owned.ArmorItemData.ItemName;
-            else if (owned.SkillItemData != null)
-                key = "Skill:" + owned.SkillItemData.ItemName;
+            string key, displayName, grade;
+            OwnedItemData data = owned;
+
+            if (data.WeaponItemData != null)
+            {
+                var d = data.WeaponItemData;
+                grade = d.Rank;
+                displayName = string.IsNullOrEmpty(d.ItemName) ? grade : d.ItemName;
+                key = "Weapon:" + displayName;
+                d.ItemName = displayName;
+            }
+            else if (data.ArmorItemData != null)
+            {
+                var d = data.ArmorItemData;
+                grade = d.Rank;
+                displayName = string.IsNullOrEmpty(d.ItemName) ? grade : d.ItemName;
+                key = "Armor:" + displayName;
+                d.ItemName = displayName;
+            }
+            else if (data.SkillItemData != null)
+            {
+                var d = data.SkillItemData;
+                grade = d.Rank;
+                displayName = string.IsNullOrEmpty(d.ItemName) ? grade : d.ItemName;
+                key = "Skill:" + displayName;
+                d.ItemName = displayName;
+            }
             else
+            {
                 continue;
+            }
 
             if (map.ContainsKey(key))
                 map[key] = (map[key].item, map[key].count + 1);
             else
-                map[key] = (owned, 1);
+                map[key] = (data, 1);
         }
 
-        // 2) 묶인 결과들을 프리팹으로 한 번씩만 생성
-        foreach (var entry in map.Values)
+        // 2) 원하는 등급 순서 정의
+        var gradeOrder = new List<string>
+    {
+        "COMMON",
+        "UNCOMMON",
+        "RARE",
+        "UNIQUE",
+        "EPIC",
+        "LEGENDARY"
+    };
+
+        // 3) 정렬: 먼저 등급 순서대로, 같으면 이름 순
+        var sortedEntries = map.Values
+            .OrderBy(e =>
+            {
+                // 각 OwnedItemData에서 rank 꺼내기
+                string rank = "";
+                if (e.item.WeaponItemData != null) rank = e.item.WeaponItemData.Rank;
+                else if (e.item.ArmorItemData != null) rank = e.item.ArmorItemData.Rank;
+                else if (e.item.SkillItemData != null) rank = e.item.SkillItemData.Rank;
+                rank = rank?.Trim().ToUpperInvariant() ?? "";
+                int idx = gradeOrder.IndexOf(rank);
+                return idx >= 0 ? idx : int.MaxValue;
+            })
+            // (선택) 동일 등급 내에서 이름순으로 추가 정렬
+            .ThenBy(e =>
+            {
+                if (e.item.WeaponItemData != null) return e.item.WeaponItemData.ItemName;
+                if (e.item.ArmorItemData != null) return e.item.ArmorItemData.ItemName;
+                return e.item.SkillItemData.ItemName;
+            })
+            .ToList();
+
+        // 4) 정렬된 순서대로 UI 생성
+        foreach (var entry in sortedEntries)
         {
             var owned = entry.item;
             int count = entry.count;
@@ -61,30 +117,12 @@ public class GachaResultController : MonoBehaviour
             var ctrl = go.GetComponent<GachaResultItemController>();
             if (ctrl == null) continue;
 
-            
-             if (owned.WeaponItemData != null)
-                ctrl.Setup(
-                owned.WeaponItemData,        // 이제 이 객체 안에 .ItemName, .Rank(등급) 등이 있습니다
-                count,
-                owned.WeaponItemData.Rank   // 서버 CustomData 안에 rank 로 내려주는 필드
-                     );
-
-            
-             else if (owned.ArmorItemData != null)
-                ctrl.Setup(
-                owned.ArmorItemData,
-                count,
-                owned.ArmorItemData.Rank
-                     );
-
-            
-             else if (owned.SkillItemData != null)
-                ctrl.Setup(
-                owned.SkillItemData,
-                count,
-                owned.SkillItemData.Rank
-                     );
-        
+            if (owned.WeaponItemData != null)
+                ctrl.Setup(owned.WeaponItemData, count, owned.WeaponItemData.Rank);
+            else if (owned.ArmorItemData != null)
+                ctrl.Setup(owned.ArmorItemData, count, owned.ArmorItemData.Rank);
+            else if (owned.SkillItemData != null)
+                ctrl.Setup(owned.SkillItemData, count, owned.SkillItemData.Rank);
         }
 
         resultPanel.SetActive(true);

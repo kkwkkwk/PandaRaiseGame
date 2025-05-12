@@ -288,21 +288,51 @@ namespace Shop
             }
 
             // 9) 응답 구성
-            var owned = drawn.Select(ci => new OwnedItemData
+            var ownedList = drawn.Select(ci =>
             {
-                ItemType = data.ItemType,
-                ArmorItemData = data.ItemType == "Armor"
-                    ? JsonConvert.DeserializeObject<ArmorGachaItemData>(ci.CustomData) : null,
-                WeaponItemData = data.ItemType == "Weapon"
-                    ? JsonConvert.DeserializeObject<WeaponGachaItemData>(ci.CustomData) : null,
-                SkillItemData = data.ItemType == "Skill"
-                    ? JsonConvert.DeserializeObject<SkillGachaItemData>(ci.CustomData) : null
+                // CustomData 에서 rank 꺼내기
+                string? rank = "";
+                if (!string.IsNullOrEmpty(ci.CustomData))
+                {
+                    var cd = JsonConvert.DeserializeObject<Dictionary<string, string>>(ci.CustomData)!;
+                    cd.TryGetValue("rank", out rank);
+                }
+                var dto = new OwnedItemData
+                {
+                    ItemType = data.ItemType
+                };
+                switch (data.ItemType)
+                {
+                    case "Weapon":
+                        dto.WeaponItemData = new WeaponGachaItemData
+                        {
+                            ItemName = ci.DisplayName,
+                            Rank = rank
+                        };
+                        break;
+                    case "Armor":
+                        dto.ArmorItemData = new ArmorGachaItemData
+                        {
+                            ItemName = ci.DisplayName,
+                            Rank = rank
+                        };
+                        break;
+                    case "Skill":
+                        dto.SkillItemData = new SkillGachaItemData
+                        {
+                            ItemName = ci.DisplayName,
+                            Rank = rank
+                        };
+                        break;
+                }
+                return dto;
             }).ToList();
 
+            // 최종 응답
             return new OkObjectResult(new BuyGachaResponseData
             {
                 IsSuccess = true,
-                OwnedItemList = owned
+                OwnedItemList = ownedList
             });
         }
     }

@@ -28,6 +28,9 @@ namespace Shop
 
         [JsonProperty("header")]
         public string? Header { get; set; }
+
+        [JsonProperty("rank")]
+        public string? Rank { get; set; }
     }
 
     public class ArmorGachaResponseData
@@ -55,6 +58,9 @@ namespace Shop
 
         [JsonProperty("header")]
         public string? Header { get; set; }
+
+        [JsonProperty("rank")]
+        public string? Rank { get; set; }
     }
 
     public class SkillGachaResponseData
@@ -82,6 +88,9 @@ namespace Shop
 
         [JsonProperty("header")]
         public string? Header { get; set; }
+
+        [JsonProperty("rank")]
+        public string? Rank { get; set; }
     }
     #endregion
     #region CurrencyShop

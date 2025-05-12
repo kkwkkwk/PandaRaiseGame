@@ -28,11 +28,37 @@ public class GachaResultItemController : MonoBehaviour
 
     private Color GetColorForGrade(string grade)
     {
-        switch (grade.ToUpper())
+        if (string.IsNullOrWhiteSpace(grade))
+            return Color.gray;
+        switch (grade.Trim().ToUpperInvariant())
         {
-            case "R": case "RARE": return new Color32(128, 0, 128, 255);
-            case "S": case "SUPER": case "LEGENDARY": return Color.yellow;
-            default: return Color.gray;
+            case "COMMON":
+                // 회색
+                return new Color32(128, 128, 128, 255);
+
+            case "UNCOMMON":
+                // 하늘색
+                return new Color32(135, 206, 235, 255);
+
+            case "RARE":
+                // 보라색
+                return new Color32(128, 0, 128, 255);
+
+            case "UNIQUE":
+                // 핑크색
+                return new Color32(255, 105, 180, 255);
+
+            case "EPIC":
+                // 금색
+                return new Color32(255, 215, 0, 255);
+
+            case "LEGENDARY":
+                // 빨간색
+                return new Color32(255, 0, 0, 255);
+
+            default:
+                // 정의되지 않은 등급은 회색
+                return Color.gray;
         }
     }
 
