@@ -141,7 +141,6 @@ public class LoadingScreenManager : MonoBehaviour
             ));
         else ShopVipDone = true;
 
-
         // 퀘스트
         if (QuestPopupManager.Instance != null)
         {
@@ -236,15 +235,15 @@ public class LoadingScreenManager : MonoBehaviour
         else
         {
             // 없으면 그냥 완료 처리
-            questDone = true;
+            farmDone = true;
         }
         // 모든 로드가 끝날 때까지 대기
         while (!questDone || !profileDone || !leaderboardDone ||
        !guildDone || !weaponDone || !armorDone ||
        !skillDone || !farmDone ||
        !ShopWeaponDone || !ShopArmorDone || !ShopSkillDone ||
-       !ShopFreeDone || !ShopDiamondDone || !ShopJaphwaDone || !ShopMileageDone ||
-       !ShopSpecialDone || !ShopVipDone)
+       !ShopFreeDone || !ShopDiamondDone || !ShopJaphwaDone ||
+       !ShopMileageDone || !ShopSpecialDone || !ShopVipDone)
         {
             yield return null;
         }

@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -166,21 +167,36 @@ public class FarmPopupManager : MonoBehaviour
     /// </summary>
     private void UpdateFarmPlotsUI()
     {
+        // _plots가 아직 준비되지 않았다면 무시
+        if (_plots == null || farmPlotButtons == null) return;
+
         for (int i = 0; i < farmPlotButtons.Length; i++)
         {
             var btn = farmPlotButtons[i];
-            var plot = _plots.Find(p => p.PlotIndex == i);
+            if (btn == null) continue;
 
-            // 예시: 버튼 텍스트로 상태 표시
+            // 버튼 안에 TextMeshProUGUI가 꼭 있다고 가정하지 말고 미리 꺼내 두세요
             var label = btn.GetComponentInChildren<TextMeshProUGUI>();
+            if (label == null) continue;
+
+            // PlotInfo를 안전하게 꺼냅니다.
+            var plot = _plots.FirstOrDefault(p => p.PlotIndex == i);
+            if (plot == null)
+            {
+                // 서버에 데이터가 없으면 '알 수 없음' 등으로 표시
+                label.text = $"Plot {i}\n상태 알 수 없음";
+                continue;
+            }
+
             if (plot.HasSeed)
             {
-                // 남은 성장 시간 계산
-                var elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
-                var remaining = Mathf.Clamp(plot.GrowthDurationSeconds - (int)elapsed, 0, plot.GrowthDurationSeconds);
-                label.text = remaining > 0
-                    ? $"Plot {i}\n남은 {remaining}s"
-                    : $"Plot {i}\n성장 완료!";
+                // 기존 로직—널 체크가 끝난 뒤에는 안전하게 접근 가능
+                double elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
+                int remaining = Mathf.Clamp(plot.GrowthDurationSeconds - (int)elapsed, 0, plot.GrowthDurationSeconds);
+                if (remaining > 0)
+                    label.text = $"Plot {i}\n남은 {remaining}s";
+                else
+                    label.text = $"Plot {i}\n성장 완료!";
             }
             else
             {
