@@ -30,7 +30,14 @@ public class QuestData
     [JsonProperty("resetType")]
     public string resetType { get; set; }
 }
-
+[System.Serializable]
+public class QuestDataWrapper
+{
+    public List<QuestData> DailyQuestList;
+    public List<QuestData> WeeklyQuestList;
+    public List<QuestData> RepeatQuestList;
+    public List<QuestData> AchievementQuestList;
+}
 
 public class QuestPopupManager : MonoBehaviour
 {
@@ -133,27 +140,9 @@ public class QuestPopupManager : MonoBehaviour
             }
             else
             {
-                List<QuestData> parsedList;
-                try
-                {
-                    parsedList = JsonConvert
-                        .DeserializeObject<List<QuestData>>(response.QuestData)
-                        ?? new List<QuestData>();
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError("[QuestPopupManager] QuestData JSON 파싱 실패: " + ex);
-                    yield break;
-                }
-
-                // 전역 데이터에 저장
-                GlobalData.QuestDataList = parsedList;
-                Debug.Log($"[QuestPopupManager] 전역 QuestDataList에 {parsedList.Count}개 저장");
-                // (옵션) 전체 응답 문자열을 출력 (디버깅 용)
-                if (questPopupText != null)
-                {
-                    questPopupText.text = response.QuestData;
-                }
+                // 1) 문자열 그대로 전역에 저장
+                GlobalData.QuestDataJson = response.QuestData;
+                Debug.Log($"[QuestPopupManager] GlobalData.QuestDataJson에 저장 (길이: {response.QuestData.Length})");
                 // QuestTabPanelListCreator에 데이터 전달 (문자열 그대로 전달)
                 if (questListCreator != null)
                 {
@@ -168,13 +157,11 @@ public class QuestPopupManager : MonoBehaviour
     }
     private void PopulateQuestFromGlobal()
     {
-        var list = GlobalData.QuestDataList;
-        if (list != null && list.Count > 0)
+        var json = GlobalData.QuestDataJson;
+        if (!string.IsNullOrEmpty(json))
         {
-            // 기존 메서드 이름 그대로, JSON 문자열로 전달
-            string json = JsonConvert.SerializeObject(list);
             questListCreator.SetQuestDataFromString(json);
-            Debug.Log($"[QuestPopupManager] SetQuestDataFromString 호출: {list.Count}개");
+            Debug.Log("[QuestPopupManager] PopulateQuestFromGlobal → SetQuestDataFromString 호출");
         }
         else
         {

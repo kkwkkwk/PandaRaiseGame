@@ -40,6 +40,7 @@ public class ShopWeaponManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        loadingPanel.SetActive(false);
     }
 
     #region 패널 오픈/데이터 로드 --------------------------------------------------

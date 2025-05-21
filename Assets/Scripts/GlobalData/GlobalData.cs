@@ -16,7 +16,7 @@ public static class GlobalData
     public static ProfilePopupManager.ProfileData ProfileData { get; set; }
 
     // 퀘스트
-    public static List<QuestData> QuestDataList { get; set; } = new List<QuestData>();
+    public static string QuestDataJson { get; set; } = "";
 
     // 무기 목록
     public static List<WeaponData> WeaponDataList { get; set; } = new List<WeaponData>();

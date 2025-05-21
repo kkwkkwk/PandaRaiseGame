@@ -42,6 +42,7 @@ public class ShopSkillManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        loadingPanel.SetActive(false);
     }
 
     #region 패널/데이터 ------------------------------------------------------------
