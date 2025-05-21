@@ -152,6 +152,9 @@ namespace Farm
 
         [JsonProperty("info")]
         public string? Info { get; set; }
+
+        [JsonProperty("count")]
+        public int Count { get; set; }
     }
 
     /// <summary>

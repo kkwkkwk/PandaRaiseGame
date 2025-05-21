@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
 using CommonLibrary;
+using static Farm.GetFarmPopup;
 
 namespace Farm
 {
@@ -30,58 +31,62 @@ namespace Farm
             var data = JsonConvert.DeserializeObject<PlantSeedRequest>(body)
                        ?? throw new Exception("Invalid request");
 
-            // 2) User Data 조회
+            // 2) FarmPlots UserData 조회
             var udRes = await PlayFabServerAPI.GetUserDataAsync(new GetUserDataRequest
             {
                 PlayFabId = data.PlayFabId,
-                Keys = new List<string> { "FarmPlots", "SeedInventory" }
+                Keys = new List<string> { "FarmPlots" }
             });
-            if (udRes.Error != null)
+            var plots = udRes.Result.Data.TryGetValue("FarmPlots", out var pj) && !string.IsNullOrEmpty(pj.Value)
+                ? JsonConvert.DeserializeObject<List<PlotInfoServer>>(pj.Value)!
+                : Enumerable.Range(0, 6).Select(i => new PlotInfoServer { PlotIndex = i }).ToList();
+
+            // 3) 씨앗 수 체크 (VirtualCurrency)
+            var invRes = await PlayFabServerAPI.GetUserInventoryAsync(new GetUserInventoryRequest
             {
-                _logger.LogError(udRes.Error.GenerateErrorReport(), "[PlantSeed]");
-                return new OkObjectResult(new PlantSeedResponse
-                {
-                    IsSuccess = false,
-                    ErrorMessage = "데이터 조회 실패"
-                });
-            }
-
-            // 3) 파싱: 내부 모델
-            var plots = udRes.Result.Data.TryGetValue("FarmPlots", out var pJson)
-                ? JsonConvert.DeserializeObject<List<GetFarmPopup.PlotInfoServer>>(pJson.Value)!
-                : Enumerable.Range(0, 6).Select(i => new GetFarmPopup.PlotInfoServer { PlotIndex = i }).ToList();
-            var invDict = udRes.Result.Data.TryGetValue("SeedInventory", out var iJson)
-                ? JsonConvert.DeserializeObject<Dictionary<string, int>>(iJson.Value)!
-                : new Dictionary<string, int>();
-
-            // 4) 재고 체크
-            if (!invDict.TryGetValue(data.SeedId!, out var have) || have < 1)
+                PlayFabId = data.PlayFabId
+            });
+            var vc = invRes.Result.VirtualCurrency ?? new Dictionary<string, int>();
+            vc.TryGetValue(data.SeedId!, out var have);
+            if (have < 1)
                 return new OkObjectResult(new PlantSeedResponse
                 {
                     IsSuccess = false,
                     ErrorMessage = "씨앗 부족"
                 });
 
-            // 5) TitleData에서 성장 시간 조회
+            // 4) 씨앗 차감
+            var subRes = await PlayFabServerAPI.SubtractUserVirtualCurrencyAsync(new SubtractUserVirtualCurrencyRequest
+            {
+                PlayFabId = data.PlayFabId,
+                VirtualCurrency = data.SeedId,
+                Amount = 1
+            });
+            if (subRes.Error != null)
+                return new OkObjectResult(new PlantSeedResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "씨앗 차감 실패"
+                });
+
+            // 5) 성장 시간 조회
             var seedDefs = await new GetFarmPopup(null!).LoadSeedDefinitions();
             var def = seedDefs.First(s => s.Id == data.SeedId);
 
-            // 6) 재고 차감 & plots 업데이트
-            invDict[data.SeedId!] = have - 1;
+            // 6) FarmPlots 업데이트
             var plot = plots.First(p => p.PlotIndex == data.PlotIndex);
             plot.HasSeed = true;
             plot.SeedId = def.Id;
             plot.PlantedTimeUtc = DateTime.UtcNow;
             plot.GrowthDurationSeconds = def.GrowthDurationSeconds;
 
-            // 7) User Data 저장
+            // 7) UserData에 FarmPlots만 저장
             await PlayFabServerAPI.UpdateUserDataAsync(new UpdateUserDataRequest
             {
                 PlayFabId = data.PlayFabId,
                 Data = new Dictionary<string, string>
                 {
-                    ["FarmPlots"] = JsonConvert.SerializeObject(plots),
-                    ["SeedInventory"] = JsonConvert.SerializeObject(invDict)
+                    ["FarmPlots"] = JsonConvert.SerializeObject(plots)
                 }
             });
 

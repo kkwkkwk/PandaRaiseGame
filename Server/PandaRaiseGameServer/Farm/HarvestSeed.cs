@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
 using CommonLibrary;
+using static Farm.GetFarmPopup;
 
 namespace Farm
 {
@@ -36,16 +37,7 @@ namespace Farm
                 PlayFabId = data.PlayFabId,
                 Keys = new List<string> { "FarmPlots" }
             });
-            if (udRes.Error != null)
-            {
-                _logger.LogError(udRes.Error.GenerateErrorReport(), "[HarvestSeed]");
-                return new OkObjectResult(new HarvestSeedResponse
-                {
-                    IsSuccess = false,
-                    ErrorMessage = "데이터 조회 실패"
-                });
-            }
-            var plots = JsonConvert.DeserializeObject<List<GetFarmPopup.PlotInfoServer>>(
+            var plots = JsonConvert.DeserializeObject<List<PlotInfoServer>>(
                 udRes.Result.Data["FarmPlots"].Value);
             var plot = plots!.First(p => p.PlotIndex == data.PlotIndex);
 
@@ -64,7 +56,7 @@ namespace Farm
             var seedDefs = await new GetFarmPopup(null!).LoadSeedDefinitions();
             var def = seedDefs.First(s => s.Id == plot.SeedId);
 
-            // 5) Player Statistics 갱신
+            // 5) Player Statistics 업데이트
             await PlayFabServerAPI.UpdatePlayerStatisticsAsync(new UpdatePlayerStatisticsRequest
             {
                 PlayFabId = data.PlayFabId,
@@ -73,7 +65,7 @@ namespace Farm
                 }
             });
 
-            // 6) Plot 초기화 및 저장
+            // 6) 플롯 초기화 & 저장
             plot.HasSeed = false;
             plot.SeedId = null!;
             plot.PlantedTimeUtc = DateTime.MinValue;

@@ -19,6 +19,9 @@ public class SeedData
 
     [JsonProperty("info")]
     public string Info { get; set; }
+
+    [JsonProperty("count")]
+    public string Count { get; set; }
 }
 
 [Serializable]
