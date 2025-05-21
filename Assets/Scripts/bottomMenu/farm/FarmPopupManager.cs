@@ -37,6 +37,15 @@ public class FarmPopupManager : MonoBehaviour
     public GameObject harvestPanel;           // 수확 패널
     public Button harvestBtn;                 // 수확 버튼
 
+    [Header("Plot Button Visuals")]                                 // 임시 (씨앗 자란 상태 보기위한 패널 색깔 지정)
+    public Color plotEmptyColor = Color.white;                      // 빈 땅
+    public Color plotGrowingColor = new Color(0.8f, 0.8f, 1f);      // 성장 중(파랑톤)
+    public Color plotReadyColor = new Color(1f, 0.8f, 0.8f);        // 수확 대기(핑크톤)
+
+    [Header("Farm Plot Panel Backgrounds")]
+    [Tooltip("각 농지 패널(GameObject)에 붙어 있는 배경 Image 컴포넌트를 순서대로 연결하세요.")]
+    public Image[] plotPanelBackgrounds;
+
     private string getSeedsUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetSeeds?code=Tv8mHmBDbE6pz84BooiWxqK6tW2shaP-bRoeNJNvAQq1AzFuuGuDdw==";
     private string plantSeedUrl = "https://pandaraisegame-farm.azurewebsites.net/api/PlantSeed?code=JH5yYearnjOvVi9T9NT1NRFVKe6Li-SL17KXvFwElu1wAzFud9aKlQ==";
     private string getFarmPopupUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetFarmPopup?code=pXQfhig4Ik9qwKpu5ymGf5pml0UEnfRpqehn3kNUnh3cAzFunjCvpQ==";
@@ -168,39 +177,38 @@ public class FarmPopupManager : MonoBehaviour
     private void UpdateFarmPlotsUI()
     {
         // _plots가 아직 준비되지 않았다면 무시
-        if (_plots == null || farmPlotButtons == null) return;
+        if (_plots == null || plotPanelBackgrounds == null) return;
 
-        for (int i = 0; i < farmPlotButtons.Length; i++)
+        for (int i = 0; i < plotPanelBackgrounds.Length; i++)
         {
-            var btn = farmPlotButtons[i];
-            if (btn == null) continue;
+            var bgImg = plotPanelBackgrounds[i];
+            if (bgImg == null) continue;
 
-            // 버튼 안에 TextMeshProUGUI가 꼭 있다고 가정하지 말고 미리 꺼내 두세요
+            // 버튼 텍스트는 기존대로
+            var btn = farmPlotButtons[i];
             var label = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (label == null) continue;
 
-            // PlotInfo를 안전하게 꺼냅니다.
-            var plot = _plots.FirstOrDefault(p => p.PlotIndex == i);
-            if (plot == null)
+            var plot = _plots.Find(p => p.PlotIndex == i);
+            if (plot == null || !plot.HasSeed)
             {
-                // 서버에 데이터가 없으면 '알 수 없음' 등으로 표시
-                label.text = $"Plot {i}\n상태 알 수 없음";
+                label.text = $"Plot {i}\n빈 땅";
+                bgImg.color = plotEmptyColor;
                 continue;
             }
 
-            if (plot.HasSeed)
+            double elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
+            int remaining = Mathf.Clamp(plot.GrowthDurationSeconds - (int)elapsed, 0, plot.GrowthDurationSeconds);
+
+            if (remaining > 0)
             {
-                // 기존 로직—널 체크가 끝난 뒤에는 안전하게 접근 가능
-                double elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
-                int remaining = Mathf.Clamp(plot.GrowthDurationSeconds - (int)elapsed, 0, plot.GrowthDurationSeconds);
-                if (remaining > 0)
-                    label.text = $"Plot {i}\n남은 {remaining}s";
-                else
-                    label.text = $"Plot {i}\n성장 완료!";
+                label.text = $"Plot {i}\n남은 {remaining}s";
+                bgImg.color = plotGrowingColor;
             }
             else
             {
-                label.text = $"Plot {i}\n빈 땅";
+                label.text = $"Plot {i}\n수확 가능";
+                bgImg.color = plotReadyColor;
             }
         }
     }
@@ -228,23 +236,30 @@ public class FarmPopupManager : MonoBehaviour
     {
         _currentPlotIndex = plotIndex;
         _selectedSeed = null;
+        plotDetailPanel.SetActive(false);
+        harvestPanel.SetActive(false);
 
         var plot = _plots.Find(p => p.PlotIndex == plotIndex);
         if (plot != null && plot.HasSeed)
         {
-            var elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
-            var remaining = Mathf.Clamp(plot.GrowthDurationSeconds - (int)elapsed, 0, plot.GrowthDurationSeconds);
+            double elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
+            int remaining = Mathf.Clamp(plot.GrowthDurationSeconds - (int)elapsed, 0, plot.GrowthDurationSeconds);
 
-            if (remaining <= 0)
+            if (remaining > 0)
             {
-                // 성장 완료: 수확 패널 보여주기
+                // 아직 성장 중이므로 재심기 금지
+                Debug.Log($"Plot {plotIndex}은 아직 성장 중입니다. 남은 시간: {remaining}s");
+                return;
+            }
+            else
+            {
+                // 성장 완료 → 수확
                 harvestPanel.SetActive(true);
-                plotDetailPanel.SetActive(false);
                 return;
             }
         }
 
-        // 그 외: 기존 심기/선택 로직
+        // 빈 땅일 때만 심기 스크롤뷰 오픈
         plotDetailPanel.SetActive(true);
         StartCoroutine(GetSeedsForPlot());
     }

@@ -585,6 +585,7 @@ MonoBehaviour:
   seedImage: {fileID: 7730295566379739957}
   seedButton: {fileID: 7345724417572771432}
   seedNameText: {fileID: 8946422139651818992}
+  seedCountText: {fileID: 6593351579093463366}
   infoButton: {fileID: 6295819531962732408}
 --- !u!1 &4755681518014728075
 GameObject:
