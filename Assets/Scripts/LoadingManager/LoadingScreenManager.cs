@@ -57,6 +57,7 @@ public class LoadingScreenManager : MonoBehaviour
         bool armorDone = false;
         bool skillDone = false;
         bool farmDone = false;
+        bool dungeonDone = false;
 
         StartIfExists(QuestPopupManager.Instance, QuestPopupManager.Instance?.StartSequence(), () => questDone = true);
         StartIfExists(ProfilePopupManager.Instance, ProfilePopupManager.Instance?.StartSequence(), () => profileDone = true);
@@ -66,9 +67,12 @@ public class LoadingScreenManager : MonoBehaviour
         StartIfExists(ArmorPopupManager.Instance, ArmorPopupManager.Instance?.StartSequence(), () => armorDone = true);
         StartIfExists(SkillPopupManager.Instance, SkillPopupManager.Instance?.StartSequence(), () => skillDone = true);
         StartIfExists(FarmPopupManager.Instance, FarmPopupManager.Instance?.StartSequence(), () => farmDone = true);
+        StartIfExists(DungeonManager.Instance, DungeonManager.Instance.StartSequence(), () => dungeonDone = true);
+
+
 
         while (!questDone || !profileDone || !leaderboardDone ||
-               !guildDone || !weaponDone || !armorDone || !skillDone || !farmDone)
+               !guildDone || !weaponDone || !armorDone || !skillDone || !farmDone || !dungeonDone)
         {
             yield return null;
         }

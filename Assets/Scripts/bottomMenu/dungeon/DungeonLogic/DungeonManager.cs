@@ -1,0 +1,181 @@
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
+using System.Collections;
+using Newtonsoft.Json;
+
+public class DungeonManager : MonoBehaviour
+{
+    public static DungeonManager Instance { get; private set; }
+
+    #region UI References
+    [Header("티켓 표시 UI")]
+    [Tooltip("티켓 수량을 표시할 패널(GameObject, 내부에 Text 컴포넌트 포함)")]
+    public GameObject ticketPanel;           
+
+    [Header("팝업 UI")]
+    [Tooltip("메시지를 띄울 팝업 패널 (내부에 Text 컴포넌트 포함)")]
+    public GameObject popupPanel;            
+
+    [Header("던전 입장 버튼")]
+    [Tooltip("인스펙터에서 연결하세요")]
+    public Button enterDungeonButton;
+
+    [Header("스테이지 패널")]
+    [Tooltip("던전 스테이지를 보여주는 패널을 인스펙터에서 연결하세요")]
+    public GameObject stagePanel;
+
+    #endregion
+
+    private const string fetchDungeonUrl ="https://your.api.server/api/GetDungeonData"; // 게임 시작 시 서버에서 내 던전 정보(최고 층수·남은 티켓)를 가져오는거
+    private const string updateFloorUrl = "https://your.api.server/api/UpdateClearedFloor"; //유저가 보스층을 깼을 때 서버에 새로 깬 층 갱신                                                                                        
+
+    // 서버에서 받아온 던전 정보
+    public int MaxClearedFloor { get; private set; }
+    public int RemainingTickets { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        popupPanel?.SetActive(false);
+
+        if (enterDungeonButton != null)
+            enterDungeonButton.onClick.AddListener(TryEnterDungeon);
+    }
+
+    #region Initialization
+    /// <summary>
+    /// 게임 시작 시 한 번만 호출해서 던전 정보를 서버에서 가져옵니다.
+    /// </summary>
+    public IEnumerator StartSequence()
+    {
+        yield return FetchDungeonDataCoroutine();
+        UpdateTicketUI();
+    }
+  
+
+    private IEnumerator FetchDungeonDataCoroutine()
+    {
+        var requestBody = new { playFabId = GlobalData.playFabId };
+        string jsonBody = JsonConvert.SerializeObject(requestBody);
+
+        var req = new UnityWebRequest(fetchDungeonUrl, "POST");
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+        req.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[DungeonManager] Fetch 실패: {req.error}");
+            yield break;
+        }
+
+        DungeonResponseData resp;
+        try
+        {
+            resp = JsonConvert.DeserializeObject<DungeonResponseData>(req.downloadHandler.text);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[DungeonManager] JSON 파싱 오류: {ex.Message}");
+            yield break;
+        }
+
+        if (resp == null || !resp.IsSuccess)
+        {
+            Debug.LogWarning("[DungeonManager] 서버 응답 이상");
+            yield break;
+        }
+
+        MaxClearedFloor = resp.HighestClearedFloor;
+        RemainingTickets = resp.TicketCount;
+        Debug.Log($"[DungeonManager] Floor={MaxClearedFloor}, Tickets={RemainingTickets}");
+    }
+
+    public IEnumerator UpdateClearedFloorCoroutine(int newClearedFloor)
+    {
+        MaxClearedFloor = newClearedFloor;
+        var requestBody = new { playFabId = GlobalData.playFabId, highestClearedFloor = newClearedFloor };
+        var jsonBody = JsonConvert.SerializeObject(requestBody);
+
+        var req = new UnityWebRequest(updateFloorUrl, "POST");
+        var bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+        req.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+            Debug.LogError($"[DungeonManager] UpdateFloor 실패: {req.error}");
+        else
+            Debug.Log("[DungeonManager] 최고 층수 갱신 성공");
+    }
+
+    #endregion
+
+    #region Dungeon Entry
+    /// <summary>
+    /// 던전 입장 버튼에서 호출
+    /// </summary>
+    public void TryEnterDungeon()
+    {
+        if (RemainingTickets <= 0)
+        {
+            ShowPopup("입장에 필요한 티켓이 부족합니다", 2f);
+            return;
+        }
+
+        RemainingTickets--;
+        UpdateTicketUI();
+
+        // 1) 스테이지 패널 활성화
+        if (stagePanel != null)
+            stagePanel.SetActive(true);
+
+        // 2) 내부 로직으로 실제 던전 스테이지 로드
+        DungeonStageManager.Instance.LoadDungeonStage(MaxClearedFloor + 1);
+    }
+    #endregion
+
+    #region UI Helpers
+    private void UpdateTicketUI()
+    {
+        if (ticketPanel == null) return;
+        var txt = ticketPanel.GetComponentInChildren<Text>();
+        if (txt != null)
+            txt.text = $"Ticket: {RemainingTickets}";
+    }
+
+    private void ShowPopup(string message, float duration)
+    {
+        if (popupPanel == null) return;
+
+        // 내부 Text 컴포넌트 찾아 메시지 설정
+        var msg = popupPanel.GetComponentInChildren<Text>();
+        if (msg != null) msg.text = message;
+
+        popupPanel.SetActive(true);
+        StartCoroutine(HidePopupAfter(duration));
+    }
+
+    private IEnumerator HidePopupAfter(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        popupPanel.SetActive(false);
+    }
+    #endregion
+}
