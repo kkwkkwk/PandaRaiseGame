@@ -19,7 +19,10 @@ public class FarmPopupManager : MonoBehaviour
     [Header("Control Buttons")]
     public Button closeFarmBtn;                     // 농장 팝업 닫기 버튼
     public Button farmStatBtn;                      // 농장 능력치 버튼
-    public Button farmInventoryBtn;                 // 농장 인벤토리 버튼
+
+    [Header("Farm Main / Stat Panels")]
+    public GameObject FarmMain_Panel;               // FarmMain_Panel (심기 / 수확 UI)
+    public GameObject FarmStatPopup_Panel;          // FarmStatPopup_Panel (능력치 UI)
 
     [Header("Farm Plot Buttons (6개)")]
     public Button[] farmPlotButtons;                // 중앙의 6개 농지 패널 버튼
@@ -37,14 +40,17 @@ public class FarmPopupManager : MonoBehaviour
     public GameObject harvestPanel;           // 수확 패널
     public Button harvestBtn;                 // 수확 버튼
 
-    [Header("Plot Button Visuals")]                                 // 임시 (씨앗 자란 상태 보기위한 패널 색깔 지정)
-    public Color plotEmptyColor = Color.white;                      // 빈 땅
-    public Color plotGrowingColor = new Color(0.8f, 0.8f, 1f);      // 성장 중(파랑톤)
-    public Color plotReadyColor = new Color(1f, 0.8f, 0.8f);        // 수확 대기(핑크톤)
-
     [Header("Farm Plot Panel Backgrounds")]
     [Tooltip("각 농지 패널(GameObject)에 붙어 있는 배경 Image 컴포넌트를 순서대로 연결하세요.")]
     public Image[] plotPanelBackgrounds;
+
+    [Header("Plot State Sprites")]
+    public Sprite nonSeedSprite;       // 빈 땅 상태 이미지 (Non_Seed)
+    public Sprite growingSeedSprite;   // 성장 중 상태 이미지 (Growing_seed)
+    public Sprite grownBambooSprite;   // 다 자란 대나무 (Grown_Bamboo)
+    public Sprite grownCarrotSprite;   // 다 자란 당근 (Grown_Carrot)
+    public Sprite grownCornSprite;     // 다 자란 옥수수 (Grown_Corn)
+    public Sprite grownGrapeSprite;    // 다 자란 포도 (Grown_Grape)
 
     private string getSeedsUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetSeeds?code=Tv8mHmBDbE6pz84BooiWxqK6tW2shaP-bRoeNJNvAQq1AzFuuGuDdw==";
     private string plantSeedUrl = "https://pandaraisegame-farm.azurewebsites.net/api/PlantSeed?code=JH5yYearnjOvVi9T9NT1NRFVKe6Li-SL17KXvFwElu1wAzFud9aKlQ==";
@@ -96,22 +102,28 @@ public class FarmPopupManager : MonoBehaviour
         // 농장 스탯 버튼 리스터
         if (farmStatBtn != null)
             farmStatBtn.onClick.AddListener(OnClickFarmStat);
-        // 농장 인벤토리 버튼 리스너
-        if (farmInventoryBtn != null)
-            farmInventoryBtn.onClick.AddListener(OnClickFarmInventory);
         // 수확 버튼 리스너
         if (harvestBtn != null)
             harvestBtn.onClick.AddListener(OnConfirmHarvest);
-        // 중앙 농지 패널 6개에 리스너 등록
+        // 중앙 농지 버튼 6개
         for (int i = 0; i < farmPlotButtons.Length; i++)
         {
-            int index = i; // 클로저 문제 방지
-            farmPlotButtons[i].onClick.AddListener(() => OnClickFarmPlot(index));
+            int index = i;
+            if (farmPlotButtons[i] != null)
+                farmPlotButtons[i].onClick.AddListener(() => OnClickFarmPlot(index));
         }
 
-        // PlotDetailPanel 내 액션 버튼
-        confirmPlantBtn.onClick.AddListener(OnConfirmPlant);
-        cancelPlantBtn.onClick.AddListener(OnCancelPlant);
+        // PlotDetailPanel 내 “심기/취소” 버튼
+        if (confirmPlantBtn != null)
+            confirmPlantBtn.onClick.AddListener(OnConfirmPlant);
+        if (cancelPlantBtn != null)
+            cancelPlantBtn.onClick.AddListener(OnCancelPlant);
+
+        // 초기 상태: FarmMain_Panel 켜고, FarmStatPopup_Panel 끄기
+        if (FarmMain_Panel != null)
+            FarmMain_Panel.SetActive(true);
+        if (FarmStatPopup_Panel != null)
+            FarmStatPopup_Panel.SetActive(false);
 
         // 시작할 때 detail 패널은 숨겨두기
         if (plotDetailPanel != null)
@@ -119,6 +131,20 @@ public class FarmPopupManager : MonoBehaviour
         // 수확 패널 숨기기
         if (harvestPanel != null)
             harvestPanel.SetActive(false);
+
+        // 만약 Inspector에서 Sprite를 할당하지 않았으면, Resources 폴더에서 로드
+        if (nonSeedSprite == null)
+            nonSeedSprite = Resources.Load<Sprite>("Sprites/Farm/Non_Seed");
+        if (growingSeedSprite == null)
+            growingSeedSprite = Resources.Load<Sprite>("Sprites/Farm/Growing_seed");
+        if (grownBambooSprite == null)
+            grownBambooSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Bamboo");
+        if (grownCarrotSprite == null)
+            grownCarrotSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Carrot");
+        if (grownCornSprite == null)
+            grownCornSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Corn");
+        if (grownGrapeSprite == null)
+            grownGrapeSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Grape");
     }
 
     public IEnumerator StartSequence()
@@ -172,43 +198,71 @@ public class FarmPopupManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 6개 plot 버튼에 상태(씨앗 심김/빈땅/성장단계) 적용
+    /// 6개 plot 버튼에 상태(Non_Seed / Growing_seed / Grown_XXX) 적용
     /// </summary>
     private void UpdateFarmPlotsUI()
     {
-        // _plots가 아직 준비되지 않았다면 무시
-        if (_plots == null || plotPanelBackgrounds == null) return;
+        if (_plots == null || plotPanelBackgrounds == null)
+            return;
 
         for (int i = 0; i < plotPanelBackgrounds.Length; i++)
         {
             var bgImg = plotPanelBackgrounds[i];
-            if (bgImg == null) continue;
+            if (bgImg == null)
+                continue;
 
-            // 버튼 텍스트는 기존대로
+            // 버튼 텍스트 (Plot 번호, 상태 표시)
             var btn = farmPlotButtons[i];
             var label = btn.GetComponentInChildren<TextMeshProUGUI>();
-            if (label == null) continue;
+            if (label == null)
+                continue;
 
-            var plot = _plots.Find(p => p.PlotIndex == i);
+            // 해당 인덱스의 PlotInfo 찾기
+            var plot = _plots.FirstOrDefault(p => p.PlotIndex == i);
+
+            // 1) PlotInfo가 없거나 HasSeed == false → 빈 땅
             if (plot == null || !plot.HasSeed)
             {
                 label.text = $"Plot {i}\n빈 땅";
-                bgImg.color = plotEmptyColor;
+                bgImg.sprite = nonSeedSprite;
                 continue;
             }
 
+            // 2) 심어져 있는 상태 → 자라는 중인지 vs 다 자란 상태인지 확인
             double elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
             int remaining = Mathf.Clamp(plot.GrowthDurationSeconds - (int)elapsed, 0, plot.GrowthDurationSeconds);
 
             if (remaining > 0)
             {
+                // 아직 자라는 중
                 label.text = $"Plot {i}\n남은 {remaining}s";
-                bgImg.color = plotGrowingColor;
+                bgImg.sprite = growingSeedSprite;
             }
             else
             {
+                // 다 자란 상태 (수확 가능)
                 label.text = $"Plot {i}\n수확 가능";
-                bgImg.color = plotReadyColor;
+
+                // plot.SeedId 에 담긴 값(예: "bamboo", "carrot", "corn", "grape")에 따라 다른 스프라이트 적용
+                switch (plot.SeedId.ToLower())
+                {
+                    case "bamboo":
+                        bgImg.sprite = grownBambooSprite;
+                        break;
+                    case "carrot":
+                        bgImg.sprite = grownCarrotSprite;
+                        break;
+                    case "corn":
+                        bgImg.sprite = grownCornSprite;
+                        break;
+                    case "grape":
+                        bgImg.sprite = grownGrapeSprite;
+                        break;
+                    default:
+                        // 만약 다른 작물이 있다면 nonSeedSprite 로 대체
+                        bgImg.sprite = nonSeedSprite;
+                        break;
+                }
             }
         }
     }
@@ -224,22 +278,28 @@ public class FarmPopupManager : MonoBehaviour
             Debug.Log($"[Inventory] {item.SeedName}: {item.Count}개");
     }
 
-    public void OnClickFarmStat()   // 농장 능력치 버튼 클릭 시
+    /// <summary>
+    /// “능력치” 버튼 클릭 시 FarmMain_Panel을 끄고, FarmStatPopup_Panel을 켜기
+    /// </summary>
+    private void OnClickFarmStat()
     {
+        if (FarmMain_Panel != null)
+            FarmMain_Panel.SetActive(false);
 
+        if (FarmStatPopup_Panel != null)
+            FarmStatPopup_Panel.SetActive(true);
     }
-    public void OnClickFarmInventory()  // 농장 인벤토리 버튼 클릭 시
-    {
 
-    }
     private void OnClickFarmPlot(int plotIndex) // 수확 버튼 클릭 시
     {
         _currentPlotIndex = plotIndex;
         _selectedSeed = null;
-        plotDetailPanel.SetActive(false);
-        harvestPanel.SetActive(false);
 
-        var plot = _plots.Find(p => p.PlotIndex == plotIndex);
+        // detail, harvest 패널 숨김
+        if (plotDetailPanel != null) plotDetailPanel.SetActive(false);
+        if (harvestPanel != null) harvestPanel.SetActive(false);
+
+        var plot = _plots.FirstOrDefault(p => p.PlotIndex == plotIndex);
         if (plot != null && plot.HasSeed)
         {
             double elapsed = (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds;
@@ -253,14 +313,16 @@ public class FarmPopupManager : MonoBehaviour
             }
             else
             {
-                // 성장 완료 → 수확
-                harvestPanel.SetActive(true);
+                // 성장 완료 → 수확 패널 열기
+                if (harvestPanel != null)
+                    harvestPanel.SetActive(true);
                 return;
             }
         }
 
-        // 빈 땅일 때만 심기 스크롤뷰 오픈
-        plotDetailPanel.SetActive(true);
+        // 빈 땅 → 심기 스크롤뷰 열기
+        if (plotDetailPanel != null)
+            plotDetailPanel.SetActive(true);
         StartCoroutine(GetSeedsForPlot());
     }
     /// <summary>
@@ -388,7 +450,8 @@ public class FarmPopupManager : MonoBehaviour
         }
 
         // Plant/Cancel 버튼 초기 상태
-        confirmPlantBtn.interactable = false;
+        if (confirmPlantBtn != null)
+            confirmPlantBtn.interactable = false;
     }
 
 
