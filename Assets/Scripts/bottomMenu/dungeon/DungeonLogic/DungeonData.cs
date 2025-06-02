@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 [Serializable]
-    public class DungeonRequestData
-    {
-        [JsonProperty("playFabId")]
-        public string PlayFabId { get; set; }
-    }
+public class DungeonRequestData
+{
+    [JsonProperty("playFabId")]
+    public string PlayFabId { get; set; }
+}
 
 [Serializable]
 public class DungeonResponseData

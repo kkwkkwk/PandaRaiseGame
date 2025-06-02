@@ -27,8 +27,8 @@ public class DungeonManager : MonoBehaviour
 
     #endregion
 
-    private const string fetchDungeonUrl ="https://your.api.server/api/GetDungeonData"; // 게임 시작 시 서버에서 내 던전 정보(최고 층수·남은 티켓)를 가져오는거
-    private const string updateFloorUrl = "https://your.api.server/api/UpdateClearedFloor"; //유저가 보스층을 깼을 때 서버에 새로 깬 층 갱신                                                                                        
+    private const string fetchDungeonUrl = "https://pandaraisegame-dungeon.azurewebsites.net/api/GetDungeonData?code=Fwrfo8c9NGk2KKfDt6JMP8ijqTjtQfB4piDmJghkBm3xAzFu2t3q1w=="; // 게임 시작 시 서버에서 내 던전 정보(최고 층수·남은 티켓)를 가져오는거
+    private const string updateFloorUrl = "https://pandaraisegame-dungeon.azurewebsites.net/api/UpdateClearedFloor?code=CQXeXsaz7lKJgKMBt7DyfzViOiCzDYi4TpGnVNOnIM-mAzFu-6M2bw=="; //유저가 보스층을 깼을 때 서버에 새로 깬 층 갱신                                                                                        
 
     // 서버에서 받아온 던전 정보
     public int MaxClearedFloor { get; private set; }
@@ -39,7 +39,6 @@ public class DungeonManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {

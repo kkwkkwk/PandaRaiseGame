@@ -14,6 +14,7 @@ public class LoadingScreenManager : MonoBehaviour
 
     private void Awake()
     {
+        Debug.Log($"[LoadingScreenManager] Awake 호출됨 → 오브젝트 이름: {gameObject.name}, 씬 이름: {gameObject.scene.name}");
         if (Instance == null)
         {
             Instance = this;
@@ -28,7 +29,7 @@ public class LoadingScreenManager : MonoBehaviour
     private IEnumerator Start()
     {
         ShowLoadingScreen();
-
+        Debug.Log("[LoadingScreenManager] 데이터 로딩 시작");
         if (GlobalDataManager.Instance != null)
         {
             yield return StartCoroutine(GlobalDataManager.Instance.Initialize());
