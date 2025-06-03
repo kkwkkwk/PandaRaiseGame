@@ -102,6 +102,7 @@ public class IdleHeartbeatManager : MonoBehaviour
     {
         if (pause)
         {
+            SendHeartbeat();
             UpdateOnlineStatus(false);
             StopHeartbeat();
         }
@@ -114,6 +115,7 @@ public class IdleHeartbeatManager : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        SendHeartbeat();
         UpdateOnlineStatus(false);
         StopHeartbeat();
     }
