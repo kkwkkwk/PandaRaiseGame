@@ -1,7 +1,12 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.Networking;
 using TMPro;
+using System.Collections;
+using Newtonsoft.Json;
 
+/// <summary>
+/// 방치형 RPG 메인 스테이지를 관리하는 매니저
+/// </summary>
 public class StageManager : MonoBehaviour
 {
     public static StageManager Instance;
@@ -37,6 +42,9 @@ public class StageManager : MonoBehaviour
     [Tooltip("현재 누적된 골드")]
     public int gold = 0;
 
+    private const string mainStageUrl =
+        "https://your.api.server/api/GetMainStageData";  // 우리 url로 교체해주세염 뿌잉~
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -50,7 +58,9 @@ public class StageManager : MonoBehaviour
             Debug.LogError("[StageManager] stageDatas 배열이 비어있습니다!");
             return;
         }
-        LoadChapter(0);
+
+        // 서버에서 현재 유저의 메인 스테이지 정보를 받아온 후, 해당 정보를 기준으로 로드
+        StartCoroutine(FetchMainStageCoroutine());
     }
 
     private void OnValidate()
@@ -300,4 +310,83 @@ public class StageManager : MonoBehaviour
     {
         return currentStageData;
     }
+
+
+    // ────────────────────────────────────────────────────────────────────────────
+    #region Server Sync: MainStage 데이터 받아오기
+    /// <summary>
+    /// 서버에서 메인 스테이지 정보를 가져와 currentChapterIndex와 currentSubStage를 설정합니다.
+    /// </summary>
+    private IEnumerator FetchMainStageCoroutine()
+    {
+        // 요청 DTO 생성
+        var requestData = new MainStageRequestData
+        {
+            PlayFabId = GlobalData.playFabId
+        };
+        string jsonBody = JsonConvert.SerializeObject(requestData);
+
+        // UnityWebRequest 설정
+        var req = new UnityWebRequest(mainStageUrl, "POST");
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
+        req.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[StageManager] FetchMainStage 실패: {req.error}");
+            // 실패 시 기본값으로 첫 번째 챕터/서브스테이지 로드
+            LoadChapter(0);
+            yield break;
+        }
+
+        MainStageResponseData resp;
+        try
+        {
+            resp = JsonConvert.DeserializeObject<MainStageResponseData>(req.downloadHandler.text);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[StageManager] JSON 파싱 오류: {ex.Message}");
+            LoadChapter(0);
+            yield break;
+        }
+
+        if (resp == null || !resp.IsSuccess)
+        {
+            Debug.LogWarning("[StageManager] 서버 응답 이상 또는 isSuccess == false");
+            LoadChapter(0);
+            yield break;
+        }
+
+        // 서버가 알려준 currentFloor를 기준으로 챕터/서브스테이지 계산
+        // 예시: floor = 1→ 챕터0, 서브스테이지1 / floor = 12→ 챕터1(즉 2번 챕터), 서브스테이지2 (가정)
+        int floor = resp.CurrentFloor;
+        if (floor < 1) floor = 1;
+        int computedChapter = (floor - 1) / 10;   // 한 챕터 당 10개 서브스테이지라 가정
+        int computedSubStage = ((floor - 1) % 10) + 1;
+
+        // 범위 체크
+        if (computedChapter < 0) computedChapter = 0;
+        if (computedChapter >= stageDatas.Length) computedChapter = stageDatas.Length - 1;
+        currentChapterIndex = computedChapter;
+        currentStageData = stageDatas[currentChapterIndex];
+
+        if (computedSubStage < 1) computedSubStage = 1;
+        if (computedSubStage > currentStageData.totalSubStages)
+            computedSubStage = currentStageData.totalSubStages;
+        currentSubStage = computedSubStage;
+
+        killCount = 0;
+        UpdateCurrentBlock();
+        UpdateStageInfo();
+
+        if (IsBossStage(currentSubStage)) GoBossMode();
+        else GoIdleMode();
+    }
+    #endregion
+    // ────────────────────────────────────────────────────────────────────────────
 }

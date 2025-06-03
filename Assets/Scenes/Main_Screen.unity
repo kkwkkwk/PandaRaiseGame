@@ -8291,7 +8291,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1001 &916600659106100114
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9196,7 +9196,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 201e84896f94fba49ad220ce74a42e24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DungeonPopupCanvas: {fileID: 733528496807343763}
+  dungeonPopupCanvas: {fileID: 0}
+  dungeonEntrancePanel: {fileID: 0}
+  dungeonStagePanel: {fileID: 0}
 --- !u!1001 &1374024316298867351
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10341,27 +10343,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3168816175164191466, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3168816175164191466, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3168816175164191466, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 3168816175164191466, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 3168816175164191466, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 125.0217
       objectReference: {fileID: 0}
     - target: {fileID: 3168816175164191466, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -80
       objectReference: {fileID: 0}
     - target: {fileID: 3832158897710961445, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_Pivot.x
@@ -10445,27 +10447,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4204598941057524656, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4204598941057524656, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4204598941057524656, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 4204598941057524656, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 4204598941057524656, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 296.29498
       objectReference: {fileID: 0}
     - target: {fileID: 4204598941057524656, guid: 73a8e1d74bfc77a42bb3d5e933f126eb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -40
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
