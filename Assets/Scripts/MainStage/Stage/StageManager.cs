@@ -42,8 +42,7 @@ public class StageManager : MonoBehaviour
     [Tooltip("현재 누적된 골드")]
     public int gold = 0;
 
-    private const string mainStageUrl =
-        "https://your.api.server/api/GetMainStageData";  // 우리 url로 교체해주세염 뿌잉~
+    private const string mainStageUrl = "https://pandaraisegame-mainstage.azurewebsites.net/api/GetMainStageData?code=qal30cCJQ3Ch9M4j-EUuHGuBIaIibAq0170Yk_FIpbEZAzFuhglYyg==";
 
     private void Awake()
     {

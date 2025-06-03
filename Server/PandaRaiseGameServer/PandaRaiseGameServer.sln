@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Farm", "Farm\Farm.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dungeon", "Dungeon\Dungeon.csproj", "{DB08904B-418C-426D-AB9A-9291D79A3AAE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainStage", "MainStage\MainStage.csproj", "{4114DF02-6974-4710-822E-606411BFAF1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{DB08904B-418C-426D-AB9A-9291D79A3AAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB08904B-418C-426D-AB9A-9291D79A3AAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB08904B-418C-426D-AB9A-9291D79A3AAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4114DF02-6974-4710-822E-606411BFAF1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4114DF02-6974-4710-822E-606411BFAF1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4114DF02-6974-4710-822E-606411BFAF1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4114DF02-6974-4710-822E-606411BFAF1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
