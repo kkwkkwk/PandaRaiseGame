@@ -75,8 +75,6 @@ public class FarmPopupManager : MonoBehaviour
             FarmPopupCanvas.SetActive(true);
         }
         ChatPopupManager.Instance.ChatCanvas.SetActive(false);
-
-        StartCoroutine(CallGetFarmPopup());
     }
     public void CloseFarmPanel() // 농장 팝업 닫기
     {  // 팝업 비활성화
@@ -86,12 +84,21 @@ public class FarmPopupManager : MonoBehaviour
     }
     private void Awake() // Unity의 Awake() 메서드에서 싱글톤 설정
     {
-        // 만약 Instance가 비어 있으면, 이 스크립트를 싱글톤 인스턴스로 설정
         if (Instance == null)
             Instance = this; // 현재 객체를 싱글톤으로 지정
         else
             // 이미 싱글톤 인스턴스가 존재하면, 중복된 객체를 제거
             Destroy(gameObject);
+    }
+    private void OnEnable()
+    {
+        // 팝업을 열 때마다 1초 간격으로 UpdateFarmPlotsUI를 호출해서 '남은 시간'을 띄워 줌
+        InvokeRepeating(nameof(UpdateFarmPlotsUI), 0f, 1f);
+    }
+    private void OnDisable()
+    {
+        // 팝업을 닫으면 반복 호출 중단
+        CancelInvoke(nameof(UpdateFarmPlotsUI));
     }
     void Start()
     {
@@ -145,15 +152,26 @@ public class FarmPopupManager : MonoBehaviour
             grownCornSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Corn");
         if (grownGrapeSprite == null)
             grownGrapeSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Grape");
+
+        Debug.Log("[FarmPopup] Farm Start() called");
     }
 
     public IEnumerator StartSequence()
     {
+        Debug.Log("[FarmPopup] StartSequence() 시작됨");
         // 1) 먼저 농장 정보 조회
         yield return StartCoroutine(CallGetFarmPopup());
 
-        // 2) 코루틴 완료 후 비활성화
-        FarmPopupCanvas.SetActive(false);
+        // 2) 코루틴 완료 후 팝업 꺼버리기
+        if (FarmPopupCanvas != null)
+        {
+            FarmPopupCanvas.SetActive(false);
+            Debug.Log("[FarmPopup] StartSequence() 완료 → FarmPopupCanvas.SetActive(false) 호출됨");
+        }
+        else
+        {
+            Debug.LogWarning("[FarmPopup] StartSequence()에서 FarmPopupCanvas가 null입니다.");
+        }
         Debug.Log("[ProfilePopupManager] StartSequence() 완료 후 Canvas 비활성화");
     }
 
@@ -162,6 +180,8 @@ public class FarmPopupManager : MonoBehaviour
     /// </summary>
     private IEnumerator CallGetFarmPopup()
     {
+        Debug.Log("[FarmPopup] CallGetFarmPopup() 시작");
+
         var requestObj = new { playFabId = GlobalData.playFabId };
         string json = JsonConvert.SerializeObject(requestObj);
 
@@ -172,6 +192,7 @@ public class FarmPopupManager : MonoBehaviour
             uwr.downloadHandler = new DownloadHandlerBuffer();
             uwr.SetRequestHeader("Content-Type", "application/json");
 
+            Debug.Log("[FarmPopup] 서버에 GET 요청 보내는 중 → URL: " + getFarmPopupUrl);
             yield return uwr.SendWebRequest();
 
             if (uwr.result != UnityWebRequest.Result.Success)
@@ -180,20 +201,29 @@ public class FarmPopupManager : MonoBehaviour
                 yield break;
             }
 
+            Debug.Log("[FarmPopup] CallGetFarmPopup 응답 수신됨 → 응답 JSON: " + uwr.downloadHandler.text);
+
             var resp = JsonConvert.DeserializeObject<FarmPopupResponse>(uwr.downloadHandler.text);
-            if (resp == null || !resp.IsSuccess)
+            if (resp == null)
             {
-                Debug.LogError("[FarmPopup] 응답 에러: " + (resp?.ErrorMessage ?? "NULL"));
+                Debug.LogError("[FarmPopup] CallGetFarmPopup: JSON 파싱 결과가 null");
+                yield break;
+            }
+            if (!resp.IsSuccess)
+            {
+                Debug.LogError("[FarmPopup] CallGetFarmPopup: 서버 응답 IsSuccess == false → " + resp.ErrorMessage);
                 yield break;
             }
 
-            // 1) 데이터 저장
+            // 데이터 저장
             _plots = resp.Plots;
             _inventory = resp.Inventory;
+            Debug.Log($"[FarmPopup] 서버 데이터 파싱 완료 → Plots: {_plots.Count}개, Inventory: {_inventory.Count}개");
 
-            // 2) UI 갱신
+            // UI 갱신
             UpdateFarmPlotsUI();
             UpdateSeedInventoryUI();
+            Debug.Log("[FarmPopup] CallGetFarmPopup: UI 업데이트 완료");
         }
     }
 
@@ -202,8 +232,10 @@ public class FarmPopupManager : MonoBehaviour
     /// </summary>
     private void UpdateFarmPlotsUI()
     {
+        Debug.Log("[FarmPopup] UpdateFarmPlotsUI called");
         if (_plots == null || plotPanelBackgrounds == null)
             return;
+
 
         for (int i = 0; i < plotPanelBackgrounds.Length; i++)
         {
@@ -219,7 +251,7 @@ public class FarmPopupManager : MonoBehaviour
 
             // 해당 인덱스의 PlotInfo 찾기
             var plot = _plots.FirstOrDefault(p => p.PlotIndex == i);
-
+            Debug.Log($"[FarmPopup] Plot {i} 상태: HasSeed={plot?.HasSeed}, SeedId={plot?.SeedId}, PlantedTime={plot?.PlantedTimeUtc}, Duration={plot?.GrowthDurationSeconds}");
             // 1) PlotInfo가 없거나 HasSeed == false → 빈 땅
             if (plot == null || !plot.HasSeed)
             {
@@ -242,9 +274,31 @@ public class FarmPopupManager : MonoBehaviour
             {
                 // 다 자란 상태 (수확 가능)
                 label.text = $"Plot {i}\n수확 가능";
+                Debug.Log($"  → Plot {i}는 다 자람, grown 이미지 할당 (seedId={plot.SeedId})");
+
+                // 약어→풀네임 매핑
+                string normalizedSeedId = plot.SeedId.ToLower();
+                switch (normalizedSeedId)
+                {
+                    case "ba":
+                        normalizedSeedId = "bamboo";
+                        break;
+                    case "ca":
+                        normalizedSeedId = "carrot";
+                        break;
+                    case "co":
+                        normalizedSeedId = "corn";
+                        break;
+                    case "gr":
+                        normalizedSeedId = "grape";
+                        break;
+                    default:
+                        normalizedSeedId = "NON";
+                        break;
+                }
 
                 // plot.SeedId 에 담긴 값(예: "bamboo", "carrot", "corn", "grape")에 따라 다른 스프라이트 적용
-                switch (plot.SeedId.ToLower())
+                switch (normalizedSeedId)
                 {
                     case "bamboo":
                         bgImg.sprite = grownBambooSprite;
@@ -266,6 +320,7 @@ public class FarmPopupManager : MonoBehaviour
             }
         }
     }
+
 
     /// <summary>
     /// 인벤토리 패널(별도 UI)에 소유 씨앗 목록과 개수 표시
@@ -292,6 +347,19 @@ public class FarmPopupManager : MonoBehaviour
 
     private void OnClickFarmPlot(int plotIndex) // 수확 버튼 클릭 시
     {
+        Debug.Log($"[FarmPopup] OnClickFarmPlot 호출됨 → plotIndex = {plotIndex}");
+        // _plots가 아직 없거나, Index 범위가 올바르지 않으면 클릭 무시
+        if (_plots == null)
+        {
+            Debug.LogWarning("[FarmPopup] _plots가 아직 준비되지 않아서 클릭을 무시합니다.");
+            return;
+        }
+        if (plotIndex < 0 || plotIndex >= _plots.Count)
+        {
+            Debug.LogWarning($"[FarmPopup] plotIndex {plotIndex}가 _plots 범위를 벗어났습니다.");
+            return;
+        }
+
         _currentPlotIndex = plotIndex;
         _selectedSeed = null;
 

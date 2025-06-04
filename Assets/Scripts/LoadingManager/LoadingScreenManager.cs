@@ -68,7 +68,7 @@ public class LoadingScreenManager : MonoBehaviour
         StartIfExists(ArmorPopupManager.Instance, ArmorPopupManager.Instance?.StartSequence(), () => armorDone = true);
         StartIfExists(SkillPopupManager.Instance, SkillPopupManager.Instance?.StartSequence(), () => skillDone = true);
         StartIfExists(FarmPopupManager.Instance, FarmPopupManager.Instance?.StartSequence(), () => farmDone = true);
-        StartIfExists(DungeonManager.Instance, DungeonManager.Instance.StartSequence(), () => dungeonDone = true);
+        StartIfExists(DungeonManager.Instance, DungeonManager.Instance?.StartSequence(), () => dungeonDone = true);
 
 
 
