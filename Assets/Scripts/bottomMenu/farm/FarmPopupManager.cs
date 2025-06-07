@@ -19,6 +19,7 @@ public class FarmPopupManager : MonoBehaviour
     [Header("Control Buttons")]
     public Button closeFarmBtn;                     // 농장 팝업 닫기 버튼
     public Button farmStatBtn;                      // 농장 능력치 버튼
+    public Button statCloseBtn;                     // Stat 패널 X 버튼
 
     [Header("Farm Main / Stat Panels")]
     public GameObject FarmMain_Panel;               // FarmMain_Panel (심기 / 수확 UI)
@@ -52,12 +53,25 @@ public class FarmPopupManager : MonoBehaviour
     public Sprite grownCornSprite;     // 다 자란 옥수수 (Grown_Corn)
     public Sprite grownGrapeSprite;    // 다 자란 포도 (Grown_Grape)
 
+    [Header("Top Remaining Stat UI")]
+    public Sprite bambooStatIcon;               // 대나무 스탯 아이콘
+    public TextMeshProUGUI bambooStatAmount;   // 남은 대나무 스탯
+    public Sprite carrotStatIcon;               // 당근 스탯 아이콘
+    public TextMeshProUGUI carrotStatAmount;   // 남은 당근 스탯
+    public Sprite cornStatIcon;                 // 옥수수 스탯 아이콘
+    public TextMeshProUGUI cornStatAmount;     // 남은 옥수수 스탯
+
+    [Header("Fixed Stat Rows (3)")]
+    public AbilityStatRowController[] statRowControllers;  // Inspector 에서 3개 직접 연결
+
     private string getSeedsUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetSeeds?code=Tv8mHmBDbE6pz84BooiWxqK6tW2shaP-bRoeNJNvAQq1AzFuuGuDdw==";
     private string plantSeedUrl = "https://pandaraisegame-farm.azurewebsites.net/api/PlantSeed?code=JH5yYearnjOvVi9T9NT1NRFVKe6Li-SL17KXvFwElu1wAzFud9aKlQ==";
     private string getFarmPopupUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetFarmPopup?code=pXQfhig4Ik9qwKpu5ymGf5pml0UEnfRpqehn3kNUnh3cAzFunjCvpQ==";
     private string harvestSeedUrl = "https://pandaraisegame-farm.azurewebsites.net/api/HarvestSeed?code=vIsoXbjWnezNCwy9MbFwhcb7AAVnYDOrBTFEjX4ZiQj6AzFujmRhww==";             // 수확 요청 URL
 
-    // 받아온 데이터 저장
+    // Stat 전용 URL (서버에 맞게 수정)
+    private string getFarmStatUrl = "https://your-api/azure/GetFarmStat?code=...";
+    private string postFarmStatChangeUrl = "https://your-api/azure/PostFarmStatChange?code=...";
 
     // 서버로부터 받아온 농지 6칸의 상태 정보 목록
     private List<PlotInfo> _plots;
@@ -67,6 +81,8 @@ public class FarmPopupManager : MonoBehaviour
     private int _currentPlotIndex;
     // PlotDetailPanel에서 사용자가 선택한 씨앗 데이터
     private SeedData _selectedSeed;
+    // 받아온 Stat 데이터
+    private FarmStatResponse _statData;
 
     public void OpenFarmPanel() // 농장 팝업 열기
     {   // 팝업 활성화 
@@ -105,6 +121,9 @@ public class FarmPopupManager : MonoBehaviour
         // 닫기 버튼 연결
         if (closeFarmBtn != null)
             closeFarmBtn.onClick.AddListener(CloseFarmPanel);
+        // Stat 패널 닫기 버튼
+        if (statCloseBtn != null)
+            statCloseBtn.onClick.AddListener(OnCloseStat);
 
         // 농장 스탯 버튼 리스터
         if (farmStatBtn != null)
@@ -338,11 +357,16 @@ public class FarmPopupManager : MonoBehaviour
     /// </summary>
     private void OnClickFarmStat()
     {
+        // 메인 패널 숨기기
         if (FarmMain_Panel != null)
             FarmMain_Panel.SetActive(false);
 
+        // Stat 패널 켜기
         if (FarmStatPopup_Panel != null)
             FarmStatPopup_Panel.SetActive(true);
+
+        // 서버에서 Stat 정보 조회
+        StartCoroutine(CallGetFarmStat());
     }
 
     private void OnClickFarmPlot(int plotIndex) // 수확 버튼 클릭 시
@@ -434,6 +458,28 @@ public class FarmPopupManager : MonoBehaviour
             yield break;
         }
 
+        // ──────────────────────────────────────────────────────
+        // 서버가 내려준 보상 스탯 포인트를 사용자 잔여 스탯에 적립
+        // ──────────────────────────────────────────────────────
+        // 예: resp.StatType == "bamboo" 이면 RemainingBamboo 에 더하기
+        int bonus = Mathf.RoundToInt(resp.Amount); // 소숫점 있는 경우 반올림
+        switch (resp.StatType.ToLower())
+        {
+            case "bamboo":
+                _statData.RemainingBamboo += bonus;
+                break;
+            case "carrot":
+                _statData.RemainingCarrot += bonus;
+                break;
+            case "corn":
+                _statData.RemainingCorn += bonus;
+                break;
+            default:
+                Debug.LogWarning($"[FarmPopup] 알 수 없는 statType: {resp.StatType}");
+                break;
+        }
+        Debug.Log($"[FarmPopup] 수확 보상 {resp.StatType} +{bonus} 적립 → 남은 스탯: Bamboo={_statData.RemainingBamboo}, Carrot={_statData.RemainingCarrot}, Corn={_statData.RemainingCorn}");
+
         // 로컬 데이터 업데이트: 농지 초기화
         var plot = _plots.Find(p => p.PlotIndex == plotIndex);
         if (plot != null)
@@ -502,7 +548,6 @@ public class FarmPopupManager : MonoBehaviour
             RebuildSeedUI(resp.SeedsList);
         }
     }
-
     private void RebuildSeedUI(List<SeedData> seeds)
     {
         // 기존 제거
@@ -521,8 +566,6 @@ public class FarmPopupManager : MonoBehaviour
         if (confirmPlantBtn != null)
             confirmPlantBtn.interactable = false;
     }
-
-
     /// <summary>
     /// 선택한 농지(plotIndex)에 seedId를 심는 서버 요청 및 로컬 상태·UI 갱신
     /// </summary>
@@ -578,17 +621,136 @@ public class FarmPopupManager : MonoBehaviour
             Debug.Log($"[FarmPopup] Plot {plotIndex}에 Seed {seedId} 심기 완료, UI 갱신");
         }
     }
-
     // “심기” 버튼 누르면 서버에 요청
     public void OnPlantSeed(int plotIndex, string seedId)
     {
         Debug.Log($"Plot {plotIndex}에 Seed {seedId} 심기 요청");
         StartCoroutine(PlantSeedRequestCoroutine(plotIndex, seedId));
     }
-
     // 프리팹 내 “정보” 버튼 누르면 팝업 띄우기
     public void OnShowSeedInfo(SeedData data)
     {
         // 예: FarmSeedInfoPopupManager.Instance.Open(data);
+    }
+    /// <summary>
+    /// Stat 패널 X 버튼 클릭 → 메인 패널로 복귀
+    /// </summary>
+    private void OnCloseStat()
+    {
+        if (FarmStatPopup_Panel != null)
+            FarmStatPopup_Panel.SetActive(false);
+        if (FarmMain_Panel != null)
+            FarmMain_Panel.SetActive(true);
+    }
+    // <summary>
+    /// 1) 서버에서 Stat 정보 조회
+    /// </summary>
+    private IEnumerator CallGetFarmStat()
+    {
+        var reqObj = new { playFabId = GlobalData.playFabId };
+        string body = JsonConvert.SerializeObject(reqObj);
+
+        using var uwr = new UnityWebRequest(getFarmStatUrl, "POST");
+        byte[] jsonToSend = Encoding.UTF8.GetBytes(body);
+        uwr.uploadHandler = new UploadHandlerRaw(jsonToSend);
+        uwr.downloadHandler = new DownloadHandlerBuffer();
+        uwr.SetRequestHeader("Content-Type", "application/json");
+
+        yield return uwr.SendWebRequest();
+        if (uwr.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("[FarmPopup] 스탯 조회 실패: " + uwr.error);
+            yield break;
+        }
+
+        var resp = JsonConvert.DeserializeObject<FarmStatResponse>(uwr.downloadHandler.text);
+        if (resp == null || !resp.IsSuccess)
+        {
+            Debug.LogWarning("[FarmPopup] 스탯 조회 에러: " + (resp?.ErrorMessage ?? "NULL"));
+            yield break;
+        }
+
+        _statData = resp;
+        UpdateFarmStatUI();
+    }
+    /// <summary>
+    /// 2) 받아온 Stat 정보를 UI에 반영
+    /// </summary>
+    private void UpdateFarmStatUI()
+    {
+        if (_statData == null) return;
+
+        // ───────── 상단 남은 스탯량 ─────────
+        bambooStatAmount.text = _statData.RemainingBamboo.ToString();
+        carrotStatAmount.text = _statData.RemainingCarrot.ToString();
+        cornStatAmount.text = _statData.RemainingCorn.ToString();
+
+        // ───────── 하단 능력치 리스트 ─────────
+        // 이전에 생성된 항목들 제거
+        for (int i = 0; i < statRowControllers.Length; i++)
+        {
+            // 만약 리스트 길이가 부족하면 나머지 Row는 숨기기
+            if (i >= _statData.AbilityStats.Count)
+            {
+                statRowControllers[i].gameObject.SetActive(false);
+            }
+            else
+            {
+                statRowControllers[i].gameObject.SetActive(true);
+                statRowControllers[i].Initialize(_statData.AbilityStats[i], this);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 하단 + 버튼 클릭 시 호출 (권한/스탯 소모 로직 포함)
+    /// </summary>
+    public void OnRequestStatUpgrade(AbilityStatData stat)
+    {
+        // 예: 남은 스탯 부족 시 무시
+        if (_statData.RemainingBamboo < stat.CostStat &&
+            _statData.RemainingCarrot < stat.CostStat &&
+            _statData.RemainingCorn < stat.CostStat)
+        {
+            Debug.Log("[FarmPopup] 잔여 스탯 부족");
+            return;
+        }
+        StartCoroutine(PostFarmStatChange(stat.Name));
+    }
+
+    /// <summary>
+    /// 3) Stat 업그레이드 요청 → 다시 Stat 정보 불러오기
+    /// </summary>
+    private IEnumerator PostFarmStatChange(string abilityName)
+    {
+        var reqObj = new
+        {
+            playFabId = GlobalData.playFabId,
+            abilityName = abilityName
+        };
+        string body = JsonConvert.SerializeObject(reqObj);
+
+        using var uwr = new UnityWebRequest(postFarmStatChangeUrl, "POST");
+        byte[] jsonToSend = Encoding.UTF8.GetBytes(body);
+        uwr.uploadHandler = new UploadHandlerRaw(jsonToSend);
+        uwr.downloadHandler = new DownloadHandlerBuffer();
+        uwr.SetRequestHeader("Content-Type", "application/json");
+
+        yield return uwr.SendWebRequest();
+        if (uwr.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("[FarmPopup] 스탯 업그레이드 실패: " + uwr.error);
+            yield break;
+        }
+
+        var resp = JsonConvert.DeserializeObject<FarmStatResponse>(uwr.downloadHandler.text);
+        if (resp == null || !resp.IsSuccess)
+        {
+            Debug.LogWarning("[FarmPopup] 업그레이드 에러: " + (resp?.ErrorMessage ?? "NULL"));
+            yield break;
+        }
+
+        _statData = resp;
+        UpdateFarmStatUI();
     }
 }
