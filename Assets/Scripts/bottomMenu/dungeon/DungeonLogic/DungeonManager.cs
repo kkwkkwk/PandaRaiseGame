@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using System.Collections;
 using Newtonsoft.Json;
+using UnityEngine.SceneManagement;
 
 public class DungeonManager : MonoBehaviour
 {
@@ -24,6 +25,13 @@ public class DungeonManager : MonoBehaviour
     [Header("스테이지 패널")]
     [Tooltip("던전 스테이지를 보여주는 패널을 인스펙터에서 연결하세요")]
     public GameObject stagePanel;
+
+    [Header("닫기 버튼 (X)")]    
+    [Tooltip("던전 입장 패널을 닫기 위한 X 버튼")]
+    public Button closeDungeonButton;
+
+    [Tooltip("X 버튼 클릭 시 꺼질 던전 팝업 전체 캔버스")]
+    public GameObject dungeonPopupCanvas;
 
     #endregion
 
@@ -50,6 +58,10 @@ public class DungeonManager : MonoBehaviour
 
         if (enterDungeonButton != null)
             enterDungeonButton.onClick.AddListener(TryEnterDungeon);
+
+        if (closeDungeonButton != null)
+            closeDungeonButton.onClick.AddListener(OnCloseDungeon);
+
     }
 
     #region Initialization
@@ -141,12 +153,8 @@ public class DungeonManager : MonoBehaviour
         RemainingTickets--;
         UpdateTicketUI();
 
-        // 1) 스테이지 패널 활성화
-        if (stagePanel != null)
-            stagePanel.SetActive(true);
-
-        // 2) 내부 로직으로 실제 던전 스테이지 로드
-        DungeonStageManager.Instance.LoadDungeonStage(MaxClearedFloor + 1);
+        // 던전 스테이지 매니저로 진입 (누적 보상 초기화 포함)
+        DungeonStageManager.Instance.StartDungeon(MaxClearedFloor + 1);
     }
     #endregion
 
@@ -176,5 +184,18 @@ public class DungeonManager : MonoBehaviour
         yield return new WaitForSeconds(seconds);
         popupPanel.SetActive(false);
     }
+    #endregion
+
+    #region Close Dungeon
+    // 닫기(X) 버튼 클릭 시 호출
+    private void OnCloseDungeon()
+    {
+        // 1) 던전 팝업 캔버스 전체 닫기
+            if (dungeonPopupCanvas != null)
+                dungeonPopupCanvas.SetActive(false);
+            else
+                Debug.LogWarning("[DungeonManager] dungeonPopupCanvas가 할당되지 않았습니다.");
+    }
+
     #endregion
 }
