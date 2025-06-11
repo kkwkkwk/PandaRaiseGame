@@ -1,7 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 public class DungeonRewardManager : MonoBehaviour
 {
@@ -11,27 +15,22 @@ public class DungeonRewardManager : MonoBehaviour
     [Tooltip("플레이어 체력 스크립트 (OnDeath 이벤트 필요)")]
     [SerializeField] private PlayerStats playerStats;
 
-    [Header("Failure Reward UI")]
-    [Tooltip("실패 시 뜨는 보상 패널 전체")]
+    [Header("Reward UI")]
+    [Tooltip("보상 패널 전체")]
     [SerializeField] private GameObject rewardPanel;
-    [Tooltip("다시 도전 버튼")]
-    [SerializeField] private Button retryButton;
-    [Tooltip("닫기(X) 버튼")]
-    [SerializeField] private Button closeButton;
-
-    [Header("Reward Spawning")]
     [Tooltip("보상 아이템 프리팹 (DungeonRewardController 포함)")]
     [SerializeField] private GameObject rewardPrefab;
     [Tooltip("ScrollView Content 영역")]
     [SerializeField] private Transform contentContainer;
-
-    [Header("Base Failure Rewards")]
-    [Tooltip("한 층도 못 깼을 때 지급할 기본 보상 목록")]
-    [SerializeField] private List<DungeonStageData.RewardEntry> failureRewards = new List<DungeonStageData.RewardEntry>();
-
-    [Header("Close Target")]
-    [Tooltip("닫기 버튼 클릭 시 비활성화할 패널(GameObject)")]
+    [Tooltip("다시 도전 버튼")]
+    [SerializeField] private Button retryButton;
+    [Tooltip("닫기(X) 버튼")]
+    [SerializeField] private Button closeButton;
+    [Tooltip("닫기 시 비활성화할 패널")]
     [SerializeField] private GameObject canvasToClose;
+
+    // ㅎㅎ
+    private const string fetchRewardsUrl = "https://your-api.example.com/api/GetDungeonRewards";
 
     private void Awake()
     {
@@ -41,59 +40,93 @@ public class DungeonRewardManager : MonoBehaviour
 
     private void Start()
     {
-        // 한 층도 못 깼을 때
+        // 실패 시 보상 요청
         if (playerStats != null)
-            playerStats.OnDeath += ShowFailureRewards;
+            playerStats.OnDeath += () =>
+                RequestAndDisplayRewards(DungeonStageManager.Instance.CurrentFloor, false);
         else
-            Debug.LogWarning("[DungeonRewardManager] playerStats가 할당되지 않았습니다.");
+            Debug.LogWarning("[DungeonRewardManager] playerStats 미할당");
 
         retryButton?.onClick.AddListener(OnRetry);
-        closeButton?.onClick.AddListener(OnCloseToMain);
+        closeButton?.onClick.AddListener(OnClosePanel);
 
         rewardPanel?.SetActive(false);
     }
 
     /// <summary>
-    /// 한 층도 못 깼을 때 기본 실패 보상 표시
+    /// 던전 매니저에서 호출:
+    /// floor: 대상 던전 층, hasCleared: 보스 처치 여부
     /// </summary>
-    private void ShowFailureRewards()
+    public void RequestAndDisplayRewards(int floor, bool hasCleared)
     {
-        DisplayCustomRewards(failureRewards);
+        StartCoroutine(FetchRewardsCoroutine(floor, hasCleared));
     }
 
-    /// <summary>
-    /// 던전 스테이지 매니저에서 호출할 때도 사용합니다.
-    /// 누적 보상 또는 페일리어 보상 리스트를 받아서 UI에 뿌립니다.
-    /// </summary>
-    public void DisplayCustomRewards(List<DungeonStageData.RewardEntry> rewards)
+    private IEnumerator FetchRewardsCoroutine(int floor, bool hasCleared)
     {
-        if (rewardPrefab == null || contentContainer == null)
+        // 1) 요청 페이로드 생성
+        var payload = new { playFabId = GlobalData.playFabId, floor = floor, cleared = hasCleared };
+        string json = JsonUtility.ToJson(payload);
+
+        // 2) HTTP POST 준비
+        var req = new UnityWebRequest(fetchRewardsUrl, "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+        req.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        // 3) 요청 전송
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogWarning("[DungeonRewardManager] rewardPrefab 또는 contentContainer가 설정되지 않았습니다.");
-            return;
+            Debug.LogError($"[DungeonRewardManager] 보상 요청 실패: {req.error}");
+            yield break;
         }
 
-        // 이전 보상 아이템 제거
+        // 4) JSON 파싱
+        DungeonRewardsData dto;
+        try
+        {
+            dto = JsonConvert.DeserializeObject<DungeonRewardsData>(req.downloadHandler.text);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[DungeonRewardManager] JSON 파싱 오류: {ex.Message}");
+            yield break;
+        }
+
+        if (dto.Rewards == null || dto.Rewards.Count == 0)
+        {
+            Debug.LogWarning("[DungeonRewardManager] 서버 보상 데이터 없음");
+            yield break;
+        }
+
+        // 5) UI에 표시
+        DisplayDtoRewards(dto.Rewards);
+    }
+
+    private void DisplayDtoRewards(List<RewardItemData> items)
+    {
+        // 기존 보상 아이템 제거
         foreach (Transform child in contentContainer)
             Destroy(child.gameObject);
 
-        // 새로운 보상 아이템 생성
-        foreach (var entry in rewards)
+        // DTO 리스트를 직접 UI에 뿌리기
+        foreach (var item in items)
         {
             var go = Instantiate(rewardPrefab, contentContainer);
             var ctrl = go.GetComponent<DungeonRewardController>();
             if (ctrl != null)
-                ctrl.Setup(entry.rewardType, entry.amount);
+                ctrl.Setup(item.RewardType, item.Amount);
             else
-                Debug.LogWarning("[DungeonRewardManager] DungeonRewardController가 없는 프리팹입니다.");
+                Debug.LogWarning("[DungeonRewardManager] DungeonRewardController 누락");
         }
 
+        // 패널 활성화
         rewardPanel.SetActive(true);
     }
 
-    /// <summary>
-    /// “다시 도전” 버튼
-    /// </summary>
     private void OnRetry()
     {
         if (DungeonManager.Instance != null && DungeonManager.Instance.RemainingTickets > 0)
@@ -103,18 +136,15 @@ public class DungeonRewardManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[DungeonRewardManager] 티켓 부족 또는 DungeonManager 없음");
+            Debug.LogWarning("[DungeonRewardManager] 티켓 부족 또는 무효 상태");
         }
     }
 
-    /// <summary>
-    /// “닫기(X)” 버튼
-    /// </summary>
-    private void OnCloseToMain()
+    private void OnClosePanel()
     {
         if (canvasToClose != null)
             canvasToClose.SetActive(false);
         else
-            Debug.LogWarning("[DungeonRewardManager] canvasToClose가 할당되지 않았습니다.");
+            Debug.LogWarning("[DungeonRewardManager] canvasToClose 미할당");
     }
 }
