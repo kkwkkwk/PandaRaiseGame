@@ -1,3 +1,4 @@
+// HarvestSeed.cs
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
-using CommonLibrary;
+using CommonLibrary; // PlayFabConfig
 using static Farm.GetFarmPopup;
 
 namespace Farm
@@ -37,12 +38,19 @@ namespace Farm
                 PlayFabId = data.PlayFabId,
                 Keys = new List<string> { "FarmPlots" }
             });
-            var plots = JsonConvert.DeserializeObject<List<PlotInfoServer>>(
-                udRes.Result.Data["FarmPlots"].Value);
-            var plot = plots!.First(p => p.PlotIndex == data.PlotIndex);
+            if (udRes.Error != null)
+                return new OkObjectResult(new HarvestSeedResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "FarmPlots 조회 실패"
+                });
 
-            // 3) 성장 완료 체크
-            if (!plot.HasSeed ||
+            var plots = JsonConvert.DeserializeObject<List<PlotInfoServer>>(
+                udRes.Result.Data["FarmPlots"].Value)!;
+            var plot = plots.FirstOrDefault(p => p.PlotIndex == data.PlotIndex);
+
+            // 3) 성장 완료 검사
+            if (plot == null || !plot.HasSeed ||
                 (DateTime.UtcNow - plot.PlantedTimeUtc).TotalSeconds < plot.GrowthDurationSeconds)
             {
                 return new OkObjectResult(new HarvestSeedResponse
@@ -52,20 +60,70 @@ namespace Farm
                 });
             }
 
-            // 4) 보상 정보 조회
-            var seedDefs = await new GetFarmPopup(null!).LoadSeedDefinitions();
-            var def = seedDefs.First(s => s.Id == plot.SeedId);
+            string seedId = plot.SeedId!;
 
-            // 5) Player Statistics 업데이트
-            await PlayFabServerAPI.UpdatePlayerStatisticsAsync(new UpdatePlayerStatisticsRequest
+            // 4) 인벤토리 조회
+            var invRes = await PlayFabServerAPI.GetUserInventoryAsync(new GetUserInventoryRequest
             {
-                PlayFabId = data.PlayFabId,
-                Statistics = new List<StatisticUpdate> {
-                    new StatisticUpdate { StatisticName = def.StatType, Value = (int)def.StatAmount }
-                }
+                PlayFabId = data.PlayFabId
             });
+            if (invRes.Error != null)
+            {
+                _logger.LogError(invRes.Error.GenerateErrorReport(), "[HarvestSeed] 인벤토리 조회 실패");
+                return new OkObjectResult(new HarvestSeedResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "인벤토리 조회 실패"
+                });
+            }
+            var inventory = invRes.Result.Inventory;
 
-            // 6) 플롯 초기화 & 저장
+            // 5) 기존 인스턴스 확인
+            var existing = inventory.FirstOrDefault(i => i.ItemId == seedId);
+            if (existing == null)
+            {
+                // 5a) 신규 인스턴스 생성 (Grant → Uses=1)
+                _logger.LogInformation("[HarvestSeed] GrantItemsToUser: {0}", seedId);
+                var grantRes = await PlayFabServerAPI.GrantItemsToUserAsync(new GrantItemsToUserRequest
+                {
+                    PlayFabId = data.PlayFabId,
+                    CatalogVersion = "Farm",
+                    ItemIds = new List<string> { seedId }
+                });
+                if (grantRes.Error != null)
+                {
+                    _logger.LogError(grantRes.Error.GenerateErrorReport(),
+                        "[HarvestSeed] GrantItemsToUser 실패: {0}", seedId);
+                    return new OkObjectResult(new HarvestSeedResponse
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "아이템 그랜트 실패"
+                    });
+                }
+            }
+            else
+            {
+                // 5b) 기존 Uses에 +1 추가
+                _logger.LogInformation("[HarvestSeed] ModifyItemUses existing {0} +1", seedId);
+                var modRes = await PlayFabServerAPI.ModifyItemUsesAsync(new ModifyItemUsesRequest
+                {
+                    PlayFabId = data.PlayFabId,
+                    ItemInstanceId = existing.ItemInstanceId,
+                    UsesToAdd = 1
+                });
+                if (modRes.Error != null)
+                {
+                    _logger.LogError(modRes.Error.GenerateErrorReport(),
+                        "[HarvestSeed] ModifyItemUses 실패: {0}", seedId);
+                    return new OkObjectResult(new HarvestSeedResponse
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "아이템 Uses 추가 실패"
+                    });
+                }
+            }
+
+            // 6) 플롯 초기화 및 저장
             plot.HasSeed = false;
             plot.SeedId = null!;
             plot.PlantedTimeUtc = DateTime.MinValue;
@@ -83,8 +141,8 @@ namespace Farm
             return new OkObjectResult(new HarvestSeedResponse
             {
                 IsSuccess = true,
-                StatType = def.StatType,
-                Amount = def.StatAmount
+                StatType = seedId,  // 프론트에서 itemType 용도로 사용
+                Amount = 1
             });
         }
     }

@@ -171,4 +171,55 @@ namespace Farm
         [JsonProperty("seedsList", NullValueHandling = NullValueHandling.Ignore)]
         public List<SeedData>? SeedsList { get; set; }
     }
+
+    // 요청 DTO
+    public class FarmStatRequestData
+    {
+        [JsonProperty("playFabId")]
+        public string? PlayFabId { get; set; }
+    }
+
+    // 응답 DTO
+    public class FarmStatResponse
+    {
+        [JsonProperty("isSuccess")]
+        public bool IsSuccess { get; set; }
+
+        [JsonProperty("errorMessage", NullValueHandling = NullValueHandling.Ignore)]
+        public string? ErrorMessage { get; set; }
+
+        [JsonProperty("remainingBamboo")]
+        public int RemainingBamboo { get; set; }
+
+        [JsonProperty("remainingCarrot")]
+        public int RemainingCarrot { get; set; }
+
+        [JsonProperty("remainingCorn")]
+        public int RemainingCorn { get; set; }
+
+        [JsonProperty("abilityStats")]
+        public List<AbilityStatData>? AbilityStats { get; set; }
+    }
+
+    public class AbilityStatData
+    {
+        [JsonProperty("name")]
+        public string? Name { get; set; }
+
+        [JsonProperty("level")]
+        public int Level { get; set; }
+
+        [JsonProperty("costStat")]
+        public int CostStat { get; set; }
+    }
+
+
+    public class FarmStatChangeRequestData
+    {
+        [JsonProperty("playFabId")]
+        public string? PlayFabId { get; set; }
+
+        [JsonProperty("abilityName")]
+        public string? AbilityName { get; set; }
+    }
 }

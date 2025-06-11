@@ -70,8 +70,8 @@ public class FarmPopupManager : MonoBehaviour
     private string harvestSeedUrl = "https://pandaraisegame-farm.azurewebsites.net/api/HarvestSeed?code=vIsoXbjWnezNCwy9MbFwhcb7AAVnYDOrBTFEjX4ZiQj6AzFujmRhww==";             // 수확 요청 URL
 
     // Stat 전용 URL (서버에 맞게 수정)
-    private string getFarmStatUrl = "https://your-api/azure/GetFarmStat?code=...";
-    private string postFarmStatChangeUrl = "https://your-api/azure/PostFarmStatChange?code=...";
+    private string getFarmStatUrl = "https://pandaraisegame-farm.azurewebsites.net/api/GetFarmStat?code=BPs61I4fP7r_60F7CJiybxz-YBxs8OFWKoFxeHKlWIHnAzFuskRzCA==";
+    private string postFarmStatChangeUrl = "https://pandaraisegame-farm.azurewebsites.net/api/PostFarmStatChange?code=p5AmVb-Oh2McnBgGws2roIUbe9zNjG6ZmlIgeBcNg69RAzFuiQqK3w==";
 
     // 서버로부터 받아온 농지 6칸의 상태 정보 목록
     private List<PlotInfo> _plots;
