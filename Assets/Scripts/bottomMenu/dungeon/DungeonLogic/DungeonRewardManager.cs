@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using System.Globalization;
 
 public class DungeonRewardManager : MonoBehaviour
 {
@@ -43,7 +44,11 @@ public class DungeonRewardManager : MonoBehaviour
         // 실패 시 보상 요청
         if (playerStats != null)
             playerStats.OnDeath += () =>
-                RequestAndDisplayRewards(DungeonStageManager.Instance.CurrentFloor, false);
+                RequestAndDisplayRewards(
+                    DungeonStageManager.Instance.CurrentFloor,
+                    /*cleared*/ false,
+                    /*isSweep*/    false   // ← 이 값 추가
+                );
         else
             Debug.LogWarning("[DungeonRewardManager] playerStats 미할당");
 
@@ -57,15 +62,21 @@ public class DungeonRewardManager : MonoBehaviour
     /// 던전 매니저에서 호출:
     /// floor: 대상 던전 층, hasCleared: 보스 처치 여부
     /// </summary>
-    public void RequestAndDisplayRewards(int floor, bool hasCleared)
+    public void RequestAndDisplayRewards(int floor, bool hasCleared, bool isSweep)
     {
-        StartCoroutine(FetchRewardsCoroutine(floor, hasCleared));
+        StartCoroutine(FetchRewardsCoroutine(floor, hasCleared, isSweep));
     }
 
-    private IEnumerator FetchRewardsCoroutine(int floor, bool hasCleared)
+    private IEnumerator FetchRewardsCoroutine(int floor, bool hasCleared, bool isSweep)
     {
         // 1) 요청 페이로드 생성
-        var payload = new { playFabId = GlobalData.playFabId, floor = floor, cleared = hasCleared };
+        var payload = new DungeonRequestData
+        {
+            PlayFabId = GlobalData.playFabId,
+            Floor = floor,
+            Cleared = hasCleared,
+            IsSweep = isSweep
+        };
         string json = JsonUtility.ToJson(payload);
 
         // 2) HTTP POST 준비

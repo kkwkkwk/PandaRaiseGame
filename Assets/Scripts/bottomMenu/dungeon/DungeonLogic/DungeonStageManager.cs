@@ -22,11 +22,6 @@ public class DungeonStageManager : MonoBehaviour
     [Tooltip("Text 컴포넌트가 붙어 있는 GameObject")]
     [SerializeField] private GameObject floorNumberObject;
 
-    // 플레이어가 깬 보스당 보상을 누적
-    private List<DungeonStageData.RewardEntry> accumulatedRewards = new List<DungeonStageData.RewardEntry>();
-    // ➊ 최초 던전 세션 여부 추적
-    private bool hasDungeonStarted = false;
-
     private void Awake()
     {
         if (Instance == null)
@@ -42,15 +37,10 @@ public class DungeonStageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 던전 도전 시작. 최초 진입 시만 누적 보상 초기화하고 해당 층으로 진입
+    /// 던전 도전 시작. 지정된 층으로 진입
     /// </summary>
     public void StartDungeon(int floor)
     {
-        if (!hasDungeonStarted)
-        {
-            accumulatedRewards.Clear();
-            hasDungeonStarted = true;
-        }
         LoadDungeonStage(floor);
     }
 
@@ -80,7 +70,7 @@ public class DungeonStageManager : MonoBehaviour
         {
             stats.currentHealth = stats.maxHealth;
             stats.OnDeath += OnPlayerDefeated;
-            Debug.Log($"[DungeonStageManager] 플레이어 체력 회복 및 사망 이벤트 구독 완료");
+            Debug.Log("[DungeonStageManager] 플레이어 체력 회복 및 사망 이벤트 구독 완료");
         }
         else Debug.LogWarning("[DungeonStageManager] PlayerStats를 찾을 수 없습니다.");
 
@@ -105,25 +95,27 @@ public class DungeonStageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 보스 처치 시 호출: 보상 누적 후 다음 층 진입
+    /// 보스 처치 시 호출: 서버에 클리어 업데이트 후 다음 층 진입
     /// </summary>
     public void OnBossCleared()
     {
-        var data = stageDataArray[CurrentFloor - 1];
-        accumulatedRewards.AddRange(data.successRewards);
+        // 서버에 최고 클리어 층 업데이트
+        StartCoroutine(DungeonManager.Instance.UpdateClearedFloorCoroutine(CurrentFloor));
+
+        // 다음 층으로 진입
         StartDungeon(CurrentFloor + 1);
     }
 
     /// <summary>
-    /// 플레이어 사망(실패) 시 호출: 누적 보상 또는 기본 보상 지급
+    /// 플레이어 사망(실패) 시 호출: 서버에서 보상 요청 후 UI 표시
     /// </summary>
     public void OnPlayerDefeated()
     {
-        var data = stageDataArray[CurrentFloor - 1];
-        var toShow = (accumulatedRewards.Count > 0)
-            ? accumulatedRewards
-            : data.failureRewards;
-
-        DungeonRewardManager.Instance.DisplayCustomRewards(toShow);
+        // 실패 보상 요청: cleared=false, isSweep=false
+        DungeonRewardManager.Instance.RequestAndDisplayRewards(
+            CurrentFloor,
+            /* cleared= */ false,
+            /* isSweep= */ false
+        );
     }
 }

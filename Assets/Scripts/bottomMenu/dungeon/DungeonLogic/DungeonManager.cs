@@ -10,21 +10,15 @@ public class DungeonManager : MonoBehaviour
 
     #region UI References
     [Header("티켓 표시 UI")]
-    [Tooltip("티켓 수량을 표시할 패널(GameObject, 내부에 Text 컴포넌트 포함)")]
     public GameObject ticketPanel;
-
     [Header("팝업 UI")]
-    [Tooltip("메시지를 띄울 팝업 패널 (내부에 Text 컴포넌트 포함)")]
     public GameObject popupPanel;
-
     [Header("던전 입장 버튼")]
-    [Tooltip("인스펙터에서 연결하세요")]
     public Button enterDungeonButton;
-
+    [Header("소탕 버튼")]
+    public Button sweepButton;
     [Header("닫기 버튼 (X)")]
-    [Tooltip("던전 입장 패널을 닫기 위한 X 버튼")]
     public Button closeDungeonButton;
-
     [Tooltip("X 버튼 클릭 시 꺼질 던전 팝업 전체 캔버스")]
     public GameObject dungeonPopupCanvas;
     #endregion
@@ -49,14 +43,14 @@ public class DungeonManager : MonoBehaviour
         if (enterDungeonButton != null)
             enterDungeonButton.onClick.AddListener(TryEnterDungeon);
 
+        if (sweepButton != null)
+            sweepButton.onClick.AddListener(OnSweep);
+
         if (closeDungeonButton != null)
             closeDungeonButton.onClick.AddListener(OnCloseDungeon);
     }
 
     #region Initialization
-    /// <summary>
-    /// 게임 시작 시 한 번만 호출해서 던전 정보를 서버에서 가져옵니다.
-    /// </summary>
     public IEnumerator StartSequence()
     {
         yield return FetchDungeonDataCoroutine();
@@ -65,17 +59,20 @@ public class DungeonManager : MonoBehaviour
 
     private IEnumerator FetchDungeonDataCoroutine()
     {
-        // DTO를 사용한 요청 바디 생성
         var requestData = new DungeonRequestData
         {
-            PlayFabId = GlobalData.playFabId
+            PlayFabId = GlobalData.playFabId,
+            Floor = 0,
+            Cleared = false,
+            IsSweep = false
         };
         string jsonBody = JsonConvert.SerializeObject(requestData);
 
-        var req = new UnityWebRequest(fetchDungeonUrl, "POST");
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
-        req.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        req.downloadHandler = new DownloadHandlerBuffer();
+        var req = new UnityWebRequest(fetchDungeonUrl, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonBody)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
         req.SetRequestHeader("Content-Type", "application/json");
 
         yield return req.SendWebRequest();
@@ -97,7 +94,7 @@ public class DungeonManager : MonoBehaviour
             yield break;
         }
 
-        if (resp == null || !resp.IsSuccess)
+        if (!resp.IsSuccess)
         {
             Debug.LogWarning("[DungeonManager] 서버 응답 이상");
             yield break;
@@ -111,17 +108,21 @@ public class DungeonManager : MonoBehaviour
     public IEnumerator UpdateClearedFloorCoroutine(int newClearedFloor)
     {
         MaxClearedFloor = newClearedFloor;
+
         var requestData = new DungeonRequestData
         {
-            PlayFabId = GlobalData.playFabId
-            // 서버 API는 highestClearedFloor 파라미터를 기존 URL 쿼리로 받아 처리합니다.
+            PlayFabId = GlobalData.playFabId,
+            Floor = newClearedFloor,
+            Cleared = true,
+            IsSweep = false
         };
         string jsonBody = JsonConvert.SerializeObject(requestData);
 
-        var req = new UnityWebRequest(updateFloorUrl, "POST");
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
-        req.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        req.downloadHandler = new DownloadHandlerBuffer();
+        var req = new UnityWebRequest(updateFloorUrl, "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonBody)),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
         req.SetRequestHeader("Content-Type", "application/json");
 
         yield return req.SendWebRequest();
@@ -134,9 +135,6 @@ public class DungeonManager : MonoBehaviour
     #endregion
 
     #region Dungeon Entry
-    /// <summary>
-    /// 던전 입장 버튼에서 호출
-    /// </summary>
     public void TryEnterDungeon()
     {
         if (RemainingTickets <= 0)
@@ -148,7 +146,27 @@ public class DungeonManager : MonoBehaviour
         RemainingTickets--;
         UpdateTicketUI();
 
+        // 마지막으로 못 깬 층으로 도전
         DungeonStageManager.Instance.StartDungeon(MaxClearedFloor + 1);
+    }
+
+    private void OnSweep()
+    {
+        if (RemainingTickets <= 0)
+        {
+            ShowPopup("소탕에 필요한 티켓이 부족합니다", 2f);
+            return;
+        }
+
+        RemainingTickets--;
+        UpdateTicketUI();
+
+        // 소탕 요청: 마지막으로 깬 층, 클리어=true, isSweep=true
+        DungeonRewardManager.Instance.RequestAndDisplayRewards(
+            MaxClearedFloor, true, true
+        );
+
+        dungeonPopupCanvas?.SetActive(false);
     }
     #endregion
 
@@ -164,10 +182,8 @@ public class DungeonManager : MonoBehaviour
     private void ShowPopup(string message, float duration)
     {
         if (popupPanel == null) return;
-
         var msg = popupPanel.GetComponentInChildren<Text>();
         if (msg != null) msg.text = message;
-
         popupPanel.SetActive(true);
         StartCoroutine(HidePopupAfter(duration));
     }
@@ -182,10 +198,7 @@ public class DungeonManager : MonoBehaviour
     #region Close Dungeon
     private void OnCloseDungeon()
     {
-        if (dungeonPopupCanvas != null)
-            dungeonPopupCanvas.SetActive(false);
-        else
-            Debug.LogWarning("[DungeonManager] dungeonPopupCanvas가 할당되지 않았습니다.");
+        dungeonPopupCanvas?.SetActive(false);
     }
     #endregion
 }
