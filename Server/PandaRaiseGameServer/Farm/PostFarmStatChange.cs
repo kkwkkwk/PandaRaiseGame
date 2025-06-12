@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using PlayFab;
 using PlayFab.ServerModels;
 using CommonLibrary;
-using Farm;
 
 namespace Farm
 {
@@ -53,9 +52,9 @@ namespace Farm
             // 4) 다음 레벨업 비용 계산
             UpgradeSetting setting = ability switch
             {
-                "ExpRate" => cfg.ExpRate,
-                "GoldRate" => cfg.GoldRate,
-                "ItemRate" => cfg.ItemRate,
+                "ExpRate" => cfg.ExpRate!,
+                "GoldRate" => cfg.GoldRate!,
+                "ItemRate" => cfg.ItemRate!,
                 _ => throw new Exception("Unknown ability")
             };
             if (currentLevel >= setting.maxLevel)
@@ -137,7 +136,7 @@ namespace Farm
             public int maxLevel { get; set; }
         }
         // getFarmStat 로직 재사용
-        private async Task<FarmStatResponse> RunStatQuery(string playFabId)
+        private async Task<FarmStatResponse> RunStatQuery(string? playFabId)
         {
             // 위 GetFarmStat Run 내부와 동일하게 구현
             // ...

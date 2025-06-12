@@ -82,7 +82,7 @@ namespace Farm
             var existing = inventory.FirstOrDefault(i => i.ItemId == seedId);
             if (existing == null)
             {
-                // 5a) 신규 인스턴스 생성 (Grant → Uses=1)
+                // 5a) 신규 인스턴스 생성 (Grant → Uses=1 이 보장되지 않으므로 Modify 필요)
                 _logger.LogInformation("[HarvestSeed] GrantItemsToUser: {0}", seedId);
                 var grantRes = await PlayFabServerAPI.GrantItemsToUserAsync(new GrantItemsToUserRequest
                 {
@@ -91,15 +91,35 @@ namespace Farm
                     ItemIds = new List<string> { seedId }
                 });
                 if (grantRes.Error != null)
+                    return new OkObjectResult(new HarvestSeedResponse { IsSuccess = false, ErrorMessage = "아이템 그랜트 실패" });
+
+                // --- 8b) InstanceId 확보 ---
+                string? instanceId = grantRes.Result.ItemGrantResults?
+                    .Select(r => r.ItemInstanceId)
+                    .FirstOrDefault(id => !string.IsNullOrEmpty(id));
+                if (string.IsNullOrEmpty(instanceId))
                 {
-                    _logger.LogError(grantRes.Error.GenerateErrorReport(),
-                        "[HarvestSeed] GrantItemsToUser 실패: {0}", seedId);
-                    return new OkObjectResult(new HarvestSeedResponse
+                    // 인벤토리 재조회
+                    var invAfter = await PlayFabServerAPI.GetUserInventoryAsync(new GetUserInventoryRequest
                     {
-                        IsSuccess = false,
-                        ErrorMessage = "아이템 그랜트 실패"
+                        PlayFabId = data.PlayFabId
                     });
+                    instanceId = invAfter.Result.Inventory
+                        .First(i => i.ItemId == seedId)
+                        .ItemInstanceId;
                 }
+
+                // --- 8c) Uses 추가 (처음 수확에도 +1) ---
+                _logger.LogInformation("[HarvestSeed] ModifyItemUses 신규 인스턴스 {0} +1 Uses", seedId);
+                var modRes = await PlayFabServerAPI.ModifyItemUsesAsync(new ModifyItemUsesRequest
+                {
+                    PlayFabId = data.PlayFabId,
+                    ItemInstanceId = instanceId!,
+                    UsesToAdd = 0
+                });
+                if (modRes.Error != null)
+                    return new OkObjectResult(new HarvestSeedResponse { IsSuccess = false, ErrorMessage = "Uses 추가 실패" });
+
             }
             else
             {
