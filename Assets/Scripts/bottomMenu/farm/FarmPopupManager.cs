@@ -53,6 +53,11 @@ public class FarmPopupManager : MonoBehaviour
     public Sprite grownCornSprite;     // 다 자란 옥수수 (Grown_Corn)
     public Sprite grownGrapeSprite;    // 다 자란 포도 (Grown_Grape)
 
+    [Header("Top Remaining Stat UI Images")]
+    public Image bambooStatImage;   // 대나무 아이콘을 띄울 Image
+    public Image carrotStatImage;   // 당근 아이콘을 띄울 Image
+    public Image cornStatImage;     // 옥수수 아이콘을 띄울 Image
+
     [Header("Top Remaining Stat UI")]
     public Sprite bambooStatIcon;               // 대나무 스탯 아이콘
     public TextMeshProUGUI bambooStatAmount;   // 남은 대나무 스탯
@@ -91,6 +96,9 @@ public class FarmPopupManager : MonoBehaviour
             FarmPopupCanvas.SetActive(true);
         }
         ChatPopupManager.Instance.ChatCanvas.SetActive(false);
+        // 팝업을 처음 열 때만 한 번 Stat을 받아 온다
+        if (_statData == null)
+            StartCoroutine(CallGetFarmStat());
     }
     public void CloseFarmPanel() // 농장 팝업 닫기
     {  // 팝업 비활성화
@@ -171,6 +179,12 @@ public class FarmPopupManager : MonoBehaviour
             grownCornSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Corn");
         if (grownGrapeSprite == null)
             grownGrapeSprite = Resources.Load<Sprite>("Sprites/Farm/Grown_Grape");
+        if (bambooStatIcon == null)
+            bambooStatIcon = Resources.Load<Sprite>("Sprites/Farm/BambooSprite");
+        if (carrotStatIcon == null)
+            carrotStatIcon = Resources.Load<Sprite>("Sprites/Farm/CarrotSprite");
+        if (cornStatIcon == null)
+            cornStatIcon = Resources.Load<Sprite>("Sprites/Farm/CornSprite");
 
         Debug.Log("[FarmPopup] Farm Start() called");
     }
@@ -179,19 +193,16 @@ public class FarmPopupManager : MonoBehaviour
     {
         Debug.Log("[FarmPopup] StartSequence() 시작됨");
         // 1) 먼저 농장 정보 조회
-        yield return StartCoroutine(CallGetFarmPopup());
-
-        // 2) 코루틴 완료 후 팝업 꺼버리기
+        yield return CallGetFarmPopup();   // ← StartCoroutine 대신 이렇게만 쓰면,
+                                           //    이 열거자(IEnumerator)는 'LoadingScreenManager' 쪽에서
+                                           //    실행되기 때문에, FarmPopupCanvas의 활성 상태와 상관없이 동작합니다.
+        // 2) 팝업 끄기
         if (FarmPopupCanvas != null)
-        {
             FarmPopupCanvas.SetActive(false);
-            Debug.Log("[FarmPopup] StartSequence() 완료 → FarmPopupCanvas.SetActive(false) 호출됨");
-        }
-        else
-        {
-            Debug.LogWarning("[FarmPopup] StartSequence()에서 FarmPopupCanvas가 null입니다.");
-        }
-        Debug.Log("[ProfilePopupManager] StartSequence() 완료 후 Canvas 비활성화");
+
+        // 3) Stat 데이터 한 번 더 불러오기
+        if (_statData == null)
+            yield return CallGetFarmStat();    // (여기도 마찬가지로 StartCoroutine 대신 )
     }
 
     /// <summary>
@@ -251,10 +262,8 @@ public class FarmPopupManager : MonoBehaviour
     /// </summary>
     private void UpdateFarmPlotsUI()
     {
-        Debug.Log("[FarmPopup] UpdateFarmPlotsUI called");
         if (_plots == null || plotPanelBackgrounds == null)
             return;
-
 
         for (int i = 0; i < plotPanelBackgrounds.Length; i++)
         {
@@ -270,7 +279,6 @@ public class FarmPopupManager : MonoBehaviour
 
             // 해당 인덱스의 PlotInfo 찾기
             var plot = _plots.FirstOrDefault(p => p.PlotIndex == i);
-            Debug.Log($"[FarmPopup] Plot {i} 상태: HasSeed={plot?.HasSeed}, SeedId={plot?.SeedId}, PlantedTime={plot?.PlantedTimeUtc}, Duration={plot?.GrowthDurationSeconds}");
             // 1) PlotInfo가 없거나 HasSeed == false → 빈 땅
             if (plot == null || !plot.HasSeed)
             {
@@ -293,7 +301,6 @@ public class FarmPopupManager : MonoBehaviour
             {
                 // 다 자란 상태 (수확 가능)
                 label.text = $"Plot {i}\n수확 가능";
-                Debug.Log($"  → Plot {i}는 다 자람, grown 이미지 할당 (seedId={plot.SeedId})");
 
                 // 약어→풀네임 매핑
                 string normalizedSeedId = plot.SeedId.ToLower();
@@ -365,13 +372,11 @@ public class FarmPopupManager : MonoBehaviour
         if (FarmStatPopup_Panel != null)
             FarmStatPopup_Panel.SetActive(true);
 
-        // 서버에서 Stat 정보 조회
         StartCoroutine(CallGetFarmStat());
     }
 
     private void OnClickFarmPlot(int plotIndex) // 수확 버튼 클릭 시
     {
-        Debug.Log($"[FarmPopup] OnClickFarmPlot 호출됨 → plotIndex = {plotIndex}");
         // _plots가 아직 없거나, Index 범위가 올바르지 않으면 클릭 무시
         if (_plots == null)
         {
@@ -458,19 +463,25 @@ public class FarmPopupManager : MonoBehaviour
             yield break;
         }
 
+        Debug.Log($"[Harvest] 서버 보상 → Type={resp.StatType}, Amount={resp.Amount}");                 // 확인용 디버그
+
         // ──────────────────────────────────────────────────────
         // 서버가 내려준 보상 스탯 포인트를 사용자 잔여 스탯에 적립
         // ──────────────────────────────────────────────────────
         // 예: resp.StatType == "bamboo" 이면 RemainingBamboo 에 더하기
         int bonus = Mathf.RoundToInt(resp.Amount); // 소숫점 있는 경우 반올림
-        switch (resp.StatType.ToLower())
+        string statKey = resp.StatType.ToLower();
+        switch (statKey)
         {
+            case "ba":
             case "bamboo":
                 _statData.RemainingBamboo += bonus;
                 break;
+            case "ca":
             case "carrot":
                 _statData.RemainingCarrot += bonus;
                 break;
+            case "co":
             case "corn":
                 _statData.RemainingCorn += bonus;
                 break;
@@ -490,9 +501,21 @@ public class FarmPopupManager : MonoBehaviour
             plot.GrowthDurationSeconds = 0;
         }
 
+        // (B) 로컬 _statData 상태 확인
+        Debug.Log($"[Harvest] 로컬반영 후 → Bamboo={_statData.RemainingBamboo}, Carrot={_statData.RemainingCarrot}, Corn={_statData.RemainingCorn}");
+
         // UI 갱신
         UpdateFarmPlotsUI();
-        Debug.Log($"[FarmPopup] Plot {plotIndex} 수확 완료, {resp.StatType} +{resp.Amount}");
+        UpdateFarmStatUI();
+
+        string serverAbilityName;
+        switch (resp.StatType.ToLower())
+        {
+            case "ba": serverAbilityName = "ExpRate"; break;
+            case "ca": serverAbilityName = "GoldRate"; break;
+            case "co": serverAbilityName = "DropRate"; break;
+            default: serverAbilityName = resp.StatType; break;
+        }
     }
     public void OnSelectSeed(SeedData data)
     {
@@ -656,6 +679,8 @@ public class FarmPopupManager : MonoBehaviour
         uwr.downloadHandler = new DownloadHandlerBuffer();
         uwr.SetRequestHeader("Content-Type", "application/json");
 
+        Debug.Log("[FarmStat] ▶ 서버 호출 전 준비 완료");              // (1)
+
         yield return uwr.SendWebRequest();
         if (uwr.result != UnityWebRequest.Result.Success)
         {
@@ -663,12 +688,19 @@ public class FarmPopupManager : MonoBehaviour
             yield break;
         }
 
+        // (2) **원본 JSON** 그대로 찍어 보기
+        Debug.Log("[FarmStat] ◀ 응답 JSON: " + uwr.downloadHandler.text);
+
         var resp = JsonConvert.DeserializeObject<FarmStatResponse>(uwr.downloadHandler.text);
         if (resp == null || !resp.IsSuccess)
         {
             Debug.LogWarning("[FarmPopup] 스탯 조회 에러: " + (resp?.ErrorMessage ?? "NULL"));
             yield break;
         }
+
+        // (3) **파싱된 값** 찍어 보기
+        Debug.Log($"[FarmStat] 파싱완료 → Bamboo={resp.RemainingBamboo}, Carrot={resp.RemainingCarrot}, Corn={resp.RemainingCorn}");
+
 
         _statData = resp;
         UpdateFarmStatUI();
@@ -678,6 +710,7 @@ public class FarmPopupManager : MonoBehaviour
     /// </summary>
     private void UpdateFarmStatUI()
     {
+        Debug.Log("[FarmStat] UpdateFarmStatUI 호출됨");
         if (_statData == null) return;
 
         // ───────── 상단 남은 스탯량 ─────────
@@ -685,19 +718,34 @@ public class FarmPopupManager : MonoBehaviour
         carrotStatAmount.text = _statData.RemainingCarrot.ToString();
         cornStatAmount.text = _statData.RemainingCorn.ToString();
 
+        // ─── 아이콘 갱신 ───
+        if (bambooStatImage != null)
+        {
+            bambooStatImage.sprite = bambooStatIcon;
+            bambooStatImage.preserveAspect = true;
+        }
+        if (carrotStatImage != null)
+        {
+            carrotStatImage.sprite = carrotStatIcon;
+            carrotStatImage.preserveAspect = true;
+        }
+        if (cornStatImage != null)
+        {
+            cornStatImage.sprite = cornStatIcon;
+            cornStatImage.preserveAspect = true;
+        }
+
         // ───────── 하단 능력치 리스트 ─────────
         // 이전에 생성된 항목들 제거
         for (int i = 0; i < statRowControllers.Length; i++)
         {
-            // 만약 리스트 길이가 부족하면 나머지 Row는 숨기기
-            if (i >= _statData.AbilityStats.Count)
+            bool hasRowData = i < _statData.AbilityStats.Count;
+            Debug.Log($"  → Row[{i}] 활성화 여부: {hasRowData}");
+            statRowControllers[i].gameObject.SetActive(hasRowData);
+            if (hasRowData)
             {
-                statRowControllers[i].gameObject.SetActive(false);
-            }
-            else
-            {
-                statRowControllers[i].gameObject.SetActive(true);
                 statRowControllers[i].Initialize(_statData.AbilityStats[i], this);
+                Debug.Log($"     · 초기화: Name={_statData.AbilityStats[i].Name}, CurrentValue={_statData.AbilityStats[i].CurrentValue}, Cost={_statData.AbilityStats[i].CostStat}");
             }
         }
     }
